@@ -20,9 +20,10 @@ class Chameleon(Package):
     variant('magma', default=False, description='Enable MAGMA kernels')
     variant('fxt', default=False, description='Enable FxT tracing support through StarPU')
     variant('simu', default=False, description='Enable simulation mode through StarPU+SimGrid')
+    variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
 
-    #depends_on("cblas")
-    #depends_on("lapacke")
+    depends_on("cblas", when='~mkl')
+    depends_on("lapack", when='~mkl')
     depends_on("starpu")
     depends_on("mpi", when='+mpi')
     depends_on("magma", when='+magma')
