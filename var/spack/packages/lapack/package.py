@@ -18,6 +18,8 @@ class Lapack(Package):
     version('3.4.0', '02d5706ec03ba885fc246e5fa10d8c70')
     version('3.3.1', 'd0d533ec9a5b74933c2a1e84eedc58b4')
 
+    variant('lapacke', default=False, description='Enable lapacke C interface')
+
     # blas is a virtual dependency.
     depends_on('blas')
 
@@ -39,7 +41,16 @@ class Lapack(Package):
 
     def install(self, spec, prefix):
         blas_libs = ";".join(self.get_blas_libs())
-        cmake(".", '-DBLAS_LIBRARIES=' + blas_libs, *std_cmake_args)
+        cmake_args = [
+            ".",
+            '-DBLAS_LIBRARIES=' + blas_libs]
+
+        if '+lapacke' in spec:
+            # Enable lapacke here.
+            cmake_args.extend(["-DLAPACKE=ON"])
+
+        cmake_args.extend(std_cmake_args)
+
+        cmake(*cmake_args)
         make()
         make("install")
-
