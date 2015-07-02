@@ -10,7 +10,8 @@ class Fontconfig(Package):
     depends_on('freetype')
 
     def install(self, spec, prefix):
-        configure("--prefix=%s" % prefix)
-
+        config_args = ["--prefix=" + prefix]
+        config_args.append("--disable-docs")
+        configure(*config_args)
         make()
         make("install")
