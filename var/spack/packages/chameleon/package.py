@@ -13,6 +13,7 @@ class Chameleon(Package):
     else:
         version('0.9.0', '67679f3376d4ac4575cc8433a3329abb')
         version('0.9.1', 'fa21b7c44daf34e540ed837a9263772d')
+        version('trunk', svn='svn://scm.gforge.inria.fr/svnroot/morse/trunk/chameleon')
 
     #variant('debug', default=False, description='Enable debug symbols')
     variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
