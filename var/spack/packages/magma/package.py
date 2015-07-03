@@ -18,14 +18,20 @@ class Magma(Package):
         version('1.5.0', '18074e2e5244924730063fe0f694abca')
         version('1.4.1', '19af5b2a682f43049ed3318cb341cf88')
 
-    # depends_on("cblas")
-    # depends_on("lapack")
-    # depends_on("cuda")
+    variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
+
+    depends_on("cblas", when='~mkl')
+    depends_on("lapack", when='~mkl')
+    #depends_on("cuda")
 
     def install(self, spec, prefix):
         spack_root=os.environ['SPACK_ROOT']
         print spack_root+"/var/spack/packages/magma/make.inc.mkl-gcc"
         call(["cp", spack_root+"/var/spack/packages/magma/make.inc.mkl-gcc", "."])
         call(["ln", "-s", "make.inc.mkl-gcc", "make.inc"])
+        if '~mkl' in spec:
+            if "%gcc" in spec:
+                os.environ["LDFLAGS"] = "-lgfortran"
+
         make("-i")
         call(["make", "--ignore-errors", "install", "prefix=%s" % prefix])
