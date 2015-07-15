@@ -32,3 +32,4 @@ class Cblas(Package):
         install('./lib/cblas_LINUX.a', '%s/libcblas.a' % prefix.lib)
         install('./include/cblas.h','%s' % prefix.include)
         install('./include/cblas_f77.h','%s' % prefix.include)
+
