@@ -36,9 +36,9 @@ class Starpu(Package):
         version('0.2'  , '763c9b1347026e035a25ed3709fec4fd')
         version('0.1'  , '658c7a8a3ef53599fd197ab3c7127c20')
 
-    version('trunk', svn='svn://scm.gforge.inria.fr/svn/starpu/trunk')
-    version('1.1', svn='svn://scm.gforge.inria.fr/svn/starpu/branches/starpu-1.1')
-    version('1.2', svn='svn://scm.gforge.inria.fr/svn/starpu/branches/starpu-1.2')
+    version('svn-trunk', svn='svn://scm.gforge.inria.fr/svn/starpu/trunk')
+    version('svn-1.1', svn='svn://scm.gforge.inria.fr/svn/starpu/branches/starpu-1.1')
+    version('svn-1.2', svn='svn://scm.gforge.inria.fr/svn/starpu/branches/starpu-1.2')
 
     variant('debug', default=False, description='Enable debug symbols')
     variant('fxt', default=False, description='Enable FxT tracing support')
