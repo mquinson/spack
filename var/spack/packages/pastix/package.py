@@ -6,14 +6,14 @@ class Pastix(Package):
     homepage = "http://pastix.gforge.inria.fr/files/README-txt.html"
 #    url      = "https://gforge.inria.fr/frs/download.php/file/34392/pastix_5.2.2.20.tar.bz2"
 
-    version('local', 'b7b158c5014cfff19d942017e309833a',
+    version('local', 'eaf4e9e9842efaf07757acd653057991',
             url='file:///home/pruvost/work/archives/pastix.tar.gz')
 
     variant('mpi', default=False, description='Enable MPI')
     variant('cuda', default=False, description='Enable CUDA kernels. Caution: only available if StarPU variant is enabled')
     variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
     variant('metis', default=False, description='Enable Metis')
-    variant('scotch', default=False, description='Enable Scotch')
+    variant('scotch', default=True, description='Enable Scotch')
     variant('starpu', default=False, description='Enable StarPU')
 
     depends_on("hwloc")
