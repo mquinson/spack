@@ -22,6 +22,13 @@ class NetlibBlas(Package):
         mf.filter('^FORTRAN.*', 'FORTRAN = f90')
         mf.filter('^LOADER.*',  'LOADER = f90')
         mf.filter('^CC =.*',  'CC = cc')
+        spec = self.spec
+        if spec.satisfies('%gcc'):
+            mf.filter('^OPTS     =.*', 'OPTS     = -O2 -frecursive -fPIC')
+            mf.filter('^CFLAGS =.*', 'CFLAGS = -O3 -fPIC')
+        if spec.satisfies('%icc'):
+            mf.filter('^OPTS     =.*', 'OPTS     = -O2 -shared -fpic')
+            mf.filter('^CFLAGS =.*', 'CFLAGS = -O3 -shared -fpic')
 
 
     def install(self, spec, prefix):

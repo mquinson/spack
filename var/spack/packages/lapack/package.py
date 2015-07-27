@@ -49,6 +49,8 @@ class Lapack(Package):
             # Enable lapacke here.
             cmake_args.extend(["-DLAPACKE=ON"])
 
+        cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
+
         cmake_args.extend(std_cmake_args)
 
         cmake(*cmake_args)
