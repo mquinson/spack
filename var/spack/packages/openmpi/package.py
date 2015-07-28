@@ -17,6 +17,8 @@ class Openmpi(Package):
         version('local', '%s' % os.environ['MORSE_OPENMPI_TAR_MD5'],
                 url = "file://%s" % os.environ['MORSE_OPENMPI_TAR'])
     else:
+        version('1.8.7', 'c9028e91bbb6b0fc1b8e48496a8119cf',
+                url='http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-1.8.7.tar.gz')
         version('1.8.2', 'ab538ed8e328079d566fc797792e016e',
                 url='http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-1.8.2.tar.gz')
         version('1.6.5', '03aed2a4aa4d0b27196962a2a65fc475',
