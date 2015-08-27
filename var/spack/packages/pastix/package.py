@@ -4,74 +4,72 @@ import os
 class Pastix(Package):
     """a high performance parallel solver for very large sparse linear systems based on direct methods"""
     homepage = "http://pastix.gforge.inria.fr/files/README-txt.html"
-#    url      = "https://gforge.inria.fr/frs/download.php/file/34392/pastix_5.2.2.20.tar.bz2"
 
-    version('local', 'eaf4e9e9842efaf07757acd653057991',
-            url='file:///home/pruvost/work/archives/pastix.tar.gz')
+    version('5.2.2.20', '67a1a054fad0f4c5bcbd7abe855667a8',
+            url='https://gforge.inria.fr/frs/download.php/file/34392/pastix_5.2.2.20.tar.bz2')
+    version('5.2.2.22', 'd181058d07585778d64ae89e2819e736',
+            url='https://gforge.inria.fr/frs/download.php/file/35000/pastix_5.2.2.22.tar.bz2')
 
     variant('mpi', default=False, description='Enable MPI')
     variant('cuda', default=False, description='Enable CUDA kernels. Caution: only available if StarPU variant is enabled')
     variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
     variant('metis', default=False, description='Enable Metis')
-    variant('scotch', default=True, description='Enable Scotch')
     variant('starpu', default=False, description='Enable StarPU')
 
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
     depends_on("blas", when='~mkl')
-    depends_on("scotch", when='+scotch')
+    depends_on("scotch")
     depends_on("metis", when='+metis')
     depends_on("starpu", when='+starpu')
+
+    def patch(self):
+        with working_dir('src'):
+            os.symlink('config/LINUX-GNU.in', 'config.in')
+
+            mf = FileFilter('config.in')
+            spec = self.spec
+
+            mf.filter('^# ROOT          =.*', 'ROOT          = %s' % spec.prefix)
+            mf.filter('^# INCLUDEDIR    =.*', 'INCLUDEDIR    = ${ROOT}/include')
+            mf.filter('^# LIBDIR        =.*', 'LIBDIR        = ${ROOT}/lib')
+            mf.filter('^# BINDIR        =.*', 'BINDIR        = ${ROOT}/bin')
+            mf.filter('^# PYTHON_PREFIX =.*', 'PYTHON_PREFIX = ${ROOT}')
+
+            if not spec.satisfies('+mpi'):
+                mf.filter('^#VERSIONMPI  = _nompi', 'VERSIONMPI  = _nompi')
+                mf.filter('^#CCTYPES    := \$\(CCTYPES\) -DFORCE_NOMPI', 'CCTYPES    := $(CCTYPES) -DFORCE_NOMPI')
+                mf.filter('^#MPCCPROG    = \$\(CCPROG\)', 'MPCCPROG    = $(CCPROG)')
+                mf.filter('^#MCFPROG     = \$\(CFPROG\)', 'MCFPROG     = $(CFPROG)')
+
+            if spec.satisfies('+starpu'):
+                starpu = spec['starpu'].prefix
+                mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) `pkg-config libstarpu --cflags` -DWITH_STARPU', 'CCPASTIX   := $(CCPASTIX) `pkg-config libstarpu --cflags` -DWITH_STARPU')
+                mf.filter('^#EXTRALIB   := \$\(EXTRALIB\) `pkg-config libstarpu --libs`', 'EXTRALIB   := $(EXTRALIB) `pkg-config libstarpu --libs`')
+
+            if spec.satisfies('+metis'):
+                metis = spec['metis'].prefix
+                mf.filter('^#VERSIONORD  = _metis', 'VERSIONORD  = _metis')
+                mf.filter('^#METIS_HOME  =.*', 'METIS_HOME  = %s' % metis)
+                mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) -DMETIS -I\$\(METIS_HOME\)/Lib', 'CCPASTIX   := $(CCPASTIX) -DMETIS -I$(METIS_HOME)/Lib')
+                mf.filter('^#EXTRALIB   := \$\(EXTRALIB\) -L\$\(METIS_HOME\) -lmetis', 'EXTRALIB   := $(EXTRALIB) -L$(METIS_HOME) -lmetis')
+
+            scotch = spec['scotch'].prefix
+            mf.filter('^SCOTCH_HOME \?= \$\{HOME\}/scotch_5.1/', 'SCOTCH_HOME = %s' % scotch)
+
+            hwloc = spec['hwloc'].prefix
+            mf.filter('^HWLOC_HOME \?= /opt/hwloc/', 'HWLOC_HOME = %s' % hwloc)
+
+            blas = spec['blas'].prefix
+            if spec.satisfies('~mkl'):
+                mf.filter('^# BLAS_HOME=/path/to/blas', 'BLAS_HOME=%s/lib' % blas)
+            else:
+                mf.filter('^# BLAS_HOME=/path/to/blas', 'BLAS_HOME=%s/lib' % blas)
+                mf.filter('^#BLASLIB  = -L\$\(BLAS_HOME\) -lmkl_intel_lp64 -lmkl_sequential -lmkl_core', 'BLASLIB  = -L$(BLAS_HOME) -lmkl_intel_lp64 -lmkl_sequential -lmkl_core')
 
     def install(self, spec, prefix):
 
         with working_dir('src'):
 
-            with working_dir('spack-build', create=True):
-
-                cmake_args = [
-                    "..",
-                    "-DBUILD_SHARED_LIBS=ON"]
-
-                if '+mpi' in spec:
-                    # Enable MPI here.
-                    cmake_args.extend(["-DPASTIX_WITH_MPI=ON"])
-                else:
-                    # Disable MPI here.
-                    cmake_args.extend(["-DPASTIX_WITH_MPI=OFF"])
-                if '+metis' in spec:
-                    # Enable Metis here.
-                    cmake_args.extend(["-DPASTIX_ORDERING_METIS=ON"])
-                else:
-                    # Disable Metis here.
-                    cmake_args.extend(["-DPASTIX_ORDERING_METIS=OFF"])
-                if '+scotch' in spec:
-                    # Enable Scotch here.
-                    cmake_args.extend(["-DPASTIX_ORDERING_SCOTCH=ON"])
-                else:
-                    # Disable Scotch here.
-                    cmake_args.extend(["-DPASTIX_ORDERING_SCOTCH=OFF"])
-                if '+starpu' in spec:
-                    # Enable StarPU here.
-                    cmake_args.extend(["-DPASTIX_WITH_STARPU=ON"])
-                    if '+cuda' in spec:
-                        # Enable CUDA here.
-                        cmake_args.extend(["-DPASTIX_WITH_STARPU_CUDA=ON"])
-                    else:
-                        # Disable CUDA here.
-                        cmake_args.extend(["-DPASTIX_WITH_STARPU_CUDA=OFF"])
-                else:
-                    # Disable StarPU here.
-                        cmake_args.extend(["-DPASTIX_WITH_STARPU=OFF"])
-
-                if '+mkl' not in spec:
-                    blas = self.spec['blas']
-                    cmake_args.extend(['-DBLAS_DIR=%s' % blas.prefix])
-                    if "%gcc" in spec:
-                        os.environ["LDFLAGS"] = "-lgfortran"
-
-                cmake_args.extend(std_cmake_args)
-
-                cmake(*cmake_args)
-                make()
-                make("install")
+            make()
+            make("install")
