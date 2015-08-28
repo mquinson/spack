@@ -12,17 +12,14 @@ class Openmpi(Package):
 
     homepage = "http://www.open-mpi.org"
 
-    # Install from sources
-    if os.environ.has_key("MORSE_OPENMPI_TAR") and os.environ.has_key("MORSE_OPENMPI_TAR_MD5"):
-        version('local', '%s' % os.environ['MORSE_OPENMPI_TAR_MD5'],
-                url = "file://%s" % os.environ['MORSE_OPENMPI_TAR'])
-    else:
-        version('1.8.7', 'c9028e91bbb6b0fc1b8e48496a8119cf',
-                url='http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-1.8.7.tar.gz')
-        version('1.8.2', 'ab538ed8e328079d566fc797792e016e',
-                url='http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-1.8.2.tar.gz')
-        version('1.6.5', '03aed2a4aa4d0b27196962a2a65fc475',
-                url = "http://www.open-mpi.org/software/ompi/v1.6/downloads/openmpi-1.6.5.tar.bz2")
+    version('1.10.0', '10e097bfaca8ed625781af0314797b90',
+            url='http://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-1.10.0.tar.gz')
+    version('1.8.7', 'c9028e91bbb6b0fc1b8e48496a8119cf',
+            url='http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-1.8.7.tar.gz')
+    version('1.8.2', 'ab538ed8e328079d566fc797792e016e',
+            url='http://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-1.8.2.tar.gz')
+    version('1.6.5', '03aed2a4aa4d0b27196962a2a65fc475',
+            url = "http://www.open-mpi.org/software/ompi/v1.6/downloads/openmpi-1.6.5.tar.bz2")
 
 
     patch('ad_lustre_rwcontig_open_source.patch', when="@1.6.5")
