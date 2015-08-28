@@ -82,7 +82,13 @@ class Mumps(Package):
         mf.filter('OPTC    = -O', 'OPTC    = -O -fPIC')
 
         mpi = spec['mpi'].prefix
+        mf.filter('CC = gcc', 'CC = mpicc')
+        mf.filter('FC = gfortran', 'FC = mpif90')
+        mf.filter('FL = gfortran', 'FL = mpif90')
         mf.filter('^INCPAR =.*', 'INCPAR = -I%s' % mpi.include)
+        mf.filter('^LIBPAR =.*', 'LIBPAR = $(SCALAP)')
+
+        mf.filter('^LIBOTHERS =.*', 'LIBOTHERS = -lz -lm -lrt -lpthread')
 
     def install(self, spec, prefix):
 
