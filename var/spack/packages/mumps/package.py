@@ -41,7 +41,7 @@ class Mumps(Package):
             mf.filter('^LMETIS    =.*', '#LMETIS    =')
 
         if spec.satisfies('+scotch'):
-            scotch = spec['scotch'].prefix
+            scotch = spec['scotch_esmumps'].prefix
             mf.filter('^LSCOTCHDIR =.*', 'LSCOTCHDIR = %s' % scotch.lib)
             mf.filter('^#ISCOTCH   =.*', 'ISCOTCH = -I%s' % scotch.include)
             ordlist+=' -Dscotch'
