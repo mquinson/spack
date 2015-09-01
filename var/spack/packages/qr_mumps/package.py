@@ -4,9 +4,7 @@ import os
 class QrMumps(Package):
     """a software package for the solution of sparse, linear systems on multicore computers based on the QR factorization of the input matrix."""
     homepage = "http://buttari.perso.enseeiht.fr/qr_mumps/"
-    url      = "http://buttari.perso.enseeiht.fr/qr_mumps/releases/1.0/qr_mumps-1.0.tgz"
 
-    version('1.0', 'e36a1c5bf18542bf752d18618842d599')
     version('qrm_starpu_2d', svn='https://wwwsecu.irit.fr/svn/qr_mumps/branches/qrm_starpu_2d')
 
     variant('mkl', default=False, description='Use BLAS/ScaLAPACK from the Intel MKL library')
