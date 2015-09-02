@@ -85,6 +85,9 @@ class QrMumps(Package):
         #for app in ('sdcz'):
         #    make('%stest'%app, parallel=False)
 
+        with working_dir('examples'):
+            make('qrm_test', 'PREC=-Ddprec', 'ARITH=d', parallel=False)
+
         # No install provided
         install_tree('lib', prefix.lib)
         mkdirp(prefix.include)
@@ -101,3 +104,7 @@ class QrMumps(Package):
                     install(file, '%s/test' % prefix)
                 if file.endswith(".mtx"):
                     install(file, '%s/test' % prefix)
+
+        mkdirp('%s/examples' % prefix)
+        with working_dir('examples'):
+            install('dqrm_test', '%s/examples' % prefix)
