@@ -5,7 +5,7 @@ import os
 class Starpu(Package):
     """offers support for heterogeneous multicore architecture"""
     homepage = "http://starpu.gforge.inria.fr/"
-    url      = "http://starpu.gforge.inria.fr/files/starpu-1.1.4.tar.gz"
+    url      = "http://starpu.gforge.inria.fr/files/starpu-1.1.5.tar.gz"
 
     # Install from sources
     if os.environ.has_key("MORSE_STARPU_TAR") and os.environ.has_key("MORSE_STARPU_TAR_MD5"):
@@ -18,6 +18,7 @@ class Starpu(Package):
     else:
         version('1.2.0rc2', 'a2f3e37c64dbdfddedfc265eff74601f')
         version('1.2.0rc1', '2046cfd30c3046945bca570acafb9e6b')
+        version('1.1.5', '88de3bceece7e22260edd0a37d28ae08')
         version('1.1.4', '1ba56a7a6deee19fd88c90920f9403cc')
         version('1.1.3', '97848eceee4926eb158e27ecb9365380')
         version('1.1.2', '985cb616910f8debff22be2c0e7699fa')
