@@ -7,8 +7,10 @@ class Pastix(Package):
 
     version('5.2.2.20', '67a1a054fad0f4c5bcbd7abe855667a8',
             url='https://gforge.inria.fr/frs/download.php/file/34392/pastix_5.2.2.20.tar.bz2')
-    version('5.2.2.22', 'd181058d07585778d64ae89e2819e736',
-            url='https://gforge.inria.fr/frs/download.php/file/35000/pastix_5.2.2.22.tar.bz2')
+#    version('5.2.2.22', 'd181058d07585778d64ae89e2819e736',
+#            url='https://gforge.inria.fr/frs/download.php/file/35000/pastix_5.2.2.22.tar.bz2')
+    version('5.2.2.22', '9658df77f541da5fcd486fd883ff27eb',
+            url='file:///home/pruvost/work/archives/pastix_5.2.2.22.tar.bz2')
 
     variant('mpi', default=False, description='Enable MPI')
     variant('cuda', default=False, description='Enable CUDA kernels. Caution: only available if StarPU variant is enabled')
@@ -44,8 +46,12 @@ class Pastix(Package):
 
             if spec.satisfies('+starpu'):
                 starpu = spec['starpu'].prefix
-                mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) `pkg-config libstarpu --cflags` -DWITH_STARPU', 'CCPASTIX   := $(CCPASTIX) `pkg-config libstarpu --cflags` -DWITH_STARPU')
-                mf.filter('^#EXTRALIB   := \$\(EXTRALIB\) `pkg-config libstarpu --libs`', 'EXTRALIB   := $(EXTRALIB) `pkg-config libstarpu --libs`')
+                if spec.satisfies('+mpi'):
+                    mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) `pkg-config libstarpu --cflags` -DWITH_STARPU', 'CCPASTIX   := $(CCPASTIX) `pkg-config libstarpumpi --cflags` -DWITH_STARPU')
+                    mf.filter('^#EXTRALIB   := \$\(EXTRALIB\) `pkg-config libstarpu --libs`', 'EXTRALIB   := $(EXTRALIB) `pkg-config libstarpumpi --libs`')
+                else:
+                    mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) `pkg-config libstarpu --cflags` -DWITH_STARPU', 'CCPASTIX   := $(CCPASTIX) `pkg-config libstarpu --cflags` -DWITH_STARPU')
+                    mf.filter('^#EXTRALIB   := \$\(EXTRALIB\) `pkg-config libstarpu --libs`', 'EXTRALIB   := $(EXTRALIB) `pkg-config libstarpu --libs`')
 
             if spec.satisfies('+metis'):
                 metis = spec['metis'].prefix
@@ -56,20 +62,30 @@ class Pastix(Package):
 
             scotch = spec['scotch'].prefix
             mf.filter('^SCOTCH_HOME \?= \$\{HOME\}/scotch_5.1/', 'SCOTCH_HOME = %s' % scotch)
+            if not spec.satisfies('+mpi'):
+                mf.filter('#CCPASTIX   := \$\(CCPASTIX\) -I\$\(SCOTCH_INC\) -DWITH_SCOTCH',
+                          'CCPASTIX   := $(CCPASTIX) -I$(SCOTCH_INC) -DWITH_SCOTCH')
+                mf.filter('#EXTRALIB   := \$\(EXTRALIB\) -L\$\(SCOTCH_LIB\) -lscotch -lscotcherrexit',
+                          'EXTRALIB   := $(EXTRALIB) -L$(SCOTCH_LIB) -lscotch -lscotcherrexit')
+                mf.filter('CCPASTIX   := \$\(CCPASTIX\) -I\$\(SCOTCH_INC\) -DDISTRIBUTED -DWITH_SCOTCH',
+                          '#CCPASTIX   := $(CCPASTIX) -I$(SCOTCH_INC) -DDISTRIBUTED -DWITH_SCOTCH')
+                mf.filter('EXTRALIB   := \$\(EXTRALIB\) -L\$\(SCOTCH_LIB\) -lptscotch -lscotch -lptscotcherrexit',
+                          '#EXTRALIB   := $(EXTRALIB) -L$(SCOTCH_LIB) -lptscotch -lscotch -lptscotcherrexit')
 
             hwloc = spec['hwloc'].prefix
             mf.filter('^HWLOC_HOME \?= /opt/hwloc/', 'HWLOC_HOME = %s' % hwloc)
 
-            blas = spec['blas'].prefix
             if spec.satisfies('~mkl'):
+                blas = spec['blas'].prefix
                 mf.filter('^# BLAS_HOME=/path/to/blas', 'BLAS_HOME=%s/lib' % blas)
             else:
-                mf.filter('^# BLAS_HOME=/path/to/blas', 'BLAS_HOME=%s/lib' % blas)
-                mf.filter('^#BLASLIB  = -L\$\(BLAS_HOME\) -lmkl_intel_lp64 -lmkl_sequential -lmkl_core', 'BLASLIB  = -L$(BLAS_HOME) -lmkl_intel_lp64 -lmkl_sequential -lmkl_core')
+                mf.filter('^#BLASLIB  = -L\$\(BLAS_HOME\) -lmkl_intel_lp64 -lmkl_sequential -lmkl_core', 'BLASLIB  = -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm')
 
     def install(self, spec, prefix):
 
         with working_dir('src'):
 
-            make()
+            make('examples')
             make("install")
+            # examples are not installed by default
+            install_tree('example/bin', '%s/examples' % prefix)
