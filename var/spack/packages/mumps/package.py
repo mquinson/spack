@@ -99,8 +99,8 @@ class Mumps(Package):
             make(app)
 
         # No install provided
-        install_tree('examples', '%s/examples' % prefix)
         install_tree('lib', prefix.lib)
         install_tree('include', prefix.include)
         if spec.satisfies('+seq'):
             install('libseq/libmpiseq.a', prefix.lib)
+        install_tree('examples', '%s/lib/mumps/examples' % prefix)
