@@ -7,10 +7,8 @@ class Pastix(Package):
 
     version('5.2.2.20', '67a1a054fad0f4c5bcbd7abe855667a8',
             url='https://gforge.inria.fr/frs/download.php/file/34392/pastix_5.2.2.20.tar.bz2')
-#    version('5.2.2.22', 'd181058d07585778d64ae89e2819e736',
-#            url='https://gforge.inria.fr/frs/download.php/file/35000/pastix_5.2.2.22.tar.bz2')
-    version('5.2.2.22', '9658df77f541da5fcd486fd883ff27eb',
-            url='file:///home/pruvost/work/archives/pastix_5.2.2.22.tar.bz2')
+    version('5.2.2.22', '85127ecdfaeed39e850c996b78573d94',
+            url='https://gforge.inria.fr/frs/download.php/file/35070/pastix_5.2.2.22.tar.bz2')
 
     variant('mpi', default=False, description='Enable MPI')
     variant('cuda', default=False, description='Enable CUDA kernels. Caution: only available if StarPU variant is enabled')
@@ -88,4 +86,4 @@ class Pastix(Package):
             make('examples')
             make("install")
             # examples are not installed by default
-            install_tree('example/bin', '%s/examples' % prefix)
+            install_tree('example/bin', '%s/lib/pastix/examples' % prefix)
