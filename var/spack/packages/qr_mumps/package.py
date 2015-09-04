@@ -96,15 +96,15 @@ class QrMumps(Package):
                 if file.endswith(".h"):
                     install(file, prefix.include)
 
-        mkdirp('%s/test' % prefix)
+        mkdirp('%s/lib/qr_mumps/test' % prefix)
         with working_dir('test'):
-            install('dqrm_coverage', '%s/test' % prefix)
+            install('dqrm_coverage', '%s/lib/qr_mumps/test' % prefix)
             for file in os.listdir("%s/qrm_starpu_2d/test" % self.stage.path):
                 if file.endswith(".txt"):
-                    install(file, '%s/test' % prefix)
+                    install(file, '%s/lib/qr_mumps/test' % prefix)
                 if file.endswith(".mtx"):
-                    install(file, '%s/test' % prefix)
+                    install(file, '%s/lib/qr_mumps/test' % prefix)
 
-        mkdirp('%s/examples' % prefix)
+        mkdirp('%s/lib/qr_mumps/examples' % prefix)
         with working_dir('examples'):
-            install('dqrm_test', '%s/examples' % prefix)
+            install('dqrm_test', '%s/lib/qr_mumps/examples' % prefix)
