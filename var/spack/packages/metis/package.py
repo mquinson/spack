@@ -22,8 +22,8 @@ class Metis(Package):
         if spec.satisfies('@5:'):
             cmake(".",
                   '-DGKLIB_PATH=%s/GKlib' % pwd(),
-                  '-DCMAKE_C_COMPILER=mpicc',
-                  '-DCMAKE_CXX_COMPILER=mpicxx',
+                  #'-DCMAKE_C_COMPILER=mpicc',
+                  #'-DCMAKE_CXX_COMPILER=mpicxx',
                   '-DSHARED=1',
                   *std_cmake_args)
 
