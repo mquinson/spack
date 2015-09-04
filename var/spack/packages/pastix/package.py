@@ -21,7 +21,7 @@ class Pastix(Package):
     depends_on("blas", when='~mkl')
     depends_on("scotch")
     depends_on("metis", when='+metis')
-    depends_on("starpu", when='+starpu')
+    depends_on("starpu@1.1.0:1.1.5~mpi", when='+starpu')
 
     def patch(self):
         with working_dir('src'):
@@ -44,7 +44,7 @@ class Pastix(Package):
 
             if spec.satisfies('+starpu'):
                 starpu = spec['starpu'].prefix
-                if spec.satisfies('+mpi'):
+                if spec.satisfies('^starpu+mpi'):
                     mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) `pkg-config libstarpu --cflags` -DWITH_STARPU', 'CCPASTIX   := $(CCPASTIX) `pkg-config libstarpumpi --cflags` -DWITH_STARPU')
                     mf.filter('^#EXTRALIB   := \$\(EXTRALIB\) `pkg-config libstarpu --libs`', 'EXTRALIB   := $(EXTRALIB) `pkg-config libstarpumpi --libs`')
                 else:
