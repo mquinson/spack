@@ -30,6 +30,10 @@ class Pastix(Package):
             mf = FileFilter('config.in')
             spec = self.spec
 
+            mf.filter('CCPROG      = gcc -Wall', 'CCPROG      = cc -Wall\nCXXPROG     = c++ -Wall')
+            mf.filter('CFPROG      = gfortran', 'CFPROG      = f77')
+            mf.filter('CF90PROG    = gfortran', 'CF90PROG    = f90')
+
             mf.filter('^# ROOT          =.*', 'ROOT          = %s' % spec.prefix)
             mf.filter('^# INCLUDEDIR    =.*', 'INCLUDEDIR    = ${ROOT}/include')
             mf.filter('^# LIBDIR        =.*', 'LIBDIR        = ${ROOT}/lib')
@@ -39,7 +43,7 @@ class Pastix(Package):
             if not spec.satisfies('+mpi'):
                 mf.filter('^#VERSIONMPI  = _nompi', 'VERSIONMPI  = _nompi')
                 mf.filter('^#CCTYPES    := \$\(CCTYPES\) -DFORCE_NOMPI', 'CCTYPES    := $(CCTYPES) -DFORCE_NOMPI')
-                mf.filter('^#MPCCPROG    = \$\(CCPROG\)', 'MPCCPROG    = $(CCPROG)')
+                mf.filter('^#MPCCPROG    = \$\(CCPROG\)', 'MPCCPROG    = $(CCPROG)\nMPCXXPROG   = $(CXXPROG)')
                 mf.filter('^#MCFPROG     = \$\(CFPROG\)', 'MCFPROG     = $(CFPROG)')
 
             if spec.satisfies('+starpu'):
