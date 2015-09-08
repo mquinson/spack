@@ -20,14 +20,14 @@ class ScotchEsmumps(Package):
             makefiles = glob.glob('Makefile.inc.x86-64_pc_linux2*')
             filter_file(r'^CCS\s*=.*$', 'CCS = cc', *makefiles)
             filter_file(r'^CCD\s*=.*$', 'CCD = cc', *makefiles)
-            filter_file(r'-O3 -DCOMMON_FILE_COMPRESS_GZ', '-O3 -pthread -DCOMMON_FILE_COMPRESS_GZ', *makefiles)
+            filter_file(r'^LDFLAGS		=.*', 'LDFLAGS         = -lz -lm -lrt -pthread', *makefiles)
             if spec.satisfies('%icc'):
                 call(["cp", "Makefile.inc.x86-64_pc_linux2.shlib", "Makefile.inc.x86-64_pc_linux2.shlib.icc"])
                 filter_file(r'^CLIBFLAGS\s*=.*$', 'CLIBFLAGS = -shared -fpic', *makefiles)
 
         with working_dir('src/esmumps'):
             mf = FileFilter('Makefile')
-            mf.filter('\$\(CC\) \$\(CFLAGS\) -I\$\(includedir\).*', '$(CC) $(CFLAGS) -I$(includedir) $(<) -o $(@) -L$(libdir) $(LDFLAGS) -L. -l$(ESMUMPSLIB) -l$(SCOTCHLIB) -lscotch -l$(SCOTCHLIB)errexit -lz -lm')
+            mf.filter('\$\(CC\) \$\(CFLAGS\) -I\$\(includedir\).*', '$(CC) $(CFLAGS) -I$(includedir) $(<) -o $(@) -L$(libdir) $(LDFLAGS) -L. -l$(ESMUMPSLIB) -l$(SCOTCHLIB) -lscotch -l$(SCOTCHLIB)errexit -lz -lm -pthread')
 
 
     def install(self, spec, prefix):
