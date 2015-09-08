@@ -83,8 +83,11 @@ class Pastix(Package):
             if spec.satisfies('~mkl'):
                 blas = spec['blas'].prefix
                 mf.filter('^# BLAS_HOME=/path/to/blas', 'BLAS_HOME=%s/lib' % blas)
+                mf.filter('BLASLIB  = -lblas', 'BLASLIB  = -lblas -lgfortran')
             else:
                 mf.filter('^#BLASLIB  = -L\$\(BLAS_HOME\) -lmkl_intel_lp64 -lmkl_sequential -lmkl_core', 'BLASLIB  = -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm')
+
+            mf.filter('LDFLAGS  = $(EXTRALIB) $(BLASLIB)', 'LDFLAGS  = $(BLASLIB) $(EXTRALIB)')
 
     def install(self, spec, prefix):
 
