@@ -88,6 +88,9 @@ class Maphys(Package):
 
         mf.filter('HWLOC_prefix := /usr/share', 'HWLOC_prefix := %s' % hwloc)
 
+        mf.filter('ALL_FCFLAGS  :=  \$\(FCFLAGS\) -I\$\(abstopsrcdir\)/include -I. \$\(ALGO_FCFLAGS\) \$\(CHECK_FLAGS\)', 'ALL_FCFLAGS  :=  $(FCFLAGS) -I$(abstopsrcdir)/include -I. $(ALGO_FCFLAGS) $(CHECK_FLAGS) $(THREAD_FCFLAGS)')
+        mf.filter('THREAD_FCLAGS', 'THREAD_LDFLAGS')
+
     def install(self, spec, prefix):
         make()
         make('check-examples')
