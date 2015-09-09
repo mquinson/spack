@@ -9,14 +9,16 @@ class Maphys(Package):
     version('0.9.2', 'e1d075374b13dd9e21906ca3fd41da7c')
 
     variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
+    variant('mumps', default=False, description='Enable MUMPS direct solver')
 
     depends_on("mpi")
     depends_on("hwloc")
-    depends_on("metis")
-    depends_on("scotch_esmumps")
+    #depends_on("metis")
+    depends_on("scotch")
+    #depends_on("scotch_esmumps")
     depends_on("pastix")
-    depends_on("mumps+scotch")
-    depends_on("scalapack", when='~mkl')
+    depends_on("mumps+scotch", when='+mumps')
+    #depends_on("scalapack", when='~mkl')
     depends_on("blas", when='~mkl')
     depends_on("lapack", when='~mkl')
 
@@ -24,12 +26,13 @@ class Maphys(Package):
         spec = self.spec
         mpi = spec['mpi'].prefix
         hwloc = spec['hwloc'].prefix
-        metis = spec['metis'].prefix
-        scotch = spec['scotch_esmumps'].prefix
-        mumps = spec['mumps'].prefix
+        #metis = spec['metis'].prefix
+        scotch = spec['scotch'].prefix
+        #scotch = spec['scotch_esmumps'].prefix
+        #mumps = spec['mumps'].prefix
         pastix = spec['pastix'].prefix
         if not spec.satisfies('+mkl'):
-            scalapack = spec['scalapack'].prefix
+            #scalapack = spec['scalapack'].prefix
             lapack = spec['lapack'].prefix
             blas = spec['blas'].prefix
 
@@ -46,16 +49,33 @@ class Maphys(Package):
                       'THREAD_FCFLAGS += -DMULTITHREAD_VERSION')
             mf.filter('# THREAD_LDFLAGS := -openmp', 'THREAD_LDFLAGS := -fopenmp')
 
-        mf.filter('MUMPS_prefix  :=  \$\(3rdpartyPREFIX\)/mumps/32bits', 'MUMPS_prefix  := %s' % mumps)
-        if spec.satisfies('+mkl'):
-            mf.filter('MUMPS_LIBS := -L\$\{MUMPS_prefix\}/lib \$\(foreach a,\$\(ARITHS\),-l\$\(a\)mumps\) -lmumps_common -lpord', 'MUMPS_LIBS := -L${MUMPS_prefix}/lib $(foreach a,$(ARITHS),-l$(a)mumps) -lmumps_common -lpord -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_scalapack_lp64 -lmkl_gf_lp64 -lmkl_core -lmkl_intel_thread -lmkl_blacs_intelmpi_lp64 -liomp5 -ldl -lpthread -lm -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_gf_lp64 -lmkl_core -lmkl_intel_thread -liomp5 -ldl -lpthread -lm')
+        if spec.satisfies('+mumps'):
+            mumps = spec['mumps'].prefix
+            scalapack = spec['scalapack'].prefix
+            mf.filter('MUMPS_prefix  :=  \$\(3rdpartyPREFIX\)/mumps/32bits', 'MUMPS_prefix  := %s' % mumps)
+            if spec.satisfies('+mkl'):
+                mf.filter('MUMPS_LIBS := -L\$\{MUMPS_prefix\}/lib \$\(foreach a,\$\(ARITHS\),-l\$\(a\)mumps\) -lmumps_common -lpord', 'MUMPS_LIBS := -L${MUMPS_prefix}/lib $(foreach a,$(ARITHS),-l$(a)mumps) -lmumps_common -lpord -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_scalapack_lp64 -lmkl_gf_lp64 -lmkl_core -lmkl_intel_thread -lmkl_blacs_intelmpi_lp64 -liomp5 -ldl -lpthread -lm -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_gf_lp64 -lmkl_core -lmkl_intel_thread -liomp5 -ldl -lpthread -lm')
+        else:
+            mf.filter('MUMPS_prefix  :=  \$\(3rdpartyPREFIX\)/mumps/32bits', '#MUMPS_prefix  := version without mumps')
+            mf.filter('MUMPS_LIBS := -L\$\{MUMPS_prefix\}/lib \$\(foreach a,\$\(ARITHS\),-l\$\(a\)mumps\) -lmumps_common -lpord', 'MUMPS_LIBS  :=')
+            mf.filter('MUMPS_FCFLAGS  :=  -DHAVE_LIBMUMPS', 'MUMPS_FCFLAGS  := ')
+            mf.filter('MUMPS_FCFLAGS +=  -I\$\{MUMPS_prefix\}/include', '#MUMPS_FCFLAGS += -I${MUMPS_prefix}/include')
+            mf.filter('MUMPS_FCFLAGS += -DLIBMUMPS_USE_LIBSCOTCH', '#MUMPS_FCFLAGS += -DLIBMUMPS_USE_LIBSCOTCH')
+
         mf.filter('PASTIX_topdir := \$\(3rdpartyPREFIX\)/pastix/32bits', 'PASTIX_topdir := %s' % pastix)
         mf.filter('PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I\$\{PASTIX_topdir\}/install', 'PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I${PASTIX_topdir}/include')
         if spec.satisfies('+mkl'):
             mf.filter('PASTIX_LIBS := -L\$\{PASTIX_topdir\}/install -lpastix -lrt', 'PASTIX_LIBS := -L${PASTIX_topdir}/install -lpastix -lrt -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm')
-        mf.filter('METIS_topdir  := \$\(3rdpartyPREFIX\)/metis/32bits', 'METIS_topdir  := %s' % metis)
+
+        #mf.filter('METIS_topdir  := \$\(3rdpartyPREFIX\)/metis/32bits', 'METIS_topdir  := %s' % metis)
+        mf.filter('METIS_topdir  := \$\(3rdpartyPREFIX\)/metis/32bits', '#METIS_topdir  := version without metis')
+        mf.filter('METIS_CFLAGS := -DHAVE_LIBMETIS -I\$\{METIS_topdir\}/Lib', 'METIS_CFLAGS := ')
+        mf.filter('METIS_FCFLAGS := -DHAVE_LIBMETIS -I\$\{METIS_topdir\}/Lib', 'METIS_FCFLAGS := ')
+        mf.filter('METIS_LIBS := -L\$\{METIS_topdir\} -lmetis', 'METIS_LIBS := ')
+
         mf.filter('SCOTCH_prefix := \$\(3rdpartyPREFIX\)/scotch_esmumps/32bits', 'SCOTCH_prefix  := %s' % scotch)
-        mf.filter('SCOTCH_LIBS := -L\$\(SCOTCH_prefix\)/lib -lscotch -lscotcherrexit', 'SCOTCH_LIBS := -L$(SCOTCH_prefix)/lib -lptesmumps -lptscotch -lptscotcherr -lesmumps -lscotch -lscotcherr')
+        mf.filter('SCOTCH_LIBS := -L\$\(SCOTCH_prefix\)/lib -lscotch -lscotcherrexit', 'SCOTCH_LIBS := -L$(SCOTCH_prefix)/lib -lscotch -lscotcherrexit -lz -lm -lrt -pthread')
+        #mf.filter('SCOTCH_LIBS := -L\$\(SCOTCH_prefix\)/lib -lscotch -lscotcherrexit', 'SCOTCH_LIBS := -L$(SCOTCH_prefix)/lib -lptesmumps -lptscotch -lptscotcherr -lesmumps -lscotch -lscotcherr')
 
         if spec.satisfies('+mkl'):
             mf.filter('LMKLPATH   := /opt/intel/latest/mkl/lib/intel64', 'LMKLPATH   := ${MKLROOT}/lib/intel64')
@@ -65,8 +85,10 @@ class Maphys(Package):
             mf.filter('FFLAGS := -g -O0', 'FFLAGS := -g -O0 -m64 -I${MKLROOT}/include')
             mf.filter('FCFLAGS := -g -O0', 'FCFLAGS := -g -O0 -DALLOW_NON_INIT -m64 -I${MKLROOT}/include')
         else:
-            dalgebralibs='-L%s -lscalapack' % scalapack
-            dalgebralibs+=' -L%s -llapack' % lapack
+            dalgebralibs=''
+            if spec.satisfies('+mumps'):
+                dalgebralibs+='-L%s -lscalapack' % scalapack
+            dalgebralibs+=' -L%s -ltmglib -llapack' % lapack
             dalgebralibs+=' -L%s -lblas' % blas
             mf.filter('^DALGEBRA_PARALLEL_LIBS  :=.*', 'DALGEBRA_PARALLEL_LIBS  := %s' % dalgebralibs)
             dalgebralibs='-L%s -llapack' % lapack + ' -L%s -lblas' % blas
