@@ -14,7 +14,6 @@ class Scotch(Package):
     version('6.0.4', 'd58b825eb95e1db77efe8c6ff42d329f',
             url='https://gforge.inria.fr/frs/download.php/file/34618/scotch_6.0.4.tar.gz')
 
-    #provides('scotchs')
     depends_on('mpi')
 
     def patch(self):

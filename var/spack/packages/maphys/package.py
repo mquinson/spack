@@ -13,11 +13,9 @@ class Maphys(Package):
 
     depends_on("mpi")
     depends_on("hwloc")
-    #depends_on("metis")
     depends_on("scotch")
     depends_on("pastix")
     depends_on("mumps+scotch~metis", when='+mumps')
-    #depends_on("scalapack", when='~mkl')
     depends_on("blas", when='~mkl')
     depends_on("lapack", when='~mkl')
 
@@ -25,11 +23,9 @@ class Maphys(Package):
         spec = self.spec
         mpi = spec['mpi'].prefix
         hwloc = spec['hwloc'].prefix
-        #metis = spec['metis'].prefix
         scotch = spec['scotch'].prefix
         pastix = spec['pastix'].prefix
         if not spec.satisfies('+mkl'):
-            #scalapack = spec['scalapack'].prefix
             lapack = spec['lapack'].prefix
             blas = spec['blas'].prefix
 
@@ -64,7 +60,6 @@ class Maphys(Package):
         if spec.satisfies('+mkl'):
             mf.filter('PASTIX_LIBS := -L\$\{PASTIX_topdir\}/install -lpastix -lrt', 'PASTIX_LIBS := -L${PASTIX_topdir}/install -lpastix -lrt -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm')
 
-        #mf.filter('METIS_topdir  := \$\(3rdpartyPREFIX\)/metis/32bits', 'METIS_topdir  := %s' % metis)
         mf.filter('METIS_topdir  := \$\(3rdpartyPREFIX\)/metis/32bits', '#METIS_topdir  := version without metis')
         mf.filter('METIS_CFLAGS := -DHAVE_LIBMETIS -I\$\{METIS_topdir\}/Lib', 'METIS_CFLAGS := ')
         mf.filter('METIS_FCFLAGS := -DHAVE_LIBMETIS -I\$\{METIS_topdir\}/Lib', 'METIS_FCFLAGS := ')
