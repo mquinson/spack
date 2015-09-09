@@ -6,7 +6,7 @@ class Maphys(Package):
     homepage = "https://project.inria.fr/maphys/"
     url      = "http://maphys.gforge.inria.fr/maphys_0.9.2.tar.gz"
 
-    version('0.9.2', 'e1d075374b13dd9e21906ca3fd41da7c')
+    version('0.9.2', '2dd5d4c21017b2277be93326705e2659')
 
     variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
     variant('mumps', default=False, description='Enable MUMPS direct solver')
