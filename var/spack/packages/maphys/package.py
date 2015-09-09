@@ -45,7 +45,6 @@ class Maphys(Package):
 
         if spec.satisfies('+mumps'):
             mumps = spec['mumps'].prefix
-            scalapack = spec['scalapack'].prefix
             mf.filter('MUMPS_prefix  :=  \$\(3rdpartyPREFIX\)/mumps/32bits', 'MUMPS_prefix  := %s' % mumps)
             if spec.satisfies('+mkl'):
                 mf.filter('MUMPS_LIBS := -L\$\{MUMPS_prefix\}/lib \$\(foreach a,\$\(ARITHS\),-l\$\(a\)mumps\) -lmumps_common -lpord', 'MUMPS_LIBS := -L${MUMPS_prefix}/lib $(foreach a,$(ARITHS),-l$(a)mumps) -lmumps_common -lpord -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_scalapack_lp64 -lmkl_gf_lp64 -lmkl_core -lmkl_intel_thread -lmkl_blacs_intelmpi_lp64 -liomp5 -ldl -lpthread -lm -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_gf_lp64 -lmkl_core -lmkl_intel_thread -liomp5 -ldl -lpthread -lm')
@@ -79,6 +78,7 @@ class Maphys(Package):
         else:
             dalgebralibs=''
             if spec.satisfies('+mumps'):
+                scalapack = spec['scalapack'].prefix
                 dalgebralibs+='-L%s -lscalapack' % scalapack
             dalgebralibs+=' -L%s -ltmglib -llapack' % lapack
             dalgebralibs+=' -L%s -lblas' % blas
