@@ -12,7 +12,7 @@ class Mumps(Package):
     variant('mkl', default=False, description='Use BLAS/ScaLAPACK from the Intel MKL library')
     variant('scotch', default=True, description='Enable Scotch')
     variant('ptscotch', default=False, description='Enable PT-Scotch')
-    variant('metis', default=True, description='Enable Metis')
+    variant('metis', default=False, description='Enable Metis')
     #variant('parmetis', default=False, description='Enable parMetis')
 
     depends_on("mpi")
