@@ -16,6 +16,7 @@ class Maphys(Package):
     depends_on("scotch")
     depends_on("pastix")
     depends_on("mumps+scotch~metis", when='+mumps')
+    depends_on("scalapack", when='~mkl+mumps')
     depends_on("blas", when='~mkl')
     depends_on("lapack", when='~mkl')
 
