@@ -15,7 +15,6 @@ class Maphys(Package):
     depends_on("hwloc")
     #depends_on("metis")
     depends_on("scotch")
-    #depends_on("scotch_esmumps")
     depends_on("pastix")
     depends_on("mumps+scotch~metis", when='+mumps')
     #depends_on("scalapack", when='~mkl')
@@ -28,8 +27,6 @@ class Maphys(Package):
         hwloc = spec['hwloc'].prefix
         #metis = spec['metis'].prefix
         scotch = spec['scotch'].prefix
-        #scotch = spec['scotch_esmumps'].prefix
-        #mumps = spec['mumps'].prefix
         pastix = spec['pastix'].prefix
         if not spec.satisfies('+mkl'):
             #scalapack = spec['scalapack'].prefix
@@ -74,8 +71,7 @@ class Maphys(Package):
         mf.filter('METIS_LIBS := -L\$\{METIS_topdir\} -lmetis', 'METIS_LIBS := ')
 
         mf.filter('SCOTCH_prefix := \$\(3rdpartyPREFIX\)/scotch_esmumps/32bits', 'SCOTCH_prefix  := %s' % scotch)
-        mf.filter('SCOTCH_LIBS := -L\$\(SCOTCH_prefix\)/lib -lscotch -lscotcherrexit', 'SCOTCH_LIBS := -L$(SCOTCH_prefix)/lib -lscotch -lscotcherrexit -lz -lm -lrt -pthread')
-        #mf.filter('SCOTCH_LIBS := -L\$\(SCOTCH_prefix\)/lib -lscotch -lscotcherrexit', 'SCOTCH_LIBS := -L$(SCOTCH_prefix)/lib -lptesmumps -lptscotch -lptscotcherr -lesmumps -lscotch -lscotcherr')
+        mf.filter('SCOTCH_LIBS := -L\$\(SCOTCH_prefix\)/lib -lscotch -lscotcherrexit', 'SCOTCH_LIBS := -L$(SCOTCH_prefix)/lib -lptesmumps -lptscotch -lptscotcherr -lesmumps -lscotch -lscotcherr -lz -lm -lrt -pthread')
 
         if spec.satisfies('+mkl'):
             mf.filter('LMKLPATH   := /opt/intel/latest/mkl/lib/intel64', 'LMKLPATH   := ${MKLROOT}/lib/intel64')
