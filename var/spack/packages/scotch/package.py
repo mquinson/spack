@@ -11,9 +11,11 @@ class Scotch(Package):
     list_url = "http://gforge.inria.fr/frs/?group_id=248"
 
     version('6.0.3', '10b0cc0f184de2de99859eafaca83cfc')
+    version('6.0.4', 'd58b825eb95e1db77efe8c6ff42d329f',
+            url='https://gforge.inria.fr/frs/download.php/file/34618/scotch_6.0.4.tar.gz')
 
+    #provides('scotchs')
     depends_on('mpi')
-
 
     def patch(self):
         with working_dir('src/Make.inc'):
@@ -29,14 +31,15 @@ class Scotch(Package):
     def install(self, spec, prefix):
         # Currently support gcc and icc on x86_64 (maybe others with
         # vanilla makefile)
-        makefile = 'Make.inc/Makefile.inc.x86-64_pc_linux2.shlib'
+        makefile = 'Make.inc/Makefile.inc.x86-64_pc_linux2'
         if spec.satisfies('%icc'):
             makefile += '.icc'
 
         with working_dir('src'):
             force_symlink(makefile, 'Makefile.inc')
-            for app in ('scotch', 'ptscotch'):
+            for app in ('scotch', 'ptscotch', 'esmumps'):
                 make(app)
+            make('ptesmumps',parallel=False)
 
         install_tree('bin', prefix.bin)
         install_tree('lib', prefix.lib)
