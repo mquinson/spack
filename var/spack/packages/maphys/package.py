@@ -39,8 +39,8 @@ class Maphys(Package):
         mf.filter('MPIF77 := mpif77', 'MPIF77 := mpif77 -I%s' % mpi.include)
 
         if spec.satisfies('+mkl'):
-            mf.filter('# THREAD_FCFLAGS += -DMULTITHREAD_VERSION -fopenmp',
-                      'THREAD_FCFLAGS += -DMULTITHREAD_VERSION')
+            mf.filter('# THREAD_FCFLAGS \+= -DMULTITHREAD_VERSION -fopenmp',
+                      'THREAD_FCFLAGS += -DMULTITHREAD_VERSION -fopenmp')
             mf.filter('# THREAD_LDFLAGS := -openmp', 'THREAD_LDFLAGS := -fopenmp')
 
         if spec.satisfies('+mumps'):
