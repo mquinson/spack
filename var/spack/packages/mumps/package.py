@@ -18,7 +18,7 @@ class Mumps(Package):
     depends_on("mpi")
     depends_on("blas", when='~mkl')
     depends_on("scalapack", when='~mkl')
-    depends_on("scotch_esmumps", when='+scotch')
+    depends_on("scotch", when='+scotch')
     depends_on("metis", when='+metis')
     #depends_on("parmetis", when='+parmetis')
 
@@ -41,7 +41,7 @@ class Mumps(Package):
             mf.filter('^LMETIS    =.*', '#LMETIS    =')
 
         if spec.satisfies('+scotch'):
-            scotch = spec['scotch_esmumps'].prefix
+            scotch = spec['scotch'].prefix
             mf.filter('^LSCOTCHDIR =.*', 'LSCOTCHDIR = %s' % scotch.lib)
             mf.filter('^#ISCOTCH   =.*', 'ISCOTCH = -I%s' % scotch.include)
             ordlist+=' -Dscotch'
