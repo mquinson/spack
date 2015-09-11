@@ -10,6 +10,7 @@ class Maphys(Package):
 
     variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
     variant('mumps', default=False, description='Enable MUMPS direct solver')
+    variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
 
     depends_on("mpi")
     depends_on("hwloc")
@@ -90,6 +91,9 @@ class Maphys(Package):
 
         mf.filter('ALL_FCFLAGS  :=  \$\(FCFLAGS\) -I\$\(abstopsrcdir\)/include -I. \$\(ALGO_FCFLAGS\) \$\(CHECK_FLAGS\)', 'ALL_FCFLAGS  :=  $(FCFLAGS) -I$(abstopsrcdir)/include -I. $(ALGO_FCFLAGS) $(CHECK_FLAGS) $(THREAD_FCFLAGS)')
         mf.filter('THREAD_FCLAGS', 'THREAD_LDFLAGS')
+
+        if spec.satisfies('+mac'):
+            mf.filter('-lrt', '');
 
     def install(self, spec, prefix):
         make()

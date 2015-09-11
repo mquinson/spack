@@ -16,6 +16,8 @@ class Hwloc(Package):
     homepage = "http://www.open-mpi.org/projects/hwloc/"
     url      = "http://www.open-mpi.org/software/hwloc/v1.9/downloads/hwloc-1.9.tar.gz"
 
+    variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
+
     # Install from sources
     if os.environ.has_key("MORSE_HWLOC_TAR") and os.environ.has_key("MORSE_HWLOC_TAR_MD5"):
         version('local', '%s' % os.environ['MORSE_HWLOC_TAR_MD5'],
@@ -26,7 +28,10 @@ class Hwloc(Package):
         version('1.11.0', '150a6a0b7a136bae5443e9c2cf8f316c', url='http://www.open-mpi.org/software/hwloc/v1.11/downloads/hwloc-1.11.0.tar.gz')
 
     def install(self, spec, prefix):
-        configure("--prefix=%s" % prefix)
+        if not spec.satisfies('+mac'):
+            configure("--prefix=%s" % prefix)
+        else:
+            configure("--prefix=%s" % prefix , "--without-x")
 
         make()
         make("install")

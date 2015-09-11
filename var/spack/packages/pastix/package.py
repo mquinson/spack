@@ -17,6 +17,7 @@ class Pastix(Package):
     variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
     variant('metis', default=False, description='Enable Metis')
     variant('starpu', default=False, description='Enable StarPU')
+    variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
 
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
@@ -90,6 +91,10 @@ class Pastix(Package):
                 mf.filter('^#BLASLIB  = -L\$\(BLAS_HOME\) -lmkl_intel_lp64 -lmkl_sequential -lmkl_core', 'BLASLIB  = -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm')
 
             mf.filter('LDFLAGS  = $(EXTRALIB) $(BLASLIB)', 'LDFLAGS  = $(BLASLIB) $(EXTRALIB)')
+
+        if spec.satisfies('+mac'):
+            mf.filter('-lrt', '')
+            mf.filter('i686_pc_linux', 'i686_mac')
 
     def install(self, spec, prefix):
 

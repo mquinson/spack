@@ -47,6 +47,7 @@ class Starpu(Package):
     variant('cuda', default=False, description='Enable CUDA support')
     variant('opencl', default=False, description='Enable OpenCL support')
     variant('simu', default=False, description='Enable SimGrid support')
+    variant('examples', default=False, description='Enable Examples')
 
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
@@ -70,6 +71,9 @@ class Starpu(Package):
 
         if '+debug' in spec:
             config_args.append("--enable-debug")
+
+        if not '+examples' in spec:
+            config_args.append("--disable-build-examples")
 
         if '+fxt' in spec:
             fxt = spec['fxt'].prefix

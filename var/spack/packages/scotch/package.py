@@ -14,6 +14,8 @@ class Scotch(Package):
     version('6.0.4', 'd58b825eb95e1db77efe8c6ff42d329f',
             url='https://gforge.inria.fr/frs/download.php/file/34618/scotch_6.0.4.tar.gz')
 
+    variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
+
     depends_on('mpi')
 
     def patch(self):
@@ -26,6 +28,10 @@ class Scotch(Package):
                 call(["cp", "Makefile.inc.x86-64_pc_linux2.shlib", "Makefile.inc.x86-64_pc_linux2.shlib.icc"])
                 filter_file(r'^CLIBFLAGS\s*=.*$', 'CLIBFLAGS = -shared -fpic', *makefiles)
 
+            filter_file(r'-DCOMMON_PTHREAD', '-DSCOTCH_DETERMINISTIC -DCOMMON_PTHREAD -DCOMMON_PTHREAD_BARRIER -DCOMMON_TIMING_OLD', *makefiles)
+
+        if spec.satisfies('+mac'):
+            mf.filter('-lrt', '')
 
     def install(self, spec, prefix):
         # Currently support gcc and icc on x86_64 (maybe others with
