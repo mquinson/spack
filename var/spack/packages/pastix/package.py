@@ -92,9 +92,9 @@ class Pastix(Package):
 
             mf.filter('LDFLAGS  = $(EXTRALIB) $(BLASLIB)', 'LDFLAGS  = $(BLASLIB) $(EXTRALIB)')
 
-        if spec.satisfies('+mac'):
-            mf.filter('-lrt', '')
-            mf.filter('i686_pc_linux', 'i686_mac')
+            if spec.satisfies('+mac'):
+                mf.filter('-lrt', '')
+                mf.filter('i686_pc_linux', 'i686_mac')
 
     def install(self, spec, prefix):
 
