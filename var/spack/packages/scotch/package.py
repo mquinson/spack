@@ -29,9 +29,8 @@ class Scotch(Package):
                 filter_file(r'^CLIBFLAGS\s*=.*$', 'CLIBFLAGS = -shared -fpic', *makefiles)
 
             filter_file(r'-DCOMMON_PTHREAD', '-DSCOTCH_DETERMINISTIC -DCOMMON_PTHREAD -DCOMMON_PTHREAD_BARRIER -DCOMMON_TIMING_OLD', *makefiles)
-
-        if spec.satisfies('+mac'):
-            mf.filter('-lrt', '')
+            if spec.satisfies('+mac'):
+                filter_file(r'-lrt', '', *makefiles)
 
     def install(self, spec, prefix):
         # Currently support gcc and icc on x86_64 (maybe others with
