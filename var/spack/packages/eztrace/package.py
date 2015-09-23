@@ -10,10 +10,11 @@ class Eztrace(Package):
     version('1.0.6', 'd613ab7caf28d3ce61d5aad39b76f324')
     version('master', git='https://scm.gforge.inria.fr/anonscm/git/eztrace/eztrace.git', branch='master')
 
+    variant('mpi', default=False, description='Enable MPI')
     variant('papi', default=False, description='Enable papi, a hardware counter software')
     variant('starpu', default=False, description='Enable StarPU')
 
-    depends_on("mpi")
+    depends_on("mpi", when='+mpi')
     depends_on("papi", when='+papi')
     depends_on("starpu", when='+starpu')
 
@@ -24,7 +25,9 @@ class Eztrace(Package):
 
         config_args = ["--prefix=" + prefix]
 
-        config_args.append("--with-mpi=%s" % spec['mpi'].prefix)
+        if '+mpi' in spec:
+            config_args.append("--with-mpi=%s" % spec['mpi'].prefix)
+
         if '+papi' in spec:
             config_args.append("--with-papi=%s" % spec['papi'].prefix)
 
