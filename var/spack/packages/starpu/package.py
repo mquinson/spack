@@ -52,7 +52,7 @@ class Starpu(Package):
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
     depends_on("fxt", when='+fxt')
-    depends_on("SimGrid", when='+simu')
+    depends_on("simgrid", when='+simu')
 
     def setup(self):
         # do nothing in the default case
