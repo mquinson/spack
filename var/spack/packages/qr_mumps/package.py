@@ -63,7 +63,7 @@ class QrMumps(Package):
         mf.filter('# ICOLAMD  = -I/path/to/colamd/Include -I/path/to/ufconfig', 'ICOLAMD  = -I%s' % suitesparse.include)
         mf.filter('# LMETIS   = -L/path/to/metis -lmetis', 'LMETIS   = -L%s -lmetis' % metis.lib)
         mf.filter('# IMETIS   = -I/path/to/metis/include', 'IMETIS   = -I%s' % metis.include)
-        mf.filter('# LSCOTCH  = -L/path/to/scotch/lib -lscotch -lscotcherr', 'LSCOTCH  = -L%s -lscotch -lscotcherr' % scotch.lib)
+        mf.filter('# LSCOTCH  = -L/path/to/scotch/lib -lscotch -lscotcherr', 'LSCOTCH  = -L%s -lscotch -lscotcherr -lpthread' % scotch.lib)
         mf.filter('# ISCOTCH  = -I/path/to/scotch/include', 'ISCOTCH  = -I%s' % scotch.include)
         mf.filter('LHWLOC = -L/path/to/hwloc/lib -lhwloc', 'LHWLOC = -L%s -lhwloc' % hwloc.lib)
         mf.filter('IHWLOC = -I/path/to/hwloc/include', 'IHWLOC = -I%s' % hwloc.include)
