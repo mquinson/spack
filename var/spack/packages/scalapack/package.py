@@ -24,7 +24,7 @@ class Scalapack(Package):
                 "-DBUILD_SHARED_LIBS=ON",
                 "-DUSE_OPTIMIZED_LAPACK_BLAS=ON"]
 
-            if "%gcc" in spec:
+            if spec.satisfies('%gcc'):
                 cmake_args.extend(['-DBLAS_LIBRARIES=blas;m;gfortran'])
 
             cmake_args.extend(std_cmake_args)
