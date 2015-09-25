@@ -11,6 +11,7 @@ class Maphys(Package):
     variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
     variant('mumps', default=False, description='Enable MUMPS direct solver')
     variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
+    variant('examples', default=True, description='Enable compilation and installation of example executables')
 
     depends_on("mpi")
     depends_on("hwloc")
@@ -97,7 +98,9 @@ class Maphys(Package):
 
     def install(self, spec, prefix):
         make()
-        make('check-examples')
+        if spec.satisfies('+examples'):
+            make('check-examples')
         make("install")
-        # examples are not installed by default
-        install_tree('examples', '%s/lib/maphys/examples' % prefix)
+        if spec.satisfies('+examples'):
+            # examples are not installed by default
+            install_tree('examples', '%s/lib/maphys/examples' % prefix)
