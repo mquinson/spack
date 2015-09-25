@@ -19,13 +19,13 @@ class Fftw(Package):
         config_args.append("--enable-shared")
         config_args.append("--enable-float")
 
-        if '+mpi' in spec:
+        if spec.satisfies('+mpi'):
             config_args.append("--enable-mpi")
 
-        if '+openmp' in spec:
+        if spec.satisfies('+openmp'):
             config_args.append("--enable-openmp")
 
-        if '+threads' in spec:
+        if spec.satisfies('+threads'):
             config_args.append("--enable-threads")
 
         configure(*config_args)
