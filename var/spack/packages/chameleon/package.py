@@ -44,26 +44,26 @@ class Chameleon(Package):
                 # Enable Debug here.
             #cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
 
-            if '+mpi' in spec:
+            if spec.satisfies('+mpi'):
                 # Enable MPI here.
                 cmake_args.extend(["-DCHAMELEON_USE_MPI=ON"])
-            if '+cuda' in spec:
+            if spec.satisfies('+cuda'):
                 # Enable CUDA here.
                 cmake_args.extend(["-DCHAMELEON_USE_CUDA=ON"])
-            if '+magma' in spec:
+            if spec.satisfies('+magma'):
                 # Enable MAGMA here.
                 cmake_args.extend(["-DCHAMELEON_USE_MAGMA=ON"])
-            if '+fxt' in spec:
+            if spec.satisfies('+fxt'):
                 # Enable FxT here.
                 cmake_args.extend(["-DCHAMELEON_USE_FXT=ON"])
-            if '+simu' in spec:
+            if spec.satisfies('+simu'):
                 # Enable SimGrid here.
                 cmake_args.extend(["-DCHAMELEON_SIMULATION=ON"])
-            if '+quark' in spec:
+            if spec.satisfies('+quark'):
                 # Enable Quark here.
                 cmake_args.extend(["-DCHAMELEON_SCHED_QUARK=ON"])
 
-            if '~mkl' in spec:
+            if spec.satisfies('~mkl'):
                 blas = self.spec['blas']
                 cblas = self.spec['cblas']
                 lapack = self.spec['lapack']
@@ -72,7 +72,7 @@ class Chameleon(Package):
                 cmake_args.extend(['-DLAPACK_DIR=%s' % lapack.prefix])
                 cmake_args.extend(['-DLAPACKE_DIR=%s' % lapack.prefix])
                 cmake_args.extend(['-DTMG_DIR=%s' % lapack.prefix])
-                if "%gcc" in spec:
+                if spec.satisfies('%gcc'):
                     os.environ["LDFLAGS"] = "-lgfortran"
 
             cmake_args.extend(std_cmake_args)
