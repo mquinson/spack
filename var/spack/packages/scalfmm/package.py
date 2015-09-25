@@ -9,6 +9,7 @@ class Scalfmm(Package):
     version('1.3-56', '666ba8fef226630a2c22df8f0f93ff9c')
     version('master', git='https://scm.gforge.inria.fr/anonscm/git/scalfmm-public/scalfmm-public.git')
 
+    variant('sse', default=True, description='Enable SSE')
     #variant('blas', default=False, description='Enable BLAS')
     variant('fftw', default=False, description='Enable FFTW')
     variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
@@ -31,6 +32,10 @@ class Scalfmm(Package):
             cmake_args = [
                 "..",
                 "-DBUILD_SHARED_LIBS=ON"]
+
+            if spec.satisfies('~sse'):
+                # Disable SSE  here.
+                cmake_args.extend(["-DSCALFMM_USE_SSE=OFF"])
 
             cmake_args.extend(["-DSCALFMM_USE_BLAS=ON"])
             # if spec.satisfies('+blas'):
