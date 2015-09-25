@@ -69,28 +69,28 @@ class Starpu(Package):
 
         config_args = ["--prefix=" + prefix]
 
-        if '+debug' in spec:
+        if spec.satisfies('+debug'):
             config_args.append("--enable-debug")
 
-        if not '+examples' in spec:
+        if not spec.satisfies('+examples'):
             config_args.append("--disable-build-examples")
 
-        if '+fxt' in spec:
+        if spec.satisfies('+fxt'):
             fxt = spec['fxt'].prefix
             config_args.append("--with-fxt=%s" % fxt)
-            #@when('@1.2')
-            #config_args.append("--enable-paje-codelet-details")
+            if spec.satisfies('@1.2:') or spec.satisfies('@svn-1.2'):
+                config_args.append("--enable-paje-codelet-details")
 
-        if '+simu' in spec:
+        if spec.satisfies('+simu'):
             config_args.append("--enable-simgrid")
 
-        if not '+mpi' in spec:
+        if not spec.satisfies('+mpi'):
             config_args.append("--without-mpicc")
 
-        if not '+cuda' in spec:
+        if not spec.satisfies('+cuda'):
             config_args.append("--disable-cuda")
 
-        if not '+opencl' in spec:
+        if not spec.satisfies('+opencl'):
             config_args.append("--disable-opencl")
 
         configure(*config_args)
