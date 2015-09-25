@@ -48,6 +48,7 @@ class Lapack(Package):
         if spec.satisfies('+lapacke'):
             # Enable lapacke here.
             cmake_args.extend(["-DLAPACKE=ON"])
+            cmake_args.extend(["-DLAPACKE_WITH_TMG=ON"])
 
         cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
 
