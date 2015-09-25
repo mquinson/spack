@@ -45,7 +45,7 @@ class Lapack(Package):
             ".",
             '-DBLAS_LIBRARIES=' + blas_libs]
 
-        if '+lapacke' in spec:
+        if spec.satisfies('+lapacke'):
             # Enable lapacke here.
             cmake_args.extend(["-DLAPACKE=ON"])
 
