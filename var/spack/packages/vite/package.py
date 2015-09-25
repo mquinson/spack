@@ -8,6 +8,7 @@ class Vite(Package):
     version('trunk', svn='svn://scm.gforge.inria.fr/svnroot/vite/trunk')
 
     variant('otf', default=False, description='Enable OTF')
+    variant('qt5', default=False, description='Enable QT5 instead of QT4')
 
     depends_on("otf", when='+otf')
     #depends_on("qt")
@@ -20,11 +21,13 @@ class Vite(Package):
             cmake_args = [
                 "..",
                 "-DBUILD_SHARED_LIBS=ON"]
-            cmake_args.extend(["-DUSE_QT5=ON"])
 
-            if '+otf' in spec:
+            if spec.satisfies('+otf'):
                 # Enable OTF here.
                 cmake_args.extend(["-DVITE_ENABLE_OTF=ON"])
+            if spec.satisfies('+qt5'):
+                # Enable QT5 here.
+                cmake_args.extend(["-DUSE_QT5=ON"])
 
             cmake_args.extend(std_cmake_args)
             cmake(*cmake_args)
