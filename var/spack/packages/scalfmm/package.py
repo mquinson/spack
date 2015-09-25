@@ -33,28 +33,28 @@ class Scalfmm(Package):
                 "-DBUILD_SHARED_LIBS=ON"]
 
             cmake_args.extend(["-DSCALFMM_USE_BLAS=ON"])
-            # if '+blas' in spec:
+            # if spec.satisfies('+blas'):
             #     # Enable BLAS here.
             #     cmake_args.extend(["-DSCALFMM_USE_BLAS=ON"])
             # else:
             #     # Disable BLAS here.
             #     cmake_args.extend(["-DSCALFMM_USE_BLAS=OFF"])
 
-            if '+fftw' in spec:
+            if spec.satisfies('+fftw'):
                 # Enable FFTW here.
                 cmake_args.extend(["-DSCALFMM_USE_FFT=ON"])
             else:
                 # Disable FFTW here.
                 cmake_args.extend(["-DSCALFMM_USE_FFT=OFF"])
 
-            if '+starpu' in spec:
+            if spec.satisfies('+starpu'):
                 # Enable STARPU here.
                 cmake_args.extend(["-DSCALFMM_USE_STARPU=ON"])
             else:
                 # Disable STARPU here.
                 cmake_args.extend(["-DSCALFMM_USE_STARPU=OFF"])
 
-            if '+mpi' in spec:
+            if spec.satisfies('+mpi'):
                 # Enable MPI here.
                 cmake_args.extend(["-DSCALFMM_USE_MPI=ON"])
             else:
@@ -62,12 +62,12 @@ class Scalfmm(Package):
                 cmake_args.extend(["-DSCALFMM_USE_MPI=OFF"])
 
 
-            if '~mkl' in spec:
+            if spec.satisfies('~mkl'):
                 blas = self.spec['blas']
                 lapack = self.spec['lapack']
                 cmake_args.extend(['-DBLAS_DIR=%s' % blas.prefix])
                 cmake_args.extend(['-DLAPACK_DIR=%s' % lapack.prefix])
-                if "%gcc" in spec:
+                if spec.satisfies('%gcc'):
                     os.environ["LDFLAGS"] = "-lgfortran"
 
             cmake_args.extend(std_cmake_args)
