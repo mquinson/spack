@@ -29,8 +29,8 @@ class Magma(Package):
         print spack_root+"/var/spack/packages/magma/make.inc.mkl-gcc"
         call(["cp", spack_root+"/var/spack/packages/magma/make.inc.mkl-gcc", "."])
         call(["ln", "-s", "make.inc.mkl-gcc", "make.inc"])
-        if '~mkl' in spec:
-            if "%gcc" in spec:
+        if spec.satisfies('~mkl'):
+            if spec.satisfies('%gcc'):
                 os.environ["LDFLAGS"] = "-lgfortran"
 
         make("-i")
