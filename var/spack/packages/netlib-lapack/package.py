@@ -1,6 +1,6 @@
 from spack import *
 
-class Lapack(Package):
+class NetlibLapack(Package):
     """
     LAPACK version 3.X is a comprehensive FORTRAN library that does
     linear algebra operations including matrix inversions, least
@@ -19,9 +19,15 @@ class Lapack(Package):
     version('3.3.1', 'd0d533ec9a5b74933c2a1e84eedc58b4')
 
     variant('lapacke', default=False, description='Enable lapacke C interface')
+    variant('shared', default=False, description="Build shared library version")
+
+    # virtual dependency
+    provides('lapack')
 
     # blas is a virtual dependency.
     depends_on('blas')
+
+    depends_on('cmake')
 
     # Doesn't always build correctly in parallel
     parallel = False
@@ -50,9 +56,10 @@ class Lapack(Package):
             cmake_args.extend(["-DLAPACKE=ON"])
             cmake_args.extend(["-DLAPACKE_WITH_TMG=ON"])
 
-        cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
+        if '+shared' in spec:
+            cmake_args.append('-DBUILD_SHARED_LIBS=ON')
 
-        cmake_args.extend(std_cmake_args)
+        cmake_args += std_cmake_args
 
         cmake(*cmake_args)
         make()
