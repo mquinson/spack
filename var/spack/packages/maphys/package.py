@@ -15,7 +15,7 @@ class Maphys(Package):
 
     depends_on("mpi")
     depends_on("hwloc")
-    depends_on("scotch")
+    depends_on("scotch+mpi")
     depends_on("pastix")
     depends_on("mumps+scotch~metis", when='+mumps')
     depends_on("scalapack", when='~mkl+mumps')

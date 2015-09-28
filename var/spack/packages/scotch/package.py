@@ -15,8 +15,9 @@ class Scotch(Package):
             url='https://gforge.inria.fr/frs/download.php/file/34618/scotch_6.0.4.tar.gz')
 
     variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
+    variant('mpi', default=False, description='Enable MPI support')
 
-    depends_on('mpi')
+    depends_on('mpi', when='+mpi')
 
     def patch(self):
         with working_dir('src/Make.inc'):
@@ -41,9 +42,11 @@ class Scotch(Package):
 
         with working_dir('src'):
             force_symlink(makefile, 'Makefile.inc')
-            for app in ('scotch', 'ptscotch', 'esmumps'):
+            for app in ('scotch', 'esmumps'):
                 make(app)
-            make('ptesmumps',parallel=False)
+            if spec.satisfies('+mpi'):
+                make('ptscotch')
+                make('ptesmumps',parallel=False)
 
         install_tree('bin', prefix.bin)
         install_tree('lib', prefix.lib)
