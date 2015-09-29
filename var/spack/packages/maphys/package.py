@@ -6,7 +6,12 @@ class Maphys(Package):
     homepage = "https://project.inria.fr/maphys/"
     url      = "http://maphys.gforge.inria.fr/maphys_0.9.2.tar.gz"
 
-    version('0.9.2', '2dd5d4c21017b2277be93326705e2659')
+    version('0.9.2', '2dd5d4c21017b2277be93326705e2659',
+            url='http://maphys.gforge.inria.fr/maphys_0.9.2.tar.gz')
+
+    svnroot  = "https://scm.gforge.inria.fr/anonscm/svn/maphys/"
+    version('svn-maphys_0.9.1',
+            svn=svnroot+"branches/maphys_0.9.1")
 
     variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
     variant('mumps', default=False, description='Enable MUMPS direct solver')
@@ -16,7 +21,7 @@ class Maphys(Package):
     depends_on("mpi")
     depends_on("hwloc")
     depends_on("scotch+mpi")
-    depends_on("pastix")
+    depends_on("pastix+mpi")
     depends_on("mumps+scotch~metis", when='+mumps')
     depends_on("scalapack", when='~mkl+mumps')
     depends_on("blas", when='~mkl')
