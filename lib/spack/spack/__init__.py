@@ -101,7 +101,7 @@ use_tmp_stage = True
 # Use a %u to add a username to the stage paths here, in case this
 # is a shared filesystem.  Spack will use the first of these paths
 # that it can create.
-tmp_dirs = []
+tmp_dirs = ['/tmp/%u/spack-stage']
 _default_tmp = tempfile.gettempdir()
 if _default_tmp != os.getcwd():
     tmp_dirs.append(os.path.join(_default_tmp, 'spack-stage'))
