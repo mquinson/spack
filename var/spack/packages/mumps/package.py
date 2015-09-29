@@ -20,6 +20,7 @@ class Mumps(Package):
     depends_on("blas", when='~mkl')
     depends_on("scalapack", when='~mkl')
     depends_on("scotch", when='+scotch')
+    depends_on("scotch+mpi", when='+ptscotch')
     depends_on("metis", when='+metis')
     #depends_on("parmetis", when='+parmetis')
 
