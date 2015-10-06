@@ -18,8 +18,8 @@ class NetlibLapack(Package):
     version('3.4.0', '02d5706ec03ba885fc246e5fa10d8c70')
     version('3.3.1', 'd0d533ec9a5b74933c2a1e84eedc58b4')
 
-    variant('lapacke', default=False, description='Enable lapacke C interface')
-    variant('shared', default=False, description="Build shared library version")
+    variant('lapacke', default=True, description='Enable lapacke C interface')
+    variant('shared', default=True, description="Build shared library version")
 
     # virtual dependency
     provides('lapack')
