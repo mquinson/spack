@@ -16,7 +16,7 @@ class Mumps(Package):
     #variant('parmetis', default=False, description='Enable parMetis')
     variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
 
-    depends_on("mpi")
+    depends_on("mpi", when='~seq')
     depends_on("blas", when='~mkl')
     depends_on("scalapack", when='~mkl')
     depends_on("scotch", when='+scotch')
