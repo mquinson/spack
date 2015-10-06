@@ -23,10 +23,11 @@ class Chameleon(Package):
     variant('fxt', default=False, description='Enable FxT tracing support through StarPU')
     variant('simu', default=False, description='Enable simulation mode through StarPU+SimGrid')
     variant('quark', default=False, description='Enable to use Quark runtime instead of StarPU')
+    variant('starpu', default=True, description='Enable to use StarPU runtime instead of Quark')
 
     depends_on("cblas", when='~mkl')
     depends_on("lapack+lapacke", when='~mkl')
-    depends_on("starpu", when='~quark')
+    depends_on("starpu", when='+starpu')
     depends_on("quark", when='+quark')
     depends_on("mpi", when='+mpi')
     depends_on("magma", when='+magma')
@@ -62,6 +63,9 @@ class Chameleon(Package):
             if spec.satisfies('+quark'):
                 # Enable Quark here.
                 cmake_args.extend(["-DCHAMELEON_SCHED_QUARK=ON"])
+            if spec.satisfies('+starpu'):
+                # Enable StarPU here.
+                cmake_args.extend(["-DCHAMELEON_SCHED_STARPU=ON"])
 
             if spec.satisfies('~mkl'):
                 blas = self.spec['blas']
