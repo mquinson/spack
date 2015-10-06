@@ -17,12 +17,12 @@ class Fxt(Package):
         version('0.2.13', 'c688d01cc50945a0cd6364cc39e33b95')
         version('0.2.12', 'd5d910fd818088f01fcf955eed9bc42a')
 
-    def patch(self):
-        mf = FileFilter('tools/fut.h')
-        mf.filter('extern pthread_spinlock_t fut_slot_lock;', '//extern pthread_spinlock_t fut_slot_lock;')
-
     def install(self, spec, prefix):
         configure("--prefix=%s" % prefix)
+
+        # it seems that this patch is required after configure
+        mf = FileFilter('tools/fut.h')
+        mf.filter('extern pthread_spinlock_t fut_slot_lock;', '//extern pthread_spinlock_t fut_slot_lock;')
 
         make(parallel=False)
         # The mkdir commands in fxt's install can fail in parallel
