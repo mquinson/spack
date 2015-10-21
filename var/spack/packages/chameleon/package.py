@@ -56,7 +56,7 @@ class Chameleon(Package):
                 cmake_args.extend(["-DCHAMELEON_USE_MAGMA=ON"])
             if spec.satisfies('+fxt'):
                 # Enable FxT here.
-                cmake_args.extend(["-DCHAMELEON_USE_FXT=ON"])
+                cmake_args.extend(["-DCHAMELEON_ENABLE_TRACING=ON"])
             if spec.satisfies('+simu'):
                 # Enable SimGrid here.
                 cmake_args.extend(["-DCHAMELEON_SIMULATION=ON"])
