@@ -25,7 +25,6 @@ class Suitesparse(Package):
             if spec.satisfies('+mac'):
                 mf.filter('LIB = -lm -lrt', 'LIB = -lm')
 
-            toto
             mf.filter('  BLAS = -lopenblas', '#  BLAS = -lopenblas')
             if spec.satisfies('~mkl'):
                 blas = spec['blas'].prefix
