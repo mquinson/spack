@@ -26,7 +26,7 @@ class Chameleon(Package):
     variant('starpu', default=True, description='Enable to use StarPU runtime instead of Quark')
 
     depends_on("cblas", when='~mkl')
-    depends_on("lapack+lapacke", when='~mkl')
+    depends_on("lapack", when='~mkl')
     depends_on("starpu", when='+starpu')
     depends_on("quark", when='+quark')
     depends_on("mpi", when='+mpi')
