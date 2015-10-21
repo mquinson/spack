@@ -9,6 +9,7 @@ class Suitesparse(Package):
     version('4.4.5', 'a2926c27f8a5285e4a10265cc68bbc18')
 
     variant('mkl', default=False, description='Use BLAS/ScaLAPACK from the Intel MKL library')
+    variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
 
     depends_on("blas",when='~mkl')
     depends_on("lapack",when='~mkl')
@@ -21,6 +22,10 @@ class Suitesparse(Package):
             mf.filter('^INSTALL_LIB =.*', 'INSTALL_LIB = %s' % spec.prefix.lib)
             mf.filter('^INSTALL_INCLUDE =.*', 'INSTALL_INCLUDE = %s' % spec.prefix.include)
 
+            if spec.satisfies('+mac'):
+                mf.filter('LIB = -lm -lrt', 'LIB = -lm')
+
+            toto
             mf.filter('  BLAS = -lopenblas', '#  BLAS = -lopenblas')
             if spec.satisfies('~mkl'):
                 blas = spec['blas'].prefix
