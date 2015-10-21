@@ -18,6 +18,7 @@ class Pastix(Package):
     variant('metis', default=False, description='Enable Metis')
     variant('starpu', default=False, description='Enable StarPU')
     variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
+    variant('shared', default=False, description='Build Pastix as a shared library')
 
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
@@ -43,6 +44,14 @@ class Pastix(Package):
             mf.filter('^# LIBDIR        =.*', 'LIBDIR        = ${ROOT}/lib')
             mf.filter('^# BINDIR        =.*', 'BINDIR        = ${ROOT}/bin')
             mf.filter('^# PYTHON_PREFIX =.*', 'PYTHON_PREFIX = ${ROOT}')
+
+            if spec.satisfies('+shared'):
+                mf.filter('#SHARED=1', 'SHARED=1')
+                mf.filter('#SOEXT=\.so', 'SOEXT=.so')
+                mf.filter('#SHARED_FLAGS =  -shared -Wl,-soname,__SO_NAME__', 'SHARED_FLAGS =  -shared -Wl,-soname,__SO_NAME__')
+                mf.filter('#CCFDEB       := \$\{CCFDEB\} -fPIC', 'CCFDEB       := ${CCFDEB} -fPIC')
+                mf.filter('#CCFOPT       := \$\{CCFOPT\} -fPIC', 'CCFOPT       := ${CCFOPT} -fPIC')
+                mf.filter('#CFPROG       := \$\{CFPROG\} -fPIC', 'CFPROG       := ${CFPROG} -fPIC')
 
             if not spec.satisfies('+mpi'):
                 mf.filter('^#VERSIONMPI  = _nompi', 'VERSIONMPI  = _nompi')
