@@ -9,6 +9,7 @@ class Suitesparse(Package):
     version('4.4.5', 'a2926c27f8a5285e4a10265cc68bbc18')
 
     variant('mkl', default=False, description='Use BLAS/ScaLAPACK from the Intel MKL library')
+    variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
 
     depends_on("blas",when='~mkl')
     depends_on("lapack",when='~mkl')
@@ -18,10 +19,16 @@ class Suitesparse(Package):
         spec = self.spec
         with working_dir('SuiteSparse_config'):
             mf = FileFilter('SuiteSparse_config.mk')
+            if spec.satisfies('+mac'):
+                mf = FileFilter('SuiteSparse_config_Mac.mk')
             mf.filter('^INSTALL_LIB =.*', 'INSTALL_LIB = %s' % spec.prefix.lib)
             mf.filter('^INSTALL_INCLUDE =.*', 'INSTALL_INCLUDE = %s' % spec.prefix.include)
 
+            if spec.satisfies('+mac'):
+                mf.filter('LIB = -lm -lrt', 'LIB = -lm')
+
             mf.filter('  BLAS = -lopenblas', '#  BLAS = -lopenblas')
+
             if spec.satisfies('~mkl'):
                 blas = spec['blas'].prefix
                 lapack = spec['lapack'].prefix
@@ -31,6 +38,10 @@ class Suitesparse(Package):
                 mf.filter('^# BLAS = -Wl,--start-group \$\(MKLROOT\).*',
                           'BLAS = -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm')
                 mf.filter('^  LAPACK =.*', '  LAPACK =')
+
+            if spec.satisfies('+mac'):
+                mf.filter('  BLAS = -framework Accelerate', '')
+                mf.filter('  LAPACK = -framework Accelerate', '')
 
             metis = spec['metis'].prefix
             mf.filter('^METIS_PATH =.*', 'METIS_PATH = %s' % metis)
