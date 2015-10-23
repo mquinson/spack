@@ -16,6 +16,7 @@ class Scotch(Package):
 
     variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
     variant('mpi', default=False, description='Enable MPI support')
+    variant('shared', default=False, description='Build SCOTCH as a shared library')
 
     depends_on('mpi', when='+mpi')
 
@@ -27,6 +28,8 @@ class Scotch(Package):
             filter_file(r'^CCD\s*=.*$', 'CCD = cc', *makefiles)
             if spec.satisfies('%icc'):
                 call(["cp", "Makefile.inc.x86-64_pc_linux2.shlib", "Makefile.inc.x86-64_pc_linux2.shlib.icc"])
+                filter_file(r'^CLIBFLAGS\s*=.*$', 'CLIBFLAGS = -shared -fpic', *makefiles)
+            elif spec.satisfies('+shared'):
                 filter_file(r'^CLIBFLAGS\s*=.*$', 'CLIBFLAGS = -shared -fpic', *makefiles)
 
             filter_file(r'-DCOMMON_PTHREAD', '-DSCOTCH_DETERMINISTIC -DCOMMON_PTHREAD -DCOMMON_PTHREAD_BARRIER -DCOMMON_TIMING_OLD', *makefiles)
@@ -41,6 +44,10 @@ class Scotch(Package):
             makefile += '.icc'
 
         with working_dir('src'):
+            if spec.satisfies('+shared'):
+                mf = FileFilter(makefile)
+                mf.filter('CFLAGS       =', 'CFLAGS     = -fPIC')
+
             force_symlink(makefile, 'Makefile.inc')
             for app in ('scotch', 'esmumps'):
                 make(app)
