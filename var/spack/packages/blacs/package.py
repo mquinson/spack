@@ -10,17 +10,21 @@ class Blacs(Package):
     # tarball has no version, but on the date below, this MD5 was correct.
     version('1997-05-05', '28ae5b91b3193402fe1ae8d06adcf500', url='http://www.netlib.org/blacs/mpiblacs.tgz')
     version('lib','82687f1e07fd98e0b9f78b71911459fe', url='http://www.netlib.org/blacs/archives/blacs_MPI-LINUX-0.tgz')
-    depends_on('openmpi')
+    
+    depends_on('mpi')
 
     def install(self, spec, prefix):
         call(['cp', 'BMAKES/Bmake.MPI-LINUX', 'Bmake.inc'])
         mf = FileFilter('Bmake.inc')
 
         mf.filter('\$\(HOME\)/BLACS', '%s' % os.getcwd())
-        mf.filter('/usr/local/mpich', '%s' % self.spec['openmpi'].prefix)
+        mf.filter('/usr/local/mpich', '%s' % self.spec['mpi'].prefix)
         mf.filter('\$\(MPILIBdir\)/libmpich\.a', '')
         mf.filter('\$\(MPIdir\)/lib/', '')
-        mf.filter('DUseMpich', 'DUseMpi2')
+
+        if spec.satisfies('^openmpi'):
+            mf.filter('DUseMpich', 'DUseMpi2')
+
         mf.filter('F77            = g77', 'F77            = mpif77')
         mf.filter('CC             = gcc', 'CC             = mpicc')
         filter_file('\$\(MAKE\) -f \.\./Makefile I_int \"dlvl=\$\(BTOPdir\)\" \)','echo $(BLACSDEFS) $(MAKE) -f ../Makefile I_int "dlvl=$(BTOPdir)" )', 'SRC/MPI/Makefile')
