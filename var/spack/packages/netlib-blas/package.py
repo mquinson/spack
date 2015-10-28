@@ -12,39 +12,36 @@ class NetlibBlas(Package):
     # virtual dependency
     provides('blas')
 
+    depends_on('cmake')
+
     # Doesn't always build correctly in parallel
     parallel = False
 
-    def patch(self):
-        os.symlink('make.inc.example', 'make.inc')
+    variant('shared', default=True, description="Build shared library version")
 
-        mf = FileFilter('make.inc')
-        mf.filter('^FORTRAN.*', 'FORTRAN = f90')
-        mf.filter('^LOADER.*',  'LOADER = f90')
-        mf.filter('^CC =.*',  'CC = cc')
-        spec = self.spec
-        if spec.satisfies('%gcc'):
-            mf.filter('^OPTS     =.*', 'OPTS     = -O2 -frecursive -fPIC')
-            mf.filter('^CFLAGS =.*', 'CFLAGS = -O3 -fPIC')
-        if spec.satisfies('%icc'):
-            mf.filter('^OPTS     =.*', 'OPTS     = -O2 -shared -fpic')
-            mf.filter('^CFLAGS =.*', 'CFLAGS = -O3 -shared -fpic')
-
-        mf.filter('^OPTS.*=.*',  'OPTS = -O2 -frecursive -fpic')
-        mf.filter('^CFLAGS =.*',  'CFLAGS = -O3 -fpic')
-
+    def setup_dependent_environment(self, module, spec, dep_spec):
+        """Dependencies of this package will get the library name for netlib-blas."""
+        if '+shared' in spec:
+            module.blaslibname=[os.path.join(self.spec.prefix.lib, "libblas.so")]
+	else:
+            module.blaslibname=[os.path.join(self.spec.prefix.lib, "libblas.a")]
 
     def install(self, spec, prefix):
-        make('blaslib')
+	# Disable the building of lapack in CMakeLists.txt
+        mf = FileFilter('CMakeLists.txt')
+        mf.filter('add_subdirectory\(SRC\)','#add_subdirectory(SRC)')
+        mf.filter('set\(ALL_TARGETS \$\{ALL_TARGETS\} lapack\)','#set(ALL_TARGETS ${ALL_TARGETS} lapack)')
 
-        # Tests that blas builds correctly
-        make('blas_testing')
+        cmake_args = [
+                ".",
+                "-DBUILD_TESTING=OFF",
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
+        if '+shared' in spec:
+            cmake_args.append('-DBUILD_SHARED_LIBS=ON')
+            cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
 
-        # No install provided
-        mkdirp(prefix.lib)
-        install('librefblas.a', prefix.lib)
+        cmake_args += std_cmake_args
+        cmake(*cmake_args)
+        make()
+        make("install")
 
-        # Blas virtual package should provide blas.a and libblas.a
-        with working_dir(prefix.lib):
-            symlink('librefblas.a', 'blas.a')
-            symlink('librefblas.a', 'libblas.a')

@@ -12,6 +12,7 @@ class HmatOss(Package):
     variant('examples', default=True, description='Add examples to test library')
 
     depends_on("cblas", when='~mkl')
+    depends_on("lapack", when='~mkl')
 
     def patch(self):
         with working_dir('CMake'):
@@ -35,9 +36,24 @@ class HmatOss(Package):
                 cmake_args.extend(["-DBUILD_EXAMPLES:BOOL=ON"])
 
             if spec.satisfies('~mkl'):
+                mf = FileFilter('../CMake/FindCBLAS.cmake')
+                mf.filter('\"cblas\"','"cblas;blas"')
+
                 cblas = spec['cblas'].prefix
-                cmake_args.extend(["-DCBLAS_INCLUDE_DIRS=%s/include" % cblas])
-                cmake_args.extend(["-DCBLAS_LIBRARY_DIRS=%s/lib" % cblas])
+                cmake_args.extend(["-DCBLAS_INCLUDE_DIRS=%s/" % cblas.include])
+                cmake_args.extend(["-DCBLAS_LIBRARY_DIRS=%s/" % cblas.lib])
+
+                blas_libs = ";".join(blaslibname)
+                blas = spec['blas'].prefix
+                cmake_args.extend(["-DBLAS_LIBRARY_DIRS=%s/" % blas.lib])
+                cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
+
+                lapack_libs = ";".join(lapacklibname)
+                lapack = spec['lapack'].prefix
+                cmake_args.extend(["-DLAPACK_LIBRARY_DIRS=%s/" % lapack.lib])
+                cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
+                cmake_args.extend(["-DMKL_DETECT=OFF"])
+                cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
             else:
                 mf = FileFilter('../CMake/FindMKL.cmake')
                 mf.filter('set\(MKL_LINKER_FLAGS \"-L\$\{MKL_LIBRARY_DIR\} -lmkl_intel_\$\{MKL_IL\} -lmkl_core -lmkl_gnu_thread\"\)','set(MKL_LINKER_FLAGS "-L${MKL_LIBRARY_DIR} -lmkl_intel_${MKL_IL} -lmkl_core -lmkl_gnu_thread -lm")')
