@@ -5,8 +5,8 @@ class HmatOss(Package):
     """A H-Matrix C/C++ library"""
     homepage = "https://github.com/jeromerobert/hmat-oss/"
 
-    # version('1.1.2', '8c697af7bd7424c2c27bb3fd765494d6a52ff724', url='https://github.com/jeromerobert/hmat-oss/archive/master.zip')
     version('master', git='https://github.com/jeromerobert/hmat-oss.git', branch='master')
+    version('1.1.2', 'fe52fa22e413be862bec1b44a2b695a566525138', url='https://github.com/jeromerobert/hmat-oss/archive/1.1.2.tar.gz')
 
     variant('mkl', default=True, description='Use BLAS/LAPACK from the Intel MKL library')
     variant('examples', default=True, description='Add examples to test library')
