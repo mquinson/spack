@@ -24,6 +24,7 @@ class Chameleon(Package):
     variant('simu', default=False, description='Enable simulation mode through StarPU+SimGrid')
     variant('quark', default=False, description='Enable to use Quark runtime instead of StarPU')
     variant('starpu', default=True, description='Enable to use StarPU runtime instead of Quark')
+    variant('eztrace', default=False, description='Enable EZTrace modules')
 
     depends_on("cblas", when='~mkl')
     depends_on("lapack", when='~mkl')
@@ -32,6 +33,7 @@ class Chameleon(Package):
     depends_on("mpi", when='+mpi')
     depends_on("magma", when='+magma')
     depends_on("fxt", when='+fxt')
+    depends_on("eztrace", when='+eztrace')
 
     def install(self, spec, prefix):
 
