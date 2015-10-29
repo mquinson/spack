@@ -1,6 +1,7 @@
 from spack import *
 import os
 import spack
+import sys
 
 class Hpmpi(Package):
     """HP-MPI/PlatformMPI is a proprietary implementation of
@@ -27,9 +28,13 @@ class Hpmpi(Package):
         os.environ['MPI_F90_OPTIONS'] = "-lmtmpi"
 
     def install(self, spec, prefix):
-        os.environ['MPI_ROOT'] = "/opt/hpmpi/"
-	os.symlink("/opt/hpmpi/lib/linux_amd64/", prefix.lib)
-        os.symlink("/opt/hpmpi/etc/", prefix.etc)
-        os.symlink("/opt/hpmpi/share/", prefix.share)
-        os.symlink("/opt/hpmpi/bin/", prefix.bin)
-        os.symlink("/opt/hpmpi/include/", prefix.include)
+        mpiroot='/opt/hpmpi/'
+        if os.path.isdir(mpiroot):
+            os.environ['MPI_ROOT'] = mpiroot
+            os.symlink(mpiroot+"lib/linux_amd64/", prefix.lib)
+            os.symlink(mpiroot+"etc/", prefix.etc)
+            os.symlink(mpiroot+"share/", prefix.share)
+            os.symlink(mpiroot+"bin/", prefix.bin)
+            os.symlink(mpiroot+"include/", prefix.include)
+        else:
+            sys.exit(mpiroot+' directory does not exist.'+' Do you really have hpmpi installed in '+mpiroot+' ?')
