@@ -11,7 +11,6 @@ class Mumps(Package):
     version('5.0.1', 'b477573fdcc87babe861f62316833db0')
 
     variant('seq', default=False, description='Sequential version (no MPI)')
-    variant('mkl', default=False, description='Use BLAS/ScaLAPACK from the Intel MKL library')
     variant('scotch', default=True, description='Enable Scotch')
     variant('ptscotch', default=False, description='Enable PT-Scotch')
     variant('metis', default=False, description='Enable Metis')
@@ -19,23 +18,24 @@ class Mumps(Package):
     variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
 
     depends_on("mpi", when='~seq')
-    depends_on("blas", when='~mkl')
-    depends_on("scalapack", when='~mkl')
+    depends_on("blas")
+    depends_on("scalapack")
     depends_on("scotch", when='+scotch')
     depends_on("scotch+mpi", when='+ptscotch')
     depends_on("metis@5:", when='+metis')
     #depends_on("parmetis", when='+parmetis')
 
-    def patch(self):
+    def setup(self):
         spec = self.spec
-        if spec.satisfies('~seq@5'):
-            os.symlink('Make.inc/Makefile.debian.PAR', 'Makefile.inc')
-        if spec.satisfies('+seq@5'):
-            os.symlink('Make.inc/Makefile.debian.SEQ', 'Makefile.inc')
-        if spec.satisfies('~seq@4'):
-            os.symlink('Make.inc/Makefile.inc.generic', 'Makefile.inc')
-        if spec.satisfies('+seq@4'):
-            os.symlink('Make.inc/Makefile.inc.generic.SEQ', 'Makefile.inc')
+        if not os.path.isfile('Makefile.inc'):
+            if spec.satisfies('~seq@5'):
+                os.symlink('Make.inc/Makefile.debian.PAR', 'Makefile.inc')
+            if spec.satisfies('+seq@5'):
+                os.symlink('Make.inc/Makefile.debian.SEQ', 'Makefile.inc')
+            if spec.satisfies('~seq@4'):
+                os.symlink('Make.inc/Makefile.inc.generic', 'Makefile.inc')
+            if spec.satisfies('+seq@4'):
+                os.symlink('Make.inc/Makefile.inc.generic.SEQ', 'Makefile.inc')
 
         mf = FileFilter('Makefile.inc')
 
@@ -73,20 +73,22 @@ class Mumps(Package):
 
         mf.filter('ORDERINGSF = -Dmetis -Dpord -Dscotch', 'ORDERINGSF = %s' % ordlist)
 
-        if spec.satisfies('~mkl'):
-            scalapack = spec['scalapack'].prefix
-            mf.filter('^SCALAP  =.*', 'SCALAP  = -L%s -lscalapack ' % scalapack.lib)
-            blas = spec['blas'].prefix
-            mf.filter('^LIBBLAS =.*', 'LIBBLAS = -L%s -lblas' % blas.lib)
-            optf = 'OPTF = -O  -DALLOW_NON_INIT'
+        if spec.satisfies('^mkl-scalapack'):
+            scalapack_libs = " ".join(scalapacklibfortname)
+        elif spec.satisfies('^netlib-scalapack'):
+            scalapack_libs = " ".join(scalapacklibname)
+        if spec.satisfies('^mkl-blas'):
+            blas_libs = " ".join(blaslibfortname)
+        elif spec.satisfies('^netlib-blas'):
+            blas_libs = " ".join(blaslibname)
 
-        if spec.satisfies('+mkl'):
-            mf.filter('^SCALAP  =.*', 'SCALAP  = -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_scalapack_lp64 -lmkl_gf_lp64 -lmkl_core -lmkl_intel_thread -lmkl_blacs_intelmpi_lp64 -liomp5 -ldl -lpthread -lm')
-            mf.filter('^LIBBLAS =.*', 'LIBBLAS = -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_gf_lp64 -lmkl_core -lmkl_intel_thread -liomp5 -ldl -lpthread -lm')
-            optf = 'OPTF = -O  -DALLOW_NON_INIT -m64 -I${MKLROOT}/include'
+        mf.filter('^SCALAP  =.*', 'SCALAP  = %s' % scalapack_libs)
+        mf.filter('^LIBBLAS =.*', 'LIBBLAS = %s' % blas_libs)
 
-        optf+=' -fPIC'
-        mf.filter('OPTF    = -O  -DALLOW_NON_INIT', '%s' % optf)
+        if spec.satisfies('^mkl-scalapack'):
+            mf.filter('OPTF    = -O  -DALLOW_NON_INIT', 'OPTF = -O  -DALLOW_NON_INIT -fPIC -m64 -I${MKLROOT}/include')
+        else:
+            mf.filter('OPTF    = -O  -DALLOW_NON_INIT', 'OPTF = -O  -DALLOW_NON_INIT -fPIC')
         mf.filter('OPTC    = -O', 'OPTC    = -O -fPIC')
 
         mpi = spec['mpi'].prefix
@@ -102,6 +104,8 @@ class Mumps(Package):
             mf.filter('-lrt', '');
 
     def install(self, spec, prefix):
+
+        self.setup()
 
         for app in ('s', 'd', 'c', 'z'):
             make(app)
