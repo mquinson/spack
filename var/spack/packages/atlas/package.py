@@ -23,6 +23,9 @@ class Atlas(Package):
 
     # provides('blas')
 
+    def setup_dependent_environment(self, module, spec, dep_spec):
+        """Dependencies of this package will get the libraries names for atlas."""
+        module.blaslibname=[os.path.join(self.spec.prefix, "lbf77blas.a"), os.path.join(self.spec.prefix, "libatlas.a")]
 
     def patch(self):
         # Disable thraed check.  LLNL's environment does not allow

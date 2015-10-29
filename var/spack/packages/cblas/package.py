@@ -15,15 +15,16 @@ class Cblas(Package):
     depends_on('blas')
     parallel = False
 
-    def patch(self):
+    def install(self, spec, prefix):
+        blas_libs = " ".join(blaslibname)
         mf = FileFilter('Makefile.in')
 
-        mf.filter('^BLLIB =.*', 'BLLIB = %s/libblas.a' % self.spec['blas'].prefix.lib)
+        mf.filter('^BLLIB =.*', 'BLLIB = %s' % blas_libs)
         mf.filter('^CC =.*', 'CC = cc')
         mf.filter('^FC =.*', 'FC = f90')
+        mf.filter('^CFLAGS =', 'CFLAGS = -fPIC ')
+        mf.filter('^FFLAGS =', 'FFLAGS = -fPIC ')
 
-
-    def install(self, spec, prefix):
         make('all')
         mkdirp(prefix.lib)
         mkdirp(prefix.include)

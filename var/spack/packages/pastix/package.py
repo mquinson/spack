@@ -58,6 +58,8 @@ class Pastix(Package):
                 mf.filter('^#CCTYPES    := \$\(CCTYPES\) -DFORCE_NOMPI', 'CCTYPES    := $(CCTYPES) -DFORCE_NOMPI')
                 mf.filter('^#MPCCPROG    = \$\(CCPROG\)', 'MPCCPROG    = $(CCPROG)\nMPCXXPROG   = $(CXXPROG)')
                 mf.filter('^#MCFPROG     = \$\(CFPROG\)', 'MCFPROG     = $(CFPROG)')
+            else:
+                mf.filter('mpic\+\+', 'mpicxx') # mpic++ does not exist with hpmpi
 
             if spec.satisfies('+starpu'):
                 starpu = spec['starpu'].prefix

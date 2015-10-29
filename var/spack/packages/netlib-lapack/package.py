@@ -1,5 +1,5 @@
 from spack import *
-
+import os
 class NetlibLapack(Package):
     """
     LAPACK version 3.X is a comprehensive FORTRAN library that does
@@ -32,25 +32,18 @@ class NetlibLapack(Package):
     # Doesn't always build correctly in parallel
     parallel = False
 
-    @when('^netlib-blas')
-    def get_blas_libs(self):
-        blas = self.spec['netlib-blas']
-        return [join_path(blas.prefix.lib, 'blas.a')]
-
-
-    @when('^atlas')
-    def get_blas_libs(self):
-        blas = self.spec['atlas']
-        return [join_path(blas.prefix.lib, l)
-                for l in ('libf77blas.a', 'libatlas.a')]
-
+    def setup_dependent_environment(self, module, spec, dep_spec):
+        """Dependencies of this package will get the library name for netlib-lapack."""
+        if '+shared' in spec:
+            module.lapacklibname=[os.path.join(self.spec.prefix.lib, "liblapack.so")]
+        else:
+            module.lapacklibname=[os.path.join(self.spec.prefix.lib, "liblapack.a")]
 
     def install(self, spec, prefix):
-        blas_libs = ";".join(self.get_blas_libs())
+        blas_libs = ";".join(blaslibname)
         cmake_args = [
-            ".",
+            ".", "-Wno-dev",
             '-DBLAS_LIBRARIES=' + blas_libs]
-
         if spec.satisfies('+lapacke'):
             # Enable lapacke here.
             cmake_args.extend(["-DLAPACKE=ON"])
@@ -58,6 +51,7 @@ class NetlibLapack(Package):
 
         if '+shared' in spec:
             cmake_args.append('-DBUILD_SHARED_LIBS=ON')
+            cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
 
         cmake_args += std_cmake_args
 
