@@ -13,6 +13,8 @@ class Scotch(Package):
     version('6.0.3', '10b0cc0f184de2de99859eafaca83cfc')
     version('6.0.4', 'd58b825eb95e1db77efe8c6ff42d329f',
             url='https://gforge.inria.fr/frs/download.php/file/34618/scotch_6.0.4.tar.gz')
+    version('5.1.11', 'c00a886895b3895529814303afe0d74e',
+            url='https://gforge.inria.fr/frs/download.php/28044/scotch_5.1.11_esmumps.tar.gz')
 
     variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
     variant('mpi', default=False, description='Enable MPI support')
@@ -44,16 +46,20 @@ class Scotch(Package):
             makefile += '.icc'
 
         with working_dir('src'):
+            mf = FileFilter(makefile)
             if spec.satisfies('+shared'):
-                mf = FileFilter(makefile)
                 mf.filter('CFLAGS       =', 'CFLAGS     = -fPIC')
+            if spec.satisfies('@5'):
+                mf.filter('LDFLAGS\s*=', 'LDFLAGS = -pthread ')
 
             force_symlink(makefile, 'Makefile.inc')
-            for app in ('scotch', 'esmumps'):
-                make(app)
+            make('scotch')
+            if not spec.satisfies('@5'):
+                make('esmumps')
             if spec.satisfies('+mpi'):
                 make('ptscotch')
-                make('ptesmumps',parallel=False)
+                if not spec.satisfies('@5'):
+                    make('ptesmumps',parallel=False)
 
         install_tree('bin', prefix.bin)
         install_tree('lib', prefix.lib)

@@ -4,9 +4,11 @@ import os
 class Mumps(Package):
     """a MUltifrontal Massively Parallel sparse direct Solver."""
     homepage = "http://mumps.enseeiht.fr/"
-    url      = "http://mumps.enseeiht.fr/MUMPS_5.0.0.tar.gz"
+    url      = "http://mumps.enseeiht.fr/MUMPS_5.0.1.tar.gz"
 
+    version('4.10.0', '959e9981b606cd574f713b8422ef0d9f')
     version('5.0.0', '3c6aeab847e9d775ca160194a9db2b75')
+    version('5.0.1', 'b477573fdcc87babe861f62316833db0')
 
     variant('seq', default=False, description='Sequential version (no MPI)')
     variant('mkl', default=False, description='Use BLAS/ScaLAPACK from the Intel MKL library')
@@ -26,10 +28,14 @@ class Mumps(Package):
 
     def patch(self):
         spec = self.spec
-        if spec.satisfies('~seq'):
+        if spec.satisfies('~seq@5'):
             os.symlink('Make.inc/Makefile.debian.PAR', 'Makefile.inc')
-        if spec.satisfies('+seq'):
+        if spec.satisfies('+seq@5'):
             os.symlink('Make.inc/Makefile.debian.SEQ', 'Makefile.inc')
+        if spec.satisfies('~seq@4'):
+            os.symlink('Make.inc/Makefile.inc.generic', 'Makefile.inc')
+        if spec.satisfies('+seq@4'):
+            os.symlink('Make.inc/Makefile.inc.generic.SEQ', 'Makefile.inc')
 
         mf = FileFilter('Makefile.inc')
 
@@ -69,7 +75,7 @@ class Mumps(Package):
 
         if spec.satisfies('~mkl'):
             scalapack = spec['scalapack'].prefix
-            mf.filter('^SCALAP  =.*', 'SCALAP  = -L%s -lscalapack' % scalapack.lib)
+            mf.filter('^SCALAP  =.*', 'SCALAP  = -L%s -lscalapack ' % scalapack.lib)
             blas = spec['blas'].prefix
             mf.filter('^LIBBLAS =.*', 'LIBBLAS = -L%s -lblas' % blas.lib)
             optf = 'OPTF = -O  -DALLOW_NON_INIT'
@@ -84,11 +90,11 @@ class Mumps(Package):
         mf.filter('OPTC    = -O', 'OPTC    = -O -fPIC')
 
         mpi = spec['mpi'].prefix
-        mf.filter('CC = gcc', 'CC = mpicc')
-        mf.filter('FC = gfortran', 'FC = mpif90')
-        mf.filter('FL = gfortran', 'FL = mpif90')
-        mf.filter('^INCPAR =.*', 'INCPAR = -I%s' % mpi.include)
-        mf.filter('^LIBPAR =.*', 'LIBPAR = $(SCALAP)')
+        mf.filter('CC\s*=.*', 'CC = mpicc')
+        mf.filter('FC\s*=.*', 'FC = mpif90')
+        mf.filter('FL\s*=.*', 'FL = mpif90')
+        mf.filter('^INCPAR.*', 'INCPAR = -I%s' % mpi.include)
+        mf.filter('^LIBPAR.*', 'LIBPAR = $(SCALAP)')
 
         mf.filter('^LIBOTHERS =.*', 'LIBOTHERS = -lz -lm -lrt -lpthread')
 
