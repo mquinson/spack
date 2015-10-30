@@ -13,7 +13,7 @@ class Hpmpi(Package):
     version('9.1.0', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
-    provides('mpi@:2.2')
+    provides('mpi@:2.2', when='@9.1.0')    # Platform MPI 9.1.0 supports MPI-2.2
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """For dependencies, make mpicc's use spack wrapper."""
