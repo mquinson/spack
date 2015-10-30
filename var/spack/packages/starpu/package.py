@@ -37,6 +37,7 @@ class Starpu(Package):
         version('0.2'  , '763c9b1347026e035a25ed3709fec4fd')
         version('0.1'  , '658c7a8a3ef53599fd197ab3c7127c20')
 
+    version('git-1.2', git='https://bitbucket.org/jeromerobert/starpu.git/starpu.git', branch='agi/cc-linux-dev')
     version('svn-trunk', svn='svn://scm.gforge.inria.fr/svn/starpu/trunk')
     version('svn-1.1', svn='svn://scm.gforge.inria.fr/svn/starpu/branches/starpu-1.1')
     version('svn-1.2', svn='svn://scm.gforge.inria.fr/svn/starpu/branches/starpu-1.2')
@@ -63,11 +64,18 @@ class Starpu(Package):
         # execute autogen first if running the SVN version
         subprocess.check_call('./autogen.sh')
 
+    @when('@git')
+    def setup(self):
+        working_dir("starpu")
+	# execute autogen first if running the SVN version
+        subprocess.check_call('./autogen.sh')
+
     def install(self, spec, prefix):
 
         self.setup()
 
         config_args = ["--prefix=" + prefix]
+        config_args.append("--disable-build-doc")
 
         if spec.satisfies('+debug'):
             config_args.append("--enable-debug")
