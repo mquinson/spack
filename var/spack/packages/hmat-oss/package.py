@@ -40,18 +40,18 @@ class HmatOss(Package):
                 mf.filter('\"cblas\"','"cblas;blas"')
 
                 cblas = spec['cblas'].prefix
-                cmake_args.extend(["-DCBLAS_INCLUDE_DIRS=%s/" % cblas.include])
-                cmake_args.extend(["-DCBLAS_LIBRARY_DIRS=%s/" % cblas.lib])
+                cmake_args.extend(["-DCBLAS_INCLUDE_DIRS=" + cblas.include])
+                cmake_args.extend(["-DCBLAS_LIBRARY_DIRS=" + cblas.lib])
 
                 blas_libs = ";".join(blaslibname)
                 blas = spec['blas'].prefix
-                cmake_args.extend(["-DBLAS_LIBRARY_DIRS=%s/" % blas.lib])
-                cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
+                cmake_args.extend(["-DBLAS_LIBRARY_DIRS=" + blas.lib])
+                cmake_args.extend(["-DBLAS_LIBRARIES=" + blas_libs])
 
                 lapack_libs = ";".join(lapacklibname)
                 lapack = spec['lapack'].prefix
-                cmake_args.extend(["-DLAPACK_LIBRARY_DIRS=%s/" % lapack.lib])
-                cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
+                cmake_args.extend(["-DLAPACK_LIBRARY_DIRS=" + lapack.lib])
+                cmake_args.extend(["-DLAPACK_LIBRARIES=" + lapack_libs])
                 cmake_args.extend(["-DMKL_DETECT=OFF"])
                 cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
             else:
