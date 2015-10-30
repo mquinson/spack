@@ -15,6 +15,8 @@ class Cblas(Package):
     depends_on('blas')
     parallel = False
 
+    variant('shared', default=True, description='Build CBLAS as a shared library')
+
     def install(self, spec, prefix):
         blas_libs = " ".join(blaslibname)
         mf = FileFilter('Makefile.in')
@@ -25,12 +27,23 @@ class Cblas(Package):
         mf.filter('^CFLAGS =', 'CFLAGS = -fPIC ')
         mf.filter('^FFLAGS =', 'FFLAGS = -fPIC ')
 
+        if spec.satisfies('+shared'):
+            mf.filter('ARCH\s*=.*', 'ARCH=$(CC) $(BLLIB)')
+            mf.filter('ARCHFLAGS\s*=.*', 'ARCHFLAGS=-shared -o')
+            mf.filter('RANLIB\s*=.*', 'RANLIB=echo')
+            mf.filter('CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
+            mf.filter('FFLAGS\s*=', 'FFLAGS = -fPIC ')
+            mf.filter('\.a', '.so')
+
         make('all')
         mkdirp(prefix.lib)
         mkdirp(prefix.include)
 
-        # Rename the generated lib file to libcblas.a
-        install('./lib/cblas_LINUX.a', '%s/libcblas.a' % prefix.lib)
+        # Rename the generated lib file to libcblas
+        if spec.satisfies('+shared'):
+            install('./lib/cblas_LINUX.so', '%s/libcblas.so' % prefix.lib)
+        else:
+            install('./lib/cblas_LINUX.a', '%s/libcblas.a' % prefix.lib)
         install('./include/cblas.h','%s' % prefix.include)
         install('./include/cblas_f77.h','%s' % prefix.include)
 
