@@ -23,8 +23,10 @@ class NetlibBlas(Package):
         """Dependencies of this package will get the library name for netlib-blas."""
         if '+shared' in spec:
             module.blaslibname=[os.path.join(self.spec.prefix.lib, "libblas.so")]
+            module.blaslibfortname=[os.path.join(self.spec.prefix.lib, "libblas.so")]
         else:
             module.blaslibname=[os.path.join(self.spec.prefix.lib, "libblas.a")]
+            module.blaslibfortname=[os.path.join(self.spec.prefix.lib, "libblas.a")]
 
     def install(self, spec, prefix):
         # Disable the building of lapack in CMakeLists.txt
@@ -44,4 +46,3 @@ class NetlibBlas(Package):
         cmake(*cmake_args)
         make()
         make("install")
-

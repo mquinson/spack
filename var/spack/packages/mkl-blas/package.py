@@ -27,15 +27,14 @@ class MklBlas(Package):
                 if spec.satisfies('%gcc'):
                     if spec.satisfies('+shared'):
                         module.blaslibname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm"]
-                        module.blasparlibname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -ldl -lpthread -lm"]
+                        module.blasparlibname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -ldl -liomp5 -lpthread -lm"]
                         module.blaslibfortname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_gf_lp64 -lmkl_core -lmkl_sequential -lpthread -lm"]
-                        module.blasparlibfortname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_gf_lp64 -lmkl_core -lmkl_gnu_thread -ldl -lpthread -lm"]
-
+                        module.blasparlibfortname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_gf_lp64 -lmkl_core -lmkl_intel_thread -ldl -liomp5 -lpthread -lm"]
                     else:
                         module.blaslibname=["-Wl,--start-group "+mkllibdir+"libmkl_intel_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_sequential.a -Wl,--end-group -lpthread -lm"]
-                        module.blasparlibname=["-Wl,--start-group "+mkllibdir+"libmkl_intel_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_gnu_thread.a -Wl,--end-group -ldl -lpthread -lm"]
+                        module.blasparlibname=["-Wl,--start-group "+mkllibdir+"libmkl_intel_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_intel_thread.a -Wl,--end-group -ldl -liomp5 -lpthread -lm"]
                         module.blaslibfortname=["-Wl,--start-group "+mkllibdir+"libmkl_gf_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_sequential.a -Wl,--end-group -lpthread -lm"]
-                        module.blasparlibfortname=["-Wl,--start-group "+mkllibdir+"libmkl_gf_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_gnu_thread.a -Wl,--end-group -ldl -lpthread -lm"]
+                        module.blasparlibfortname=["-Wl,--start-group "+mkllibdir+"libmkl_gf_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_intel_thread.a -Wl,--end-group -ldl -liomp5 -lpthread -lm"]
                 elif spec.satisfies('%icc'):
                     if spec.satisfies('+shared'):
                         module.blaslibname=["-L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm"]

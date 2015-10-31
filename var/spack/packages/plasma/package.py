@@ -9,15 +9,15 @@ class Plasma(Package):
     version('2.7.1', 'c3deb85ccf10e6eaac9f0ba663702805')
     version('2.7.0', '8fcdfaf36832ab98e59b8299263999ca')
 
-    variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
-
     depends_on("hwloc")
-    depends_on("cblas", when='~mkl')
-    depends_on("blas", when='~mkl')
-    depends_on("lapack+lapacke")
+    depends_on("cblas")
+    depends_on("blas")
+    depends_on("lapack")
+    depends_on("netlib-lapacke")
 
-    def patch(self):
-        os.symlink('make.inc.example', 'make.inc')
+    def setup(self):
+        if not os.path.isfile('make.inc'):
+            os.symlink('make.inc.example', 'make.inc')
         mf = FileFilter('make.inc')
         spec = self.spec
 
@@ -28,33 +28,47 @@ class Plasma(Package):
         if spec.satisfies('%gcc'):
             mf.filter('LDFLAGS   = -O2 -nofor_main', 'LDFLAGS   = -O2')
             mf.filter('FFLAGS    = -O2 -fltconsistency -fp_port', 'FFLAGS    = -O2')
-        lapack = spec['lapack'].prefix
-        mf.filter('^INCCLAPACK  =.*', 'INCCLAPACK  = -I%s' % lapack.include)
-        mf.filter('^LIBCLAPACK  =.*', 'LIBCLAPACK  = -L%s -llapacke' % lapack.lib)
 
-        if spec.satisfies('~mkl'):
-            blas = spec['blas'].prefix
-            cblas = spec['cblas'].prefix
+        if spec.satisfies('^netlib-blas'):
             if spec.satisfies('%gcc'):
                 mf.filter('CFLAGS    = -O2 -DADD_ -diag-disable vec', 'CFLAGS    = -O2 -DADD_')
-                mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = -L%s -lblas -lgfortran' % blas.lib)
-            else:
-                mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = -L%s -lblas -lifort' % blas.lib)
-
-            mf.filter('^LIBCBLAS    =.*', 'LIBCBLAS    = -L%s -lcblas' % cblas.lib)
-            mf.filter('^LIBLAPACK   =.*', 'LIBLAPACK   = -L%s -ltmglib -llapack' % lapack.lib)
-
-        else:
+        elif spec.satisfies('^mkl-blas'):
             if spec.satisfies('%gcc'):
                 mf.filter('CFLAGS    = -O2 -DADD_ -diag-disable vec', 'CFLAGS    = -O2 -DADD_ -m64 -I${MKLROOT}/include')
             else:
                 mf.filter('CFLAGS    = -O2 -DADD_ -diag-disable vec', 'CFLAGS    = -O2 -DADD_ -diag-disable vec -m64 -I${MKLROOT}/include')
-            mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm')
-            mf.filter('^LIBCBLAS    =.*', '#LIBCBLAS    =')
-            mf.filter('^LIBLAPACK   =.*', '#LIBLAPACK   =')
+
+        blas = spec['blas'].prefix
+        blas_libs = " ".join(blaslibname)
+        if spec.satisfies('^netlib-blas'):
+            if spec.satisfies('%gcc'):
+                mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = -L%s -lblas -lgfortran' % blas.lib)
+            else:
+                mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = -L%s -lblas -lifort' % blas.lib)
+        elif spec.satisfies('^mkl-blas'):
+            mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = %s' % blas_libs)
+
+        cblas = spec['cblas'].prefix
+        cblas_libs = " ".join(cblaslibname)
+        if spec.satisfies('^netlib-cblas'):
+            mf.filter('^LIBCBLAS    =.*', 'LIBCBLAS    = -L%s -lcblas' % cblas.lib)
+        elif spec.satisfies('^mkl-cblas'):
+            mf.filter('^LIBCBLAS    =.*', 'LIBCBLAS    = %s' % cblas_libs)
+
+        lapack = spec['lapack'].prefix
+        lapack_libs = " ".join(lapacklibname)
+        if spec.satisfies('^netlib-lapack'):
+            mf.filter('^LIBLAPACK   =.*', 'LIBLAPACK   = -L%s -ltmglib -llapack' % lapack.lib)
+        elif spec.satisfies('^mkl-lapack'):
+            mf.filter('^LIBLAPACK   =.*', 'LIBLAPACK   = %s' % lapack_libs)
+
+        lapacke = spec['netlib-lapacke'].prefix
+        mf.filter('^INCCLAPACK  =.*', 'INCCLAPACK  = -I%s' % lapacke.include)
+        mf.filter('^LIBCLAPACK  =.*', 'LIBCLAPACK  = -L%s -llapacke' % lapacke.lib)
 
     def install(self, spec, prefix):
 
+        self.setup()
         make()
         make("install")
         # examples are not installed by default

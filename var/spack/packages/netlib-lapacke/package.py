@@ -1,6 +1,6 @@
 from spack import *
 import os
-class NetlibLapack(Package):
+class NetlibLapacke(Package):
     """
     LAPACK version 3.X is a comprehensive FORTRAN library that does
     linear algebra operations including matrix inversions, least
@@ -21,7 +21,7 @@ class NetlibLapack(Package):
     variant('shared', default=True, description="Build shared library version")
 
     # virtual dependency
-    provides('lapack')
+    provides('lapacke')
 
     # blas is a virtual dependency.
     depends_on('blas')
@@ -32,19 +32,21 @@ class NetlibLapack(Package):
     parallel = False
 
     def setup_dependent_environment(self, module, spec, dep_spec):
-        """Dependencies of this package will get the library name for netlib-lapack."""
+        """Dependencies of this package will get the library name for netlib-lapacke."""
         if '+shared' in spec:
-            module.lapacklibname=[os.path.join(self.spec.prefix.lib, "liblapack.so")]
-            module.lapacklibfortname=[os.path.join(self.spec.prefix.lib, "liblapack.so")]
+            module.lapackelibname=[os.path.join(self.spec.prefix.lib, "liblapacke.so")]
         else:
-            module.lapacklibname=[os.path.join(self.spec.prefix.lib, "liblapack.a")]
-            module.lapacklibfortname=[os.path.join(self.spec.prefix.lib, "liblapack.a")]
+            module.lapackelibname=[os.path.join(self.spec.prefix.lib, "liblapacke.a")]
 
     def install(self, spec, prefix):
         blas_libs = ";".join(blaslibname)
         cmake_args = [
             ".", "-Wno-dev",
             '-DBLAS_LIBRARIES=' + blas_libs]
+
+        # Enable lapacke here.
+        cmake_args.extend(["-DLAPACKE=ON"])
+        cmake_args.extend(["-DLAPACKE_WITH_TMG=ON"])
 
         if '+shared' in spec:
             cmake_args.append('-DBUILD_SHARED_LIBS=ON')

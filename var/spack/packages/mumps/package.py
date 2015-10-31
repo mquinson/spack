@@ -11,7 +11,7 @@ class Mumps(Package):
     version('5.0.1', 'b477573fdcc87babe861f62316833db0')
 
     variant('seq', default=False, description='Sequential version (no MPI)')
-    variant('scotch', default=True, description='Enable Scotch')
+    variant('scotch', default=False, description='Enable Scotch')
     variant('ptscotch', default=False, description='Enable PT-Scotch')
     variant('metis', default=False, description='Enable Metis')
     #variant('parmetis', default=False, description='Enable parMetis')
@@ -41,13 +41,6 @@ class Mumps(Package):
 
         ordlist='-Dpord'
 
-        if spec.satisfies('~scotch'):
-            mf.filter('^LSCOTCH   =.*', '#LSCOTCH   =')
-
-        if spec.satisfies('~metis'):
-            mf.filter('^IMETIS    =.*', '#IMETIS    =')
-            mf.filter('^LMETIS    =.*', '#LMETIS    =')
-
         if spec.satisfies('+scotch'):
             scotch = spec['scotch'].prefix
             mf.filter('^LSCOTCHDIR =.*', 'LSCOTCHDIR = %s' % scotch.lib)
@@ -55,7 +48,9 @@ class Mumps(Package):
             ordlist+=' -Dscotch'
 
         if spec.satisfies('+ptscotch'):
+            scotch = spec['scotch'].prefix
             mf.filter('LSCOTCH   =.*', 'LSCOTCH   = -L$(LSCOTCHDIR) -lptesmumps -lptscotch -lptscotcherr -lesmumps -lscotch -lscotcherr')
+            mf.filter('^#ISCOTCH   =.*', 'ISCOTCH = -I%s' % scotch.include)
             ordlist+=' -Dptscotch'
 
         if spec.satisfies('+metis'):
@@ -72,6 +67,13 @@ class Mumps(Package):
             ordlist+=' -Dparmetis'
 
         mf.filter('ORDERINGSF = -Dmetis -Dpord -Dscotch', 'ORDERINGSF = %s' % ordlist)
+
+        if spec.satisfies('~scotch') and spec.satisfies('~ptscotch') :
+            mf.filter('^LSCOTCH   =.*', '#LSCOTCH   =')
+
+        if spec.satisfies('~metis'):
+            mf.filter('^IMETIS    =.*', '#IMETIS    =')
+            mf.filter('^LMETIS    =.*', '#LMETIS    =')
 
         if spec.satisfies('^mkl-scalapack'):
             scalapack_libs = " ".join(scalapacklibfortname)

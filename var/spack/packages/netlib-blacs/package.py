@@ -2,7 +2,7 @@ from spack import *
 import os
 from subprocess import call
 
-class Blacs(Package):
+class NetlibBlacs(Package):
     """The BLACS (Basic Linear Algebra Communication Subprograms) project is an ongoing investigation whose purpose is to create a linear algebra oriented message passing interface that may be implemented efficiently and uniformly across a large range of distributed memory platforms."""
 
     homepage = "http://www.netlib.org/blacs/"
@@ -10,7 +10,16 @@ class Blacs(Package):
     # tarball has no version, but on the date below, this MD5 was correct.
     version('1997-05-05', '28ae5b91b3193402fe1ae8d06adcf500', url='http://www.netlib.org/blacs/mpiblacs.tgz')
     version('lib','82687f1e07fd98e0b9f78b71911459fe', url='http://www.netlib.org/blacs/archives/blacs_MPI-LINUX-0.tgz')
+
+    provides('blacs')
+
     depends_on('openmpi')
+
+    def setup_dependent_environment(self, module, spec, dep_spec):
+        """Dependencies of this package will get the library name for netlib-blacs."""
+        libdir=self.spec.prefix.lib
+        module.blacslibname=[libdir+'/libblacsCinit-openmpi.a '+libdir+'/libblacsF77init-openmpi.a '+libdir+'/libblacs-openmpi.a']
+        module.blacslibfortname=[libdir+'/libblacsCinit-openmpi.a '+libdir+'/libblacsF77init-openmpi.a '+libdir+'/libblacs-openmpi.a']
 
     def install(self, spec, prefix):
         call(['cp', 'BMAKES/Bmake.MPI-LINUX', 'Bmake.inc'])
@@ -32,8 +41,3 @@ class Blacs(Package):
         install('LIB/blacsCinit_MPI-LINUX-0.a', '%s/libblacsCinit-openmpi.a' % prefix.lib)
         install('LIB/blacsF77init_MPI-LINUX-0.a', '%s/libblacsF77init-openmpi.a' % prefix.lib)
         install('LIB/blacs_MPI-LINUX-0.a', '%s/libblacs-openmpi.a' % prefix.lib)
-
-        	    
-
-
-

@@ -12,18 +12,16 @@ class Scalfmm(Package):
     variant('sse', default=True, description='Enable SSE')
     #variant('blas', default=False, description='Enable BLAS')
     variant('fftw', default=False, description='Enable FFTW')
-    variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
     variant('mpi', default=False, description='Enable MPI')
     variant('starpu', default=False, description='Enable StarPU')
 
     # Does not compile without blas!
     #depends_on("blas", when='+blas')
-    depends_on("blas", when='~mkl')
-    depends_on("lapack", when='~mkl')
+    depends_on("blas")
+    depends_on("lapack")
     depends_on("fftw", when='+fftw')
     depends_on("starpu", when='+starpu')
     depends_on("mpi", when='+mpi')
-
 
     def install(self, spec, prefix):
 
@@ -66,14 +64,12 @@ class Scalfmm(Package):
                 # Disable MPI here.
                 cmake_args.extend(["-DSCALFMM_USE_MPI=OFF"])
 
-
-            if spec.satisfies('~mkl'):
-                blas = self.spec['blas']
-                lapack = self.spec['lapack']
-                cmake_args.extend(['-DBLAS_DIR=%s' % blas.prefix])
-                cmake_args.extend(['-DLAPACK_DIR=%s' % lapack.prefix])
-                if spec.satisfies('%gcc'):
-                    os.environ["LDFLAGS"] = "-lgfortran"
+            blas = self.spec['blas']
+            lapack = self.spec['lapack']
+            cmake_args.extend(['-DBLAS_DIR=%s' % blas.prefix])
+            cmake_args.extend(['-DLAPACK_DIR=%s' % lapack.prefix])
+            if spec.satisfies('%gcc'):
+                os.environ["LDFLAGS"] = "-lgfortran"
 
             cmake_args.extend(std_cmake_args)
 

@@ -25,8 +25,10 @@ class NetlibScalapack(Package):
         """Dependencies of this package will get the library name for netlib-scalapack."""
         if '+shared' in spec:
             module.scalapacklibname=[os.path.join(self.spec.prefix.lib, "libscalapack.so")]
+            module.scalapacklibfortname=[os.path.join(self.spec.prefix.lib, "libscalapack.so")]
         else:
             module.scalapacklibname=[os.path.join(self.spec.prefix.lib, "libscalapack.a")]
+            module.scalapacklibfortname=[os.path.join(self.spec.prefix.lib, "libscalapack.a")]
 
     def install(self, spec, prefix):
         with working_dir('spack-build', create=True):

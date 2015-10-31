@@ -7,10 +7,8 @@ class QrMumps(Package):
 
     version('qrm_starpu_2d', svn='https://wwwsecu.irit.fr/svn/qr_mumps/branches/qrm_starpu_2d')
 
-    variant('mkl', default=False, description='Use BLAS/ScaLAPACK from the Intel MKL library')
-
-    depends_on("blas", when='~mkl')
-    depends_on("lapack", when='~mkl')
+    depends_on("blas")
+    depends_on("lapack")
     depends_on("hwloc")
     depends_on("starpu")
     depends_on("metis@4.0.1:4.0.3")
@@ -18,7 +16,7 @@ class QrMumps(Package):
     # for COLAMD
     depends_on("suitesparse")
 
-    def patch(self):
+    def setup(self):
         spec = self.spec
         hwloc = spec['hwloc'].prefix
         starpu = spec['starpu'].prefix
@@ -26,7 +24,8 @@ class QrMumps(Package):
         scotch = spec['scotch'].prefix
         suitesparse = spec['suitesparse'].prefix
 
-        os.symlink('makeincs/Make.inc.gnu', 'Make.inc')
+        if not os.path.isfile('Make.inc'):
+            os.symlink('makeincs/Make.inc.gnu', 'Make.inc')
         mf = FileFilter('Make.inc')
 
         mf.filter('TOPDIR=/path/to/here', 'TOPDIR=%s/qrm_starpu_2d/' % self.stage.path)
@@ -42,15 +41,14 @@ class QrMumps(Package):
         optf = 'FCFLAGS  = -O3 -fPIC'
         optc = 'CFLAGS   = -O3 -fPIC'
 
-        if spec.satisfies('~mkl'):
-            blas = spec['blas'].prefix
-            mf.filter('LBLAS    = -L/path/to/blas -lblas', 'LBLAS    = -L%s -lblas' % blas.lib)
-            lapack = spec['lapack'].prefix
-            mf.filter('LLAPACK  = -L/path/to/lapack -llapack', 'LLAPACK  = -L%s -llapack' % lapack.lib)
+        blas_libs = " ".join(blaslibname)
+        lapack_libs = " ".join(lapacklibname)
+        blas = spec['blas'].prefix
+        lapack = spec['lapack'].prefix
+        mf.filter('LBLAS    = -L/path/to/blas -lblas', 'LBLAS    = %s' % blas_libs)
+        mf.filter('LLAPACK  = -L/path/to/lapack -llapack', 'LLAPACK  = %s' % lapack_libs)
 
-        if spec.satisfies('+mkl'):
-            mf.filter('LBLAS    = -L/path/to/blas -lblas', 'LBLAS    = -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_gf_lp64 -lmkl_core -lmkl_sequential -lpthread -lm')
-            mf.filter('LLAPACK  = -L/path/to/lapack -llapack', 'LLAPACK  = -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_gf_lp64 -lmkl_core -lmkl_sequential -lpthread -lm')
+        if spec.satisfies('^mkl-blas'):
             optf+= ' -m64 -I${MKLROOT}/include'
             optc+= ' -m64 -I${MKLROOT}/include'
 
@@ -76,6 +74,8 @@ class QrMumps(Package):
         mf.filter('write\(\*,\'\(\"  Number of workers per CUDA: \",i3\)\'\) nworker_per_cuda', '!write(*,\'(\"  Number of workers per CUDA: \",i3)\') nworker_per_cuda')
 
     def install(self, spec, prefix):
+
+        self.setup()
 
         make('dprec', parallel=False)
         #for app in ('sdcz'):

@@ -16,7 +16,6 @@ class Chameleon(Package):
         version('trunk', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/chameleon')
 
     #variant('debug', default=False, description='Enable debug symbols')
-    variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
     variant('mpi', default=False, description='Enable MPI')
     variant('cuda', default=False, description='Enable CUDA')
     variant('magma', default=False, description='Enable MAGMA kernels')
@@ -26,8 +25,10 @@ class Chameleon(Package):
     variant('starpu', default=True, description='Enable to use StarPU runtime instead of Quark')
     variant('eztrace', default=False, description='Enable EZTrace modules')
 
-    depends_on("cblas", when='~mkl')
-    depends_on("lapack", when='~mkl')
+    depends_on("blas")
+    depends_on("lapack")
+    depends_on("cblas")
+    depends_on("lapacke")
     depends_on("starpu", when='+starpu')
     depends_on("quark", when='+quark')
     depends_on("mpi", when='+mpi')
@@ -43,9 +44,9 @@ class Chameleon(Package):
                 "..",
                 "-DBUILD_SHARED_LIBS=ON"]
 
-            #if '+debug' in spec:
-                # Enable Debug here.
-            #cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
+            #if spec.satisfies('+debug'):
+            #    # Enable Debug here.
+            #    cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
 
             if spec.satisfies('+mpi'):
                 # Enable MPI here.
@@ -69,21 +70,19 @@ class Chameleon(Package):
                 # Enable StarPU here.
                 cmake_args.extend(["-DCHAMELEON_SCHED_STARPU=ON"])
 
-            if spec.satisfies('~mkl'):
-                blas = self.spec['blas']
-                cblas = self.spec['cblas']
-                lapack = self.spec['lapack']
-                cmake_args.extend(['-DBLAS_DIR=%s' % blas.prefix])
-                cmake_args.extend(['-DCBLAS_DIR=%s' % cblas.prefix])
-                cmake_args.extend(['-DLAPACK_DIR=%s' % lapack.prefix])
-                cmake_args.extend(['-DLAPACKE_DIR=%s' % lapack.prefix])
-                cmake_args.extend(['-DTMG_DIR=%s' % lapack.prefix])
-                if spec.satisfies('%gcc'):
-                    os.environ["LDFLAGS"] = "-lgfortran"
+            blas = self.spec['blas']
+            cblas = self.spec['cblas']
+            lapack = self.spec['lapack']
+            lapacke = self.spec['lapacke']
+            cmake_args.extend(['-DBLAS_DIR=%s' % blas.prefix])
+            cmake_args.extend(['-DCBLAS_DIR=%s' % cblas.prefix])
+            cmake_args.extend(['-DLAPACK_DIR=%s' % lapack.prefix])
+            cmake_args.extend(['-DLAPACKE_DIR=%s' % lapacke.prefix])
+            cmake_args.extend(['-DTMG_DIR=%s' % lapack.prefix])
+            if spec.satisfies('%gcc'):
+                os.environ["LDFLAGS"] = "-lgfortran"
 
             cmake_args.extend(std_cmake_args)
-
-            #print cmake_args
 
             cmake(*cmake_args)
             make()

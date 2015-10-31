@@ -22,19 +22,19 @@ class MklLapack(Package):
         if os.getenv('MKLROOT'):
             mklroot=os.environ['MKLROOT']
             if os.path.isdir(mklroot):
-                """Dependencies of this package will get the libraries names for mkl-blas."""
+                """Dependencies of this package will get the libraries names for mkl-lapack."""
                 mkllibdir=mklroot+"/lib/intel64/"
                 if spec.satisfies('%gcc'):
                     if spec.satisfies('+shared'):
                         module.lapacklibname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm"]
-                        module.lapackparlibname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -ldl -lpthread -lm"]
+                        module.lapackparlibname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -ldl -liomp5 -lpthread -lm"]
                         module.lapacklibfortname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_gf_lp64 -lmkl_core -lmkl_sequential -lpthread -lm"]
-                        module.lapackparlibfortname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_gf_lp64 -lmkl_core -lmkl_gnu_thread -ldl -lpthread -lm"]
+                        module.lapackparlibfortname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_gf_lp64 -lmkl_core -lmkl_intel_thread -ldl -liomp5 -lpthread -lm"]
                     else:
                         module.lapacklibname=["-Wl,--start-group "+mkllibdir+"libmkl_intel_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_sequential.a -Wl,--end-group -lpthread -lm"]
-                        module.lapackparlibname=["-Wl,--start-group "+mkllibdir+"libmkl_intel_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_gnu_thread.a -Wl,--end-group -ldl -lpthread -lm"]
+                        module.lapackparlibname=["-Wl,--start-group "+mkllibdir+"libmkl_intel_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_intel_thread.a -Wl,--end-group -ldl -liomp5 -lpthread -lm"]
                         module.lapacklibfortname=["-Wl,--start-group "+mkllibdir+"libmkl_gf_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_sequential.a -Wl,--end-group -lpthread -lm"]
-                        module.lapackparlibfortname=["-Wl,--start-group "+mkllibdir+"libmkl_gf_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_gnu_thread.a -Wl,--end-group -ldl -lpthread -lm"]
+                        module.lapackparlibfortname=["-Wl,--start-group "+mkllibdir+"libmkl_gf_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_intel_thread.a -Wl,--end-group -ldl -liomp5 -lpthread -lm"]
                 elif spec.satisfies('%icc'):
                     if spec.satisfies('+shared'):
                         module.lapacklibname=["-L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm"]
