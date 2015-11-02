@@ -55,11 +55,11 @@ class Maphys(Package):
         blas_libs = " ".join(blaslibfortname)
         if spec.satisfies('+mumps'):
             mumps = spec['mumps'].prefix
-            print os.path.isdir('%s' % mumps)
-            print mumps
+            #print os.path.isdir('%s' % mumps)
+            #print mumps
             scalapack_libs = " ".join(scalapacklibfortname)
             mf.filter('MUMPS_prefix  :=  \$\(3rdpartyPREFIX\)/mumps/32bits', 'MUMPS_prefix  := %s' % mumps)
-            mf.filter('MUMPS_LIBS := -L\$\{MUMPS_prefix\}/lib \$\(foreach a,\$\(ARITHS\),-l\$\(a\)mumps\) -lmumps_common -lpord', 'MUMPS_LIBS := -L${MUMPS_prefix}/lib $(foreach a,$(ARITHS),-l$(a)mumps) -lmumps_common -lpord '+scalapack_libs+blas_libs)
+            mf.filter('MUMPS_LIBS := -L\$\{MUMPS_prefix\}/lib \$\(foreach a,\$\(ARITHS\),-l\$\(a\)mumps\) -lmumps_common -lpord', 'MUMPS_LIBS := -L${MUMPS_prefix}/lib $(foreach a,$(ARITHS),-l$(a)mumps) -lmumps_common -lpord '+scalapack_libs+' '+lapack_libs+' '+blas_libs)
         else:
             mf.filter('MUMPS_prefix  :=  \$\(3rdpartyPREFIX\)/mumps/32bits', '#MUMPS_prefix  := version without mumps')
             mf.filter('MUMPS_LIBS := -L\$\{MUMPS_prefix\}/lib \$\(foreach a,\$\(ARITHS\),-l\$\(a\)mumps\) -lmumps_common -lpord', 'MUMPS_LIBS  :=')

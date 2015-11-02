@@ -79,12 +79,16 @@ class Mumps(Package):
             scalapack_libs = " ".join(scalapacklibfortname)
         elif spec.satisfies('^netlib-scalapack'):
             scalapack_libs = " ".join(scalapacklibname)
+        if spec.satisfies('^mkl-lapack'):
+            lapack_libs = " ".join(lapacklibfortname)
+        elif spec.satisfies('^netlib-lapack'):
+            lapack_libs = " ".join(lapacklibname)
         if spec.satisfies('^mkl-blas'):
             blas_libs = " ".join(blaslibfortname)
         elif spec.satisfies('^netlib-blas'):
             blas_libs = " ".join(blaslibname)
 
-        mf.filter('^SCALAP  =.*', 'SCALAP  = %s' % scalapack_libs)
+        mf.filter('^SCALAP  =.*', 'SCALAP  = '+scalapack_libs+' '+lapack_libs+' '+blas_libs)
         mf.filter('^LIBBLAS =.*', 'LIBBLAS = %s' % blas_libs)
 
         if spec.satisfies('^mkl-scalapack'):
