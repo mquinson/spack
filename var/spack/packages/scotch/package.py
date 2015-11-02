@@ -18,6 +18,7 @@ class Scotch(Package):
 
     variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
     variant('mpi', default=False, description='Enable MPI support')
+    variant('pthread', default=False, description='Enable multithread with pthread')
     variant('shared', default=False, description='Build SCOTCH as a shared library')
 
     depends_on('mpi', when='+mpi')
@@ -34,7 +35,12 @@ class Scotch(Package):
             elif spec.satisfies('+shared'):
                 filter_file(r'^CLIBFLAGS\s*=.*$', 'CLIBFLAGS = -shared -fpic', *makefiles)
 
-            filter_file(r'-DCOMMON_PTHREAD', '-DSCOTCH_DETERMINISTIC -DCOMMON_PTHREAD -DCOMMON_PTHREAD_BARRIER -DCOMMON_TIMING_OLD', *makefiles)
+            if spec.satisfies('+pthread'):
+                filter_file(r'-DCOMMON_PTHREAD', '-DSCOTCH_DETERMINISTIC -DCOMMON_PTHREAD -DCOMMON_PTHREAD_BARRIER -DCOMMON_TIMING_OLD', *makefiles)
+            else:
+                filter_file(r'-DCOMMON_PTHREAD', '-DSCOTCH_DETERMINISTIC -DCOMMON_TIMING_OLD', *makefiles)
+                filter_file(r'-DSCOTCH_PTHREAD', '', *makefiles)
+
             if spec.satisfies('+mac'):
                 filter_file(r'-lrt', '', *makefiles)
 
