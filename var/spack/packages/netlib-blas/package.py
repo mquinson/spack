@@ -21,7 +21,7 @@ class NetlibBlas(Package):
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for netlib-blas."""
-        if '+shared' in spec:
+        if spec.satisfies('+shared'):
             module.blaslibname=[os.path.join(self.spec.prefix.lib, "libblas.so")]
             module.blaslibfortname=[os.path.join(self.spec.prefix.lib, "libblas.so")]
         else:
@@ -38,7 +38,7 @@ class NetlibBlas(Package):
                 ".",
                 "-DBUILD_TESTING=OFF",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
-        if '+shared' in spec:
+        if spec.satisfies('+shared'):
             cmake_args.append('-DBUILD_SHARED_LIBS=ON')
             cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
 

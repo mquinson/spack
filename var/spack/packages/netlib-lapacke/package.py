@@ -33,7 +33,7 @@ class NetlibLapacke(Package):
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for netlib-lapacke."""
-        if '+shared' in spec:
+        if spec.satisfies('+shared'):
             module.lapackelibname=[os.path.join(self.spec.prefix.lib, "liblapacke.so")]
         else:
             module.lapackelibname=[os.path.join(self.spec.prefix.lib, "liblapacke.a")]
@@ -48,7 +48,7 @@ class NetlibLapacke(Package):
         cmake_args.extend(["-DLAPACKE=ON"])
         cmake_args.extend(["-DLAPACKE_WITH_TMG=ON"])
 
-        if '+shared' in spec:
+        if spec.satisfies('+shared'):
             cmake_args.append('-DBUILD_SHARED_LIBS=ON')
             cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
 

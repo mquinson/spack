@@ -12,31 +12,27 @@ class NetlibCblas(Package):
     version('2015-06-06', '1e8830f622d2112239a4a8a83b84209a',
             url='http://www.netlib.org/blas/blast-forum/cblas.tgz')
 
+    variant('shared', default=True, description='Build CBLAS as a shared library')
+
+    # virtual dependency
     provides('cblas')
 
+    # blas is a virtual dependency.
     depends_on('blas')
-    parallel = False
 
-    variant('shared', default=True, description='Build CBLAS as a shared library')
+    parallel = False
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for netlib-cblas."""
-        module.cblaslibname=[os.path.join(self.spec.prefix.lib, "libcblas.a")
-        mf.filter('^BLLIB =.*', 'BLLIB = %s' % blas_libs)
-        mf.filter('^CC =.*', 'CC = cc')
-        mf.filter('^FC =.*', 'FC = f90')
-        mf.filter('^CFLAGS =', 'CFLAGS = -fPIC ')
-        mf.filter('^FFLAGS =', 'FFLAGS = -fPIC ')
-
         if spec.satisfies('+shared'):
-            mf.filter('ARCH\s*=.*', 'ARCH=$(CC) $(BLLIB)')
-            mf.filter('ARCHFLAGS\s*=.*', 'ARCHFLAGS=-shared -o')
-            mf.filter('RANLIB\s*=.*', 'RANLIB=echo')
-            mf.filter('CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
-            mf.filter('FFLAGS\s*=', 'FFLAGS = -fPIC ')
-            mf.filter('\.a', '.so')
+            module.cblaslibname=[os.path.join(self.spec.prefix.lib, "libcblas.so")]
+            module.cblaslibfortname=[os.path.join(self.spec.prefix.lib, "libcblas.so")]
+        else:
+            module.cblaslibname=[os.path.join(self.spec.prefix.lib, "libcblas.a")]
+            module.cblaslibfortname=[os.path.join(self.spec.prefix.lib, "libcblas.a")]
 
     def install(self, spec, prefix):
+
         blas_libs = " ".join(blaslibname)
         mf = FileFilter('Makefile.in')
 
@@ -65,4 +61,3 @@ class NetlibCblas(Package):
             install('./lib/cblas_LINUX.a', '%s/libcblas.a' % prefix.lib)
         install('./include/cblas.h','%s' % prefix.include)
         install('./include/cblas_f77.h','%s' % prefix.include)
-
