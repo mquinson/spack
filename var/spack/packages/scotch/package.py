@@ -2,6 +2,7 @@ from spack import *
 import glob
 import os
 from subprocess import call
+import sys
 
 class Scotch(Package):
     """Scotch is a software package for graph and mesh/hypergraph
@@ -16,12 +17,14 @@ class Scotch(Package):
 
     variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
     variant('mpi', default=False, description='Enable MPI support')
-    variant('pthread', default=False, description='Enable multithread with pthread')
+    variant('pthread', default=True, description='Enable multithread with pthread')
     variant('shared', default=False, description='Build SCOTCH as a shared library')
 
     depends_on('mpi', when='+mpi')
 
     def patch(self):
+        if self.spec.satisfies('~pthread') and self.spec.satisfies('@6.0.4'):
+            sys.exit('Error: SCOTCH 6.0.4 cannot compile without pthread... :(')
         with working_dir('src/Make.inc'):
             spec = self.spec
             makefiles = glob.glob('Makefile.inc.x86-64_pc_linux2*')
