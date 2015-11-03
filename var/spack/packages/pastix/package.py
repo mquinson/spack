@@ -17,13 +17,13 @@ class Pastix(Package):
     variant('metis', default=False, description='Enable Metis')
     variant('starpu', default=False, description='Enable StarPU')
     variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
-    variant('shared', default=False, description='Build Pastix as a shared library')
+    variant('shared', default=True, description='Build Pastix as a shared library')
 
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
     depends_on("blas")
     depends_on("scotch")
-    depends_on("scotch+mpi", when='+mpi')
+#    depends_on("scotch+mpi", when='+mpi')
     depends_on("metis@4.0.3", when='+metis')
     depends_on("starpu@1.1.0:1.1.5", when='+starpu')
 
@@ -79,7 +79,7 @@ class Pastix(Package):
 
         scotch = spec['scotch'].prefix
         mf.filter('^SCOTCH_HOME \?= \$\{HOME\}/scotch_5.1/', 'SCOTCH_HOME = %s' % scotch)
-        if not spec.satisfies('+mpi'):
+        if not spec.satisfies('^scotch+mpi'):
             mf.filter('#CCPASTIX   := \$\(CCPASTIX\) -I\$\(SCOTCH_INC\) -DWITH_SCOTCH',
                       'CCPASTIX   := $(CCPASTIX) -I$(SCOTCH_INC) -DWITH_SCOTCH')
             mf.filter('#EXTRALIB   := \$\(EXTRALIB\) -L\$\(SCOTCH_LIB\) -lscotch -lscotcherrexit',
