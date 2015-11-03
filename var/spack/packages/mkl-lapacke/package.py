@@ -14,7 +14,10 @@ class MklLapacke(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     # virtual dependency
-    provides('lapacke')
+    if os.getenv('MKLROOT'):
+        mklroot=os.environ['MKLROOT']
+        if os.path.isdir(mklroot):
+            provides('lapacke')
 
     variant('shared', default=True, description="Use shared library version")
 
