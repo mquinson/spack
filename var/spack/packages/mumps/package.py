@@ -11,11 +11,12 @@ class Mumps(Package):
     version('5.0.1', 'b477573fdcc87babe861f62316833db0')
 
     variant('seq', default=False, description='Sequential version (no MPI)')
-    variant('scotch', default=False, description='Enable Scotch')
+    variant('scotch', default=True, description='Enable Scotch')
     variant('ptscotch', default=False, description='Enable PT-Scotch')
     variant('metis', default=False, description='Enable Metis')
     #variant('parmetis', default=False, description='Enable parMetis')
     variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
+    variant('shared', default=True, description='Build MUMPS as a shared library')
 
     depends_on("mpi", when='~seq')
     depends_on("blas")
@@ -88,15 +89,21 @@ class Mumps(Package):
             blas_libs = " ".join(blaslibfortname)
         elif spec.satisfies('^netlib-blas'):
             blas_libs = " ".join(blaslibname)
+        blacs_libs = ""
+        if spec.satisfies('^blacs'):
+            blacs_libs = " ".join(blacslibname)
 
-        mf.filter('^SCALAP  =.*', 'SCALAP  = '+scalapack_libs+' '+lapack_libs+' '+blas_libs)
+        mf.filter('^SCALAP  =.*', 'SCALAP  = '+scalapack_libs+' '+blacs_libs+' '+lapack_libs+' '+blas_libs)
         mf.filter('^LIBBLAS =.*', 'LIBBLAS = %s' % blas_libs)
 
         if spec.satisfies('^mkl-scalapack'):
-            mf.filter('OPTF    = -O  -DALLOW_NON_INIT', 'OPTF = -O  -DALLOW_NON_INIT -fPIC -m64 -I${MKLROOT}/include')
+            mf.filter('^OPTF\s*=.*', 'OPTF = -O  -DALLOW_NON_INIT -fPIC -m64 -I${MKLROOT}/include')
         else:
-            mf.filter('OPTF    = -O  -DALLOW_NON_INIT', 'OPTF = -O  -DALLOW_NON_INIT -fPIC')
-        mf.filter('OPTC    = -O', 'OPTC    = -O -fPIC')
+            mf.filter('^OPTF\s*=.*', 'OPTF = -O  -DALLOW_NON_INIT -fPIC')
+        mf.filter('^OPTC\s*=.*', 'OPTC    = -O -fPIC')
+
+        if spec.satisfies("%intel"):
+            mf.filter('^OPTL\s*=', 'OPTL = -nofor-main ')
 
         mpi = spec['mpi'].prefix
         mf.filter('CC\s*=.*', 'CC = mpicc')
@@ -106,6 +113,11 @@ class Mumps(Package):
         mf.filter('^LIBPAR.*', 'LIBPAR = $(SCALAP)')
 
         mf.filter('^LIBOTHERS =.*', 'LIBOTHERS = -lz -lm -lrt -lpthread')
+
+        if spec.satisfies('+shared'):
+            mf.filter('^AR\s*=.*', 'AR=$(FC) -shared -o ')
+            mf.filter('^RANLIB\s*=.*', 'RANLIB=echo ')
+            mf.filter('^LIBEXT\s*=.*', 'LIBEXT = .so')
 
         if spec.satisfies('+mac'):
             mf.filter('-lrt', '');
@@ -123,6 +135,8 @@ class Mumps(Package):
         # No install provided
         install_tree('lib', prefix.lib)
         install_tree('include', prefix.include)
-        if spec.satisfies('+seq'):
+        if spec.satisfies('+seq~shared'):
             install('libseq/libmpiseq.a', prefix.lib)
+        if spec.satisfies('+seq+shared'):
+            install('libseq/libmpiseq.so', prefix.lib)
         install_tree('examples', '%s/lib/mumps/examples' % prefix)
