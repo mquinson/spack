@@ -7,6 +7,8 @@ class Starpu(Package):
     homepage = "http://starpu.gforge.inria.fr/"
     url      = "http://starpu.gforge.inria.fr/files/starpu-1.1.5.tar.gz"
 
+    version('1.2.0rc4', '9509fa4cd2790bc51b164103f2c87f3c')
+    version('1.2.0rc3', 'b1f05d3b9a7f3a273eee2a2c8fa0ba5f')
     version('1.2.0rc2', 'a2f3e37c64dbdfddedfc265eff74601f')
     version('1.2.0rc1', '2046cfd30c3046945bca570acafb9e6b')
     version('1.1.5', '88de3bceece7e22260edd0a37d28ae08')
