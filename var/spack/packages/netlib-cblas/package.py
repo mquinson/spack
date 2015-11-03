@@ -43,11 +43,11 @@ class NetlibCblas(Package):
         mf.filter('^FFLAGS =', 'FFLAGS = -fPIC ')
 
         if spec.satisfies('+shared'):
-            mf.filter('ARCH\s*=.*', 'ARCH=$(CC) $(BLLIB)')
-            mf.filter('ARCHFLAGS\s*=.*', 'ARCHFLAGS=-shared -o')
-            mf.filter('RANLIB\s*=.*', 'RANLIB=echo')
-            mf.filter('CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
-            mf.filter('FFLAGS\s*=', 'FFLAGS = -fPIC ')
+            mf.filter('^ARCH\s*=.*', 'ARCH=$(CC) $(BLLIB)')
+            mf.filter('^ARCHFLAGS\s*=.*', 'ARCHFLAGS=-shared -o')
+            mf.filter('^RANLIB\s*=.*', 'RANLIB=echo')
+            mf.filter('^CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
+            mf.filter('^FFLAGS\s*=', 'FFLAGS = -fPIC ')
             mf.filter('\.a', '.so')
 
         make('all')
