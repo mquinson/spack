@@ -20,6 +20,7 @@ class Mumps(Package):
     depends_on("mpi", when='~seq')
     depends_on("blas")
     depends_on("scalapack")
+    depends_on("lapack")
     depends_on("scotch", when='+scotch')
     depends_on("scotch+mpi", when='+ptscotch')
     depends_on("metis@5:", when='+metis')
