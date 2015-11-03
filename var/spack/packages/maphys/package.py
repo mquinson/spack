@@ -17,7 +17,6 @@ class Maphys(Package):
     variant('mumps', default=False, description='Enable MUMPS direct solver')
     variant('pastix', default=True, description='Enable PASTIX direct solver')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
-    variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
 
     depends_on("mpi")
     depends_on("hwloc")
@@ -37,8 +36,7 @@ class Maphys(Package):
         blas = spec['blas'].prefix
         lapack = spec['lapack'].prefix
 
-        if not os.path.isfile('Makefile.inc'):
-            os.symlink('Makefile.inc.example', 'Makefile.inc')
+        force_symlink('Makefile.inc.example', 'Makefile.inc')
         mf = FileFilter('Makefile.inc')
 
         mf.filter('prefix := /usr/local', 'prefix := %s' % spec.prefix)
@@ -120,7 +118,7 @@ class Maphys(Package):
         mf.filter('ALL_FCFLAGS  :=  \$\(FCFLAGS\) -I\$\(abstopsrcdir\)/include -I. \$\(ALGO_FCFLAGS\) \$\(CHECK_FLAGS\)', 'ALL_FCFLAGS  :=  $(FCFLAGS) -I$(abstopsrcdir)/include -I. $(ALGO_FCFLAGS) $(CHECK_FLAGS) $(THREAD_FCFLAGS)')
         mf.filter('THREAD_FCLAGS', 'THREAD_LDFLAGS')
 
-        if spec.satisfies('+mac'):
+        if platform.system() == 'Darwin':
             mf.filter('-lrt', '');
 
     def install(self, spec, prefix):

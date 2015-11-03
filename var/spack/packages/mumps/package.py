@@ -15,7 +15,6 @@ class Mumps(Package):
     variant('ptscotch', default=False, description='Enable PT-Scotch')
     variant('metis', default=False, description='Enable Metis')
     #variant('parmetis', default=False, description='Enable parMetis')
-    variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
 
     depends_on("mpi", when='~seq')
     depends_on("blas")
@@ -106,7 +105,7 @@ class Mumps(Package):
 
         mf.filter('^LIBOTHERS =.*', 'LIBOTHERS = -lz -lm -lrt -lpthread')
 
-        if spec.satisfies('+mac'):
+        if platform.system() == 'Darwin':
             mf.filter('-lrt', '');
 
     def install(self, spec, prefix):

@@ -16,7 +16,6 @@ class Pastix(Package):
     variant('cuda', default=False, description='Enable CUDA kernels. Caution: only available if StarPU variant is enabled')
     variant('metis', default=False, description='Enable Metis')
     variant('starpu', default=False, description='Enable StarPU')
-    variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
     variant('shared', default=False, description='Build Pastix as a shared library')
 
     depends_on("hwloc")
@@ -106,7 +105,7 @@ class Pastix(Package):
 
         mf.filter('LDFLAGS  = $(EXTRALIB) $(BLASLIB)', 'LDFLAGS  = $(BLASLIB) $(EXTRALIB)')
 
-        if spec.satisfies('+mac'):
+        if platform.system() == 'Darwin':
             mf.filter('-lrt', '')
             mf.filter('i686_pc_linux', 'i686_mac')
 
