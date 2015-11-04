@@ -18,12 +18,13 @@ class Pastix(Package):
     variant('metis', default=False, description='Enable Metis')
     variant('starpu', default=False, description='Enable StarPU')
     variant('shared', default=True, description='Build Pastix as a shared library')
+    variant('examples', default=False, description='Enable compilation and installation of example executables')
 
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
     depends_on("blas")
     depends_on("scotch")
-    #depends_on("scotch+mpi", when='+mpi')
+    depends_on("scotch+mpi", when='+examples+mpi')
     depends_on("metis@4.0.3", when='+metis')
     depends_on("starpu@1.1.0:1.1.5", when='+starpu')
 
@@ -114,7 +115,10 @@ class Pastix(Package):
         with working_dir('src'):
 
             self.setup()
-            make('examples')
+            make()
+            if spec.satisfies('+examples'):
+                make('examples')
             make("install")
             # examples are not installed by default
-            install_tree('example/bin', '%s/lib/pastix/examples' % prefix)
+            if spec.satisfies('+examples'):
+                install_tree('example/bin', '%s/lib/pastix/examples' % prefix)
