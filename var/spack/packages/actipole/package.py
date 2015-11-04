@@ -3,14 +3,20 @@ import os
 from subprocess import call
 
 class Actipole(Package):
-    """A Finite Element Acoustic Solver"""
-    homepage = "http://www.dilbert.com"
+    """
+    A Finite Element Acoustic Solver.
+    Set the environment variable SOFTWARREEPO1 to get the versions.
+    """
+    homepage = "http://www.google.com"
 
-    version('master', git=os.environ['SOFTWAREREPO1']+'actipole.git', branch='master')
-    version('1.21',   git=os.environ['SOFTWAREREPO1']+'actipole.git', branch='v1.21')
-    version('1.21.0', git=os.environ['SOFTWAREREPO1']+'actipole.git', tag='v1.21.0')
+    try:
+        repo=os.environ['SOFTWAREREPO1']
+        version('master', git=repo+'actipole.git', branch='master')
+        version('1.21',   git=repo+'actipole.git', branch='v1.21')
+        version('1.21.0', git=repo+'actipole.git', tag='v1.21.0')
+    except KeyError:
+        pass
 
-    variant('mkl'     , default=False, description='Use BLAS/LAPACK from the Intel MKL library')
     variant('shared', default=True, description='Build ACTIPOLE as a shared library')
 
     depends_on("scab")

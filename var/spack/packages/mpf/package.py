@@ -3,19 +3,25 @@ import os
 from subprocess import call
 
 class Mpf(Package):
-    """An parallel linear algebra library"""
-    homepage = "http://www.dilbert.com"
+    """
+    A Parallel Linear Algebra Library.
+    Set the environment variable SOFTWARREEPO1 to get the versions.
+    """
+    homepage = "http://www.google.com"
 
-    version('master', git=os.environ['SOFTWAREREPO1']+'mpf.git', branch='master')
-    version('1.22', git=os.environ['SOFTWAREREPO1']+'mpf.git', branch='v1.22')
-    version('1.22.0', git=os.environ['SOFTWAREREPO1']+'mpf.git', tag='v1.22.0')
+    try:
+        repo=os.environ['SOFTWAREREPO1']
+        version('master', git=repo+'mpf.git', branch='master')
+        version('1.22',   git=repo+'mpf.git', branch='v1.22')
+        version('1.22.0', git=repo+'mpf.git', tag='v1.22.0')
+    except KeyError:
+        pass
 
-    variant('mkl'     , default=False, description='Use BLAS/LAPACK from the Intel MKL library')
     variant('shared', default=True, description='Build MPF as a shared library')
 
     depends_on("py-mpi4py")
-    depends_on("blas", when='~mkl')
-    depends_on("lapack", when='~mkl')
+    depends_on("blas")
+    depends_on("lapack")
     depends_on("mumps")
     depends_on("pastix")
     depends_on("hmat")
@@ -56,29 +62,27 @@ class Mpf(Package):
             cmake_args.extend(["-DMUMPS_INCLUDE_DIRS=%s" % mumps.include])
             cmake_args.extend(["-DENABLE_MUMPS=ON"])
 
-            if spec.satisfies('~mkl'):
+            blas_libs = ";".join(blaslibname)
+            blas = spec['blas'].prefix
+            cmake_args.extend(["-DBLAS_LIBRARY_DIRS=%s/" % blas.lib])
+            cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
 
-                blas_libs = ";".join(blaslibname)
-                blas = spec['blas'].prefix
-                cmake_args.extend(["-DBLAS_LIBRARY_DIRS=%s/" % blas.lib])
-                cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
-
-                lapack_libs = ";".join(lapacklibname)
-                lapack = spec['lapack'].prefix
-                cmake_args.extend(["-DLAPACK_LIBRARY_DIRS=%s/" % lapack.lib])
-                cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
-                cmake_args.extend(["-DMKL_DETECT=OFF"])
-                cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
-            else:
-                mklroot=os.environ['MKLROOT']
-                cmake_args.extend(["-DMKL_DETECT=ON"])
-                cmake_args.extend(["-DMKL_INCLUDE_DIRS=%s" % os.path.join(mklroot, "include") ])
-                cmake_args.extend(["-DMKL_LIBRARY_DIRS=%s" % os.path.join(mklroot, "lib/intel64") ] )
-                if spec.satisfies('%intel'):
-                    cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_intel_thread;mkl_core " ] )
-                else:
-                    cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_gnu_thread;mkl_core " ] )
-                cmake_args.extend(["-DBLAS_LIBRARIES=\"\" " ] )
+            lapack_libs = ";".join(lapacklibname)
+            lapack = spec['lapack'].prefix
+            cmake_args.extend(["-DLAPACK_LIBRARY_DIRS=%s/" % lapack.lib])
+            cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
+            cmake_args.extend(["-DMKL_DETECT=OFF"])
+            cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
+            
+           # mklroot=os.environ['MKLROOT']
+           #     cmake_args.extend(["-DMKL_DETECT=ON"])
+           #     cmake_args.extend(["-DMKL_INCLUDE_DIRS=%s" % os.path.join(mklroot, "include") ])
+           #     cmake_args.extend(["-DMKL_LIBRARY_DIRS=%s" % os.path.join(mklroot, "lib/intel64") ] )
+           #     if spec.satisfies('%intel'):
+           #         cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_intel_thread;mkl_core " ] )
+           #     else:
+           #         cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_gnu_thread;mkl_core " ] )
+           #     cmake_args.extend(["-DBLAS_LIBRARIES=\"\" " ] )
 
 
             cmake_args.extend(std_cmake_args)
