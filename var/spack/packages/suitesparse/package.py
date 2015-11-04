@@ -1,5 +1,6 @@
 from spack import *
 from subprocess import call
+import platform
 
 class Suitesparse(Package):
     """a suite of sparse matrix algorithms."""
@@ -7,7 +8,6 @@ class Suitesparse(Package):
     url      = "http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz"
 
     version('4.4.5', 'a2926c27f8a5285e4a10265cc68bbc18')
-
 
     depends_on("blas")
     depends_on("lapack")
@@ -25,10 +25,11 @@ class Suitesparse(Package):
             if platform.system() == 'Darwin':
                 mf.filter('LIB = -lm -lrt', 'LIB = -lm')
 
-            blas_libs = ";".join(blaslibname)
-            lapack_libs = ";".join(lapacklibname)
+            blas_libs = " ".join(blaslibfortname)
             mf.filter('  BLAS = -lopenblas', '#  BLAS = -lopenblas')
-            mf.filter('# BLAS = -lblas -lgfortran', '  BLAS = %s -lgfortran' % blas_libs)
+            mf.filter('# BLAS = -lblas -lgfortran', '  BLAS = %s' % blas_libs)
+
+            lapack_libs = " ".join(lapacklibfortname)
             mf.filter('  LAPACK = -llapack', '  LAPACK = %s' % lapack_libs)
 
             if platform.system() == 'Darwin':
@@ -36,8 +37,9 @@ class Suitesparse(Package):
                 mf.filter('  LAPACK = -framework Accelerate', '')
 
             metis = spec['metis'].prefix
+            metis_libs = " ".join(metislibname)
             mf.filter('^METIS_PATH =.*', 'METIS_PATH = %s' % metis)
-            mf.filter('^METIS =.*', 'METIS = %s/libmetis.a' % metis.lib)
+            mf.filter('^METIS =.*', 'METIS = %s' % metis_libs)
 
         with working_dir('CHOLMOD/Demo'):
             mf = FileFilter('Makefile')

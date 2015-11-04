@@ -1,5 +1,6 @@
 from spack import *
 import os
+import platform
 
 class NetlibCblas(Package):
     """The BLAS (Basic Linear Algebra Subprograms) are routines that
@@ -24,18 +25,21 @@ class NetlibCblas(Package):
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for netlib-cblas."""
+
         if spec.satisfies('+shared'):
-            module.cblaslibname=[os.path.join(self.spec.prefix.lib, "libcblas.so")]
-            module.cblaslibfortname=[os.path.join(self.spec.prefix.lib, "libcblas.so")]
+            if platform.system() == 'Darwin':
+                module.cblaslibname=[os.path.join(self.spec.prefix.lib, "libcblas.dylib")]
+            else:
+                module.cblaslibname=[os.path.join(self.spec.prefix.lib, "libcblas.so")]
         else:
             module.cblaslibname=[os.path.join(self.spec.prefix.lib, "libcblas.a")]
-            module.cblaslibfortname=[os.path.join(self.spec.prefix.lib, "libcblas.a")]
+        module.cblaslibfortname = module.cblaslibname
 
-    def install(self, spec, prefix):
-
-        blas_libs = " ".join(blaslibname)
+    def setup(self):
+        spec = self.spec
         mf = FileFilter('Makefile.in')
 
+        blas_libs = " ".join(blaslibfortname)
         mf.filter('^BLLIB =.*', 'BLLIB = %s' % blas_libs)
         mf.filter('^CC =.*', 'CC = cc')
         mf.filter('^FC =.*', 'FC = f90')
@@ -48,15 +52,24 @@ class NetlibCblas(Package):
             mf.filter('RANLIB\s*=.*', 'RANLIB=echo')
             mf.filter('CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
             mf.filter('FFLAGS\s*=', 'FFLAGS = -fPIC ')
-            mf.filter('\.a', '.so')
+            if platform.system() == 'Darwin':
+                mf.filter('\.a', '.dylib')
+            else:
+                mf.filter('\.a', '.so')
 
+    def install(self, spec, prefix):
+
+        self.setup()
         make('all')
         mkdirp(prefix.lib)
         mkdirp(prefix.include)
 
         # Rename the generated lib file to libcblas
         if spec.satisfies('+shared'):
-            install('./lib/cblas_LINUX.so', '%s/libcblas.so' % prefix.lib)
+            if platform.system() == 'Darwin':
+                install('./lib/cblas_LINUX.so', '%s/libcblas.dylib' % prefix.lib)
+            else:
+                install('./lib/cblas_LINUX.so', '%s/libcblas.so' % prefix.lib)
         else:
             install('./lib/cblas_LINUX.a', '%s/libcblas.a' % prefix.lib)
         install('./include/cblas.h','%s' % prefix.include)

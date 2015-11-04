@@ -16,8 +16,7 @@ class Plasma(Package):
     depends_on("netlib-lapacke")
 
     def setup(self):
-        if not os.path.isfile('make.inc'):
-            os.symlink('make.inc.example', 'make.inc')
+        force_symlink('make.inc.example', 'make.inc')
         mf = FileFilter('make.inc')
         spec = self.spec
 
@@ -29,10 +28,10 @@ class Plasma(Package):
             mf.filter('LDFLAGS   = -O2 -nofor_main', 'LDFLAGS   = -O2')
             mf.filter('FFLAGS    = -O2 -fltconsistency -fp_port', 'FFLAGS    = -O2')
 
-        if spec.satisfies('^netlib-blas'):
+        if '^netlib-blas' in spec:
             if spec.satisfies('%gcc'):
                 mf.filter('CFLAGS    = -O2 -DADD_ -diag-disable vec', 'CFLAGS    = -O2 -DADD_')
-        elif spec.satisfies('^mkl-blas'):
+        elif '^mkl-blas' in spec:
             if spec.satisfies('%gcc'):
                 mf.filter('CFLAGS    = -O2 -DADD_ -diag-disable vec', 'CFLAGS    = -O2 -DADD_ -m64 -I${MKLROOT}/include')
             else:
@@ -40,31 +39,36 @@ class Plasma(Package):
 
         blas = spec['blas'].prefix
         blas_libs = " ".join(blaslibname)
-        if spec.satisfies('^netlib-blas'):
+        if '^netlib-blas' in spec:
             if spec.satisfies('%gcc'):
-                mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = -L%s -lblas -lgfortran' % blas.lib)
+                mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = -L%s -lblas -lm' % blas.lib)
             else:
-                mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = -L%s -lblas -lifort' % blas.lib)
-        elif spec.satisfies('^mkl-blas'):
+                mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = -L%s -lblas -lm' % blas.lib)
+        elif '^mkl-blas' in spec:
             mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = %s' % blas_libs)
 
         cblas = spec['cblas'].prefix
         cblas_libs = " ".join(cblaslibname)
-        if spec.satisfies('^netlib-cblas'):
+        if '^netlib-cblas' in spec:
             mf.filter('^LIBCBLAS    =.*', 'LIBCBLAS    = -L%s -lcblas' % cblas.lib)
-        elif spec.satisfies('^mkl-cblas'):
+        elif '^mkl-cblas' in spec:
             mf.filter('^LIBCBLAS    =.*', 'LIBCBLAS    = %s' % cblas_libs)
 
         lapack = spec['lapack'].prefix
         lapack_libs = " ".join(lapacklibname)
-        if spec.satisfies('^netlib-lapack'):
+        tmg_libs = " ".join(tmglibname)
+        if '^netlib-lapack' in spec:
             mf.filter('^LIBLAPACK   =.*', 'LIBLAPACK   = -L%s -ltmglib -llapack' % lapack.lib)
-        elif spec.satisfies('^mkl-lapack'):
+        elif '^mkl-lapack' in spec:
             mf.filter('^LIBLAPACK   =.*', 'LIBLAPACK   = %s' % lapack_libs)
 
         lapacke = spec['netlib-lapacke'].prefix
+        lapacke_libs = " ".join(lapackelibname)
         mf.filter('^INCCLAPACK  =.*', 'INCCLAPACK  = -I%s' % lapacke.include)
-        mf.filter('^LIBCLAPACK  =.*', 'LIBCLAPACK  = -L%s -llapacke' % lapacke.lib)
+        if '^netlib-lapacke' in spec:
+            mf.filter('^LIBCLAPACK  =.*', 'LIBCLAPACK  = -L%s -llapacke' % lapacke.lib)
+        elif '^mkl-lapacke' in spec:
+            mf.filter('^LIBCLAPACK  =.*', 'LIBCLAPACK  = %s' % lapacke_libs)
 
     def install(self, spec, prefix):
 

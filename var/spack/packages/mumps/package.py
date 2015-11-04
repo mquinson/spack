@@ -1,5 +1,6 @@
 from spack import *
 import os
+import platform
 
 class Mumps(Package):
     """a MUltifrontal Massively Parallel sparse direct Solver."""
@@ -24,17 +25,27 @@ class Mumps(Package):
     depends_on("metis@5:", when='+metis')
     #depends_on("parmetis", when='+parmetis')
 
+    def setup_dependent_environment(self, module, spec, dep_spec):
+        """Dependencies of this package will get the libraries names for Mumps."""
+        libdir = self.spec.prefix.lib
+        mumpslibname  = [os.path.join(libdir, "libsmumps.a")]
+        mumpslibname += [os.path.join(libdir, "libdmumps.a")]
+        mumpslibname += [os.path.join(libdir, "libcmumps.a")]
+        mumpslibname += [os.path.join(libdir, "libzmumps.a")]
+        mumpslibname += [os.path.join(libdir, "libmumps_common.a")]
+        mumpslibname += [os.path.join(libdir, "libpord.a")]
+        module.mumpslibname = mumpslibname
+
     def setup(self):
         spec = self.spec
-        if not os.path.isfile('Makefile.inc'):
-            if spec.satisfies('~seq@5'):
-                os.symlink('Make.inc/Makefile.debian.PAR', 'Makefile.inc')
-            if spec.satisfies('+seq@5'):
-                os.symlink('Make.inc/Makefile.debian.SEQ', 'Makefile.inc')
-            if spec.satisfies('~seq@4'):
-                os.symlink('Make.inc/Makefile.inc.generic', 'Makefile.inc')
-            if spec.satisfies('+seq@4'):
-                os.symlink('Make.inc/Makefile.inc.generic.SEQ', 'Makefile.inc')
+        if spec.satisfies('~seq@5'):
+            force_symlink('Make.inc/Makefile.debian.PAR', 'Makefile.inc')
+        if spec.satisfies('+seq@5'):
+            force_symlink('Make.inc/Makefile.debian.SEQ', 'Makefile.inc')
+        if spec.satisfies('~seq@4'):
+            force_symlink('Make.inc/Makefile.inc.generic', 'Makefile.inc')
+        if spec.satisfies('+seq@4'):
+            force_symlink('Make.inc/Makefile.inc.generic.SEQ', 'Makefile.inc')
 
         mf = FileFilter('Makefile.inc')
 
@@ -74,23 +85,17 @@ class Mumps(Package):
             mf.filter('^IMETIS    =.*', '#IMETIS    =')
             mf.filter('^LMETIS    =.*', '#LMETIS    =')
 
-        if spec.satisfies('^mkl-scalapack'):
-            scalapack_libs = " ".join(scalapacklibfortname)
-        elif spec.satisfies('^netlib-scalapack'):
-            scalapack_libs = " ".join(scalapacklibname)
-        if spec.satisfies('^mkl-lapack'):
-            lapack_libs = " ".join(lapacklibfortname)
-        elif spec.satisfies('^netlib-lapack'):
-            lapack_libs = " ".join(lapacklibname)
-        if spec.satisfies('^mkl-blas'):
-            blas_libs = " ".join(blaslibfortname)
-        elif spec.satisfies('^netlib-blas'):
-            blas_libs = " ".join(blaslibname)
-
-        mf.filter('^SCALAP  =.*', 'SCALAP  = '+scalapack_libs+' '+lapack_libs+' '+blas_libs)
+        blas_libs = " ".join(blaslibname)
+        lapack_libs = " ".join(lapacklibname)
+        try:
+            blacs_libs = " ".join(blacslibname)
+        except NameError:
+            blacs_libs = ''
+        scalapack_libs = " ".join(scalapacklibname)
+        mf.filter('^SCALAP  =.*', 'SCALAP  = '+scalapack_libs+' '+blacs_libs+' '+lapack_libs+' '+blas_libs)
         mf.filter('^LIBBLAS =.*', 'LIBBLAS = %s' % blas_libs)
 
-        if spec.satisfies('^mkl-scalapack'):
+        if '^mkl-blas' in spec or '^mkl-lapack' in spec or '^mkl-scalapack' in spec:
             mf.filter('OPTF    = -O  -DALLOW_NON_INIT', 'OPTF = -O  -DALLOW_NON_INIT -fPIC -m64 -I${MKLROOT}/include')
         else:
             mf.filter('OPTF    = -O  -DALLOW_NON_INIT', 'OPTF = -O  -DALLOW_NON_INIT -fPIC')

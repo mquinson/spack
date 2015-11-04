@@ -1,5 +1,6 @@
 from spack import *
 import os
+import platform
 
 class Metis(Package):
     """METIS is a set of serial programs for partitioning graphs,
@@ -17,6 +18,13 @@ class Metis(Package):
             url='http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/OLD/metis-4.0.3.tar.gz')
 
     depends_on('mpi', when='@5:')
+
+    def setup_dependent_environment(self, module, spec, dep_spec):
+        """Dependencies of this package will get the libraries names for Metis."""
+        if platform.system() == 'Darwin':
+            module.metislibname=[os.path.join(self.spec.prefix.lib, "libmetis.dylib")]
+        else:
+            module.metislibname=[os.path.join(self.spec.prefix.lib, "libmetis.so")]
 
     def install(self, spec, prefix):
         if spec.satisfies('@5:'):

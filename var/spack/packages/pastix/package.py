@@ -1,5 +1,6 @@
 from spack import *
 import os
+import platform
 
 class Pastix(Package):
     """a high performance parallel solver for very large sparse linear systems based on direct methods"""
@@ -16,7 +17,7 @@ class Pastix(Package):
     variant('cuda', default=False, description='Enable CUDA kernels. Caution: only available if StarPU variant is enabled')
     variant('metis', default=False, description='Enable Metis')
     variant('starpu', default=False, description='Enable StarPU')
-    variant('shared', default=False, description='Build Pastix as a shared library')
+    variant('shared', default=True, description='Build Pastix as a shared library')
 
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
@@ -28,8 +29,7 @@ class Pastix(Package):
 
     def setup(self):
 
-        if not os.path.isfile('config.in'):
-            os.symlink('config/LINUX-GNU.in', 'config.in')
+        force_symlink('config/LINUX-GNU.in', 'config.in')
 
         mf = FileFilter('config.in')
         spec = self.spec
@@ -62,7 +62,7 @@ class Pastix(Package):
 
         if spec.satisfies('+starpu'):
             starpu = spec['starpu'].prefix
-            if spec.satisfies('^starpu+mpi'):
+            if '^starpu+mpi' in spec:
                 mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) `pkg-config libstarpu --cflags` -DWITH_STARPU', 'CCPASTIX   := $(CCPASTIX) `pkg-config libstarpumpi --cflags` -DWITH_STARPU')
                 mf.filter('^#EXTRALIB   := \$\(EXTRALIB\) `pkg-config libstarpu --libs`', 'EXTRALIB   := $(EXTRALIB) `pkg-config libstarpumpi --libs`')
             else:
@@ -71,12 +71,14 @@ class Pastix(Package):
 
         if spec.satisfies('+metis'):
             metis = spec['metis'].prefix
+            metis_libs = " ".join(metislibname)
             mf.filter('^#VERSIONORD  = _metis', 'VERSIONORD  = _metis')
             mf.filter('^#METIS_HOME  =.*', 'METIS_HOME  = %s' % metis)
             mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) -DMETIS -I\$\(METIS_HOME\)/Lib', 'CCPASTIX   := $(CCPASTIX) -DMETIS -I$(METIS_HOME)/Lib')
             mf.filter('^#EXTRALIB   := \$\(EXTRALIB\) -L\$\(METIS_HOME\) -lmetis', 'EXTRALIB   := $(EXTRALIB) -L$(METIS_HOME) -lmetis')
 
         scotch = spec['scotch'].prefix
+        scotch_libs = " ".join(scotchlibname)
         mf.filter('^SCOTCH_HOME \?= \$\{HOME\}/scotch_5.1/', 'SCOTCH_HOME = %s' % scotch)
         if not spec.satisfies('+mpi'):
             mf.filter('#CCPASTIX   := \$\(CCPASTIX\) -I\$\(SCOTCH_INC\) -DWITH_SCOTCH',
@@ -94,14 +96,12 @@ class Pastix(Package):
         hwloc = spec['hwloc'].prefix
         mf.filter('^HWLOC_HOME \?= /opt/hwloc/', 'HWLOC_HOME = %s' % hwloc)
 
+        blas = spec['blas'].prefix
         blas_libs = " ".join(blaslibname)
-        blas_dir  = spec['blas'].prefix
-        blas_libdir  = spec['blas'].prefix.lib
-        mf.filter('^# BLAS_HOME=/path/to/blas', 'BLAS_HOME=%s/lib' % blas_dir)
-        if spec.satisfies('^netlib-blas'):
-            mf.filter('BLASLIB  = -lblas', 'BLASLIB  = -L%s -lblas -lgfortran' % blas_libdir)
-        elif spec.satisfies('^mkl-blas'):
-            mf.filter('BLASLIB  = -lblas', 'BLASLIB  = %s -lgfortran' % blas_libs)
+        if '^netlib-blas' in spec:
+            mf.filter('BLASLIB  = -lblas', 'BLASLIB  = -L%s -lblas -lm' % blas.lib)
+        elif '^mkl-blas' in spec:
+            mf.filter('BLASLIB  = -lblas', 'BLASLIB  = %s' % blas_libs)
 
         mf.filter('LDFLAGS  = $(EXTRALIB) $(BLASLIB)', 'LDFLAGS  = $(BLASLIB) $(EXTRALIB)')
 

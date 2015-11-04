@@ -18,6 +18,10 @@ class MklScalapack(Package):
 
     variant('shared', default=True, description="Use shared library version")
 
+    depends_on("blacs")
+    depends_on("blas")
+    depends_on("lapack")
+
     def setup_dependent_environment(self, module, spec, dep_spec):
         if os.getenv('MKLROOT'):
             mklroot=os.environ['MKLROOT']
@@ -25,34 +29,12 @@ class MklScalapack(Package):
                 """Dependencies of this package will get the libraries names for mkl-scalapack."""
                 mkllibdir=mklroot+"/lib/intel64/"
                 if spec.satisfies('+shared'):
-                    blacslib='mkl_blacs_intelmpi_lp64'
+                    if spec.satisfies('%gcc'):
+                        module.scalapacklibname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_scalapack_lp64"]
+                    else:
+                        module.scalapacklibname=["-L"+mkllibdir+" -lmkl_scalapack_lp64"]
                 else:
-                    blacslib=mkllibdir+'libmkl_blacs_intelmpi_lp64.a'
-                    if spec.satisfies('^mpich'):
-                        blacslib=mkllibdir+'libmkl_blacs_lp64.a'
-                    elif spec.satisfies('^mpich2'):
-                        blacslib=mkllibdir+'libmkl_blacs_intelmpi_lp64.a'
-                    elif spec.satisfies('^openmpi'):
-                        blacslib=mkllibdir+'libmkl_blacs_openmpi_lp64.a'
-                if spec.satisfies('%gcc'):
-                    if spec.satisfies('+shared'):
-                        module.scalapacklibname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -l"+blacslib+" -ldl -lpthread -lm"]
-                        module.scalapackparlibname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -l"+blacslib+" -liomp5 -ldl -lpthread -lm"]
-                        module.scalapacklibfortname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_scalapack_lp64 -lmkl_gf_lp64 -lmkl_core -lmkl_sequential -l"+blacslib+" -ldl -lpthread -lm"]
-                        module.scalapackparlibfortname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_scalapack_lp64 -lmkl_gf_lp64 -lmkl_core -lmkl_gnu_thread -l"+blacslib+" -liomp5 -ldl -lpthread -lm"]
-
-                    else:
-                        module.scalapacklibname=[mkllibdir+"libmkl_scalapack_lp64.a -Wl,--start-group "+mkllibdir+"libmkl_intel_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_sequential.a -Wl,--end-group "+blacslib+" -lpthread -lm"]
-                        module.scalapackparlibname=[mkllibdir+"libmkl_scalapack_lp64.a -Wl,--start-group "+mkllibdir+"libmkl_intel_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_intel_thread.a -Wl,--end-group "+blacslib+" -liomp5 -ldl -lpthread -lm"]
-                        module.scalapacklibfortname=[mkllibdir+"libmkl_scalapack_lp64.a -Wl,--start-group "+mkllibdir+"libmkl_gf_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_sequential.a -Wl,--end-group "+blacslib+" -lpthread -lm"]
-                        module.scalapackparlibfortname=[mkllibdir+"libmkl_scalapack_lp64.a -Wl,--start-group "+mkllibdir+"libmkl_gf_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_gnu_thread.a -Wl,--end-group  "+blacslib+" -liomp5 -ldl -lpthread -lm"]
-                elif spec.satisfies('%icc'):
-                    if spec.satisfies('+shared'):
-                        module.scalapacklibname=["-L"+mkllibdir+" -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lmkl_blacs_intelmpi_lp64 -lpthread -lm"]
-                        module.scalapackparlibname=["-L"+mkllibdir+" -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -lmkl_blacs_intelmpi_lp64 -lpthread -lm"]
-                    else:
-                        module.scalapacklibname=[mkllibdir+"libmkl_scalapack_lp64.a -Wl,--start-group "+mkllibdir+"libmkl_intel_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_sequential.a -Wl,--end-group "+blacslib+" -lpthread -lm"]
-                        module.scalapackparlibname=[mkllibdir+"libmkl_scalapack_lp64.a -Wl,--start-group "+mkllibdir+"libmkl_intel_lp64.a "+mkllibdir+"libmkl_core.a "+mkllibdir+"libmkl_intel_thread.a -Wl,--end-group "+blacslib+" -lpthread -lm"]
+                    module.scalapacklibname=[mkllibdir+"libmkl_scalapack_lp64.a"]
 
     def install(self, spec, prefix):
         if os.getenv('MKLROOT'):

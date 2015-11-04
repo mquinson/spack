@@ -24,8 +24,7 @@ class QrMumps(Package):
         scotch = spec['scotch'].prefix
         suitesparse = spec['suitesparse'].prefix
 
-        if not os.path.isfile('Make.inc'):
-            os.symlink('makeincs/Make.inc.gnu', 'Make.inc')
+        force_symlink('makeincs/Make.inc.gnu', 'Make.inc')
         mf = FileFilter('Make.inc')
 
         mf.filter('TOPDIR=/path/to/here', 'TOPDIR=%s/qrm_starpu_2d/' % self.stage.path)
@@ -41,14 +40,12 @@ class QrMumps(Package):
         optf = 'FCFLAGS  = -O3 -fPIC'
         optc = 'CFLAGS   = -O3 -fPIC'
 
-        blas_libs = " ".join(blaslibname)
-        lapack_libs = " ".join(lapacklibname)
-        blas = spec['blas'].prefix
-        lapack = spec['lapack'].prefix
+        blas_libs = " ".join(blaslibfortname)
+        lapack_libs = " ".join(lapacklibfortname)
         mf.filter('LBLAS    = -L/path/to/blas -lblas', 'LBLAS    = %s' % blas_libs)
         mf.filter('LLAPACK  = -L/path/to/lapack -llapack', 'LLAPACK  = %s' % lapack_libs)
 
-        if spec.satisfies('^mkl-blas'):
+        if '^mkl-blas' in spec or '^mkl-lapack' in spec:
             optf+= ' -m64 -I${MKLROOT}/include'
             optc+= ' -m64 -I${MKLROOT}/include'
 
