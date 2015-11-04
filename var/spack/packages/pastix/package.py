@@ -23,7 +23,7 @@ class Pastix(Package):
     depends_on("mpi", when='+mpi')
     depends_on("blas")
     depends_on("scotch")
-    depends_on("scotch+mpi", when='+mpi')
+    #depends_on("scotch+mpi", when='+mpi')
     depends_on("metis@4.0.3", when='+metis')
     depends_on("starpu@1.1.0:1.1.5", when='+starpu')
 
@@ -80,7 +80,7 @@ class Pastix(Package):
         scotch = spec['scotch'].prefix
         scotch_libs = " ".join(scotchlibname)
         mf.filter('^SCOTCH_HOME \?= \$\{HOME\}/scotch_5.1/', 'SCOTCH_HOME = %s' % scotch)
-        if not spec.satisfies('+mpi'):
+        if not spec.satisfies('^scotch+mpi'):
             mf.filter('#CCPASTIX   := \$\(CCPASTIX\) -I\$\(SCOTCH_INC\) -DWITH_SCOTCH',
                       'CCPASTIX   := $(CCPASTIX) -I$(SCOTCH_INC) -DWITH_SCOTCH')
             mf.filter('#EXTRALIB   := \$\(EXTRALIB\) -L\$\(SCOTCH_LIB\) -lscotch -lscotcherrexit',

@@ -14,7 +14,10 @@ class MklScalapack(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     # virtual dependency
-    provides('scalapack')
+    if os.getenv('MKLROOT'):
+        mklroot=os.environ['MKLROOT']
+        if os.path.isdir(mklroot):
+            provides('scalapack')
 
     variant('shared', default=True, description="Use shared library version")
 

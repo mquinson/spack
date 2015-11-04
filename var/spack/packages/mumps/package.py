@@ -16,6 +16,7 @@ class Mumps(Package):
     variant('ptscotch', default=False, description='Enable PT-Scotch')
     variant('metis', default=False, description='Enable Metis')
     #variant('parmetis', default=False, description='Enable parMetis')
+    variant('shared', default=True, description='Build MUMPS as a shared library')
 
     depends_on("mpi", when='~seq')
     depends_on("blas")
@@ -95,11 +96,14 @@ class Mumps(Package):
         mf.filter('^SCALAP  =.*', 'SCALAP  = '+scalapack_libs+' '+blacs_libs+' '+lapack_libs+' '+blas_libs)
         mf.filter('^LIBBLAS =.*', 'LIBBLAS = %s' % blas_libs)
 
-        if '^mkl-blas' in spec or '^mkl-lapack' in spec or '^mkl-scalapack' in spec:
-            mf.filter('OPTF    = -O  -DALLOW_NON_INIT', 'OPTF = -O  -DALLOW_NON_INIT -fPIC -m64 -I${MKLROOT}/include')
+        if '^mkl-scalapack' in spec:
+            mf.filter('^OPTF\s*=.*', 'OPTF = -O  -DALLOW_NON_INIT -fPIC -m64 -I${MKLROOT}/include')
         else:
-            mf.filter('OPTF    = -O  -DALLOW_NON_INIT', 'OPTF = -O  -DALLOW_NON_INIT -fPIC')
-        mf.filter('OPTC    = -O', 'OPTC    = -O -fPIC')
+            mf.filter('^OPTF\s*=.*', 'OPTF = -O  -DALLOW_NON_INIT -fPIC')
+        mf.filter('^OPTC\s*=.*', 'OPTC    = -O -fPIC')
+
+        if spec.satisfies("%intel"):
+            mf.filter('^OPTL\s*=', 'OPTL = -nofor-main ')
 
         mpi = spec['mpi'].prefix
         mf.filter('CC\s*=.*', 'CC = mpicc')
@@ -110,6 +114,10 @@ class Mumps(Package):
 
         mf.filter('^LIBOTHERS =.*', 'LIBOTHERS = -lz -lm -lrt -lpthread')
 
+        if spec.satisfies('+shared'):
+            mf.filter('^AR\s*=.*', 'AR=$(FC) -shared -o ')
+            mf.filter('^RANLIB\s*=.*', 'RANLIB=echo ')
+            mf.filter('^LIBEXT\s*=.*', 'LIBEXT = .so')
         if platform.system() == 'Darwin':
             mf.filter('-lrt', '');
 
@@ -126,6 +134,8 @@ class Mumps(Package):
         # No install provided
         install_tree('lib', prefix.lib)
         install_tree('include', prefix.include)
-        if spec.satisfies('+seq'):
+        if spec.satisfies('+seq~shared'):
             install('libseq/libmpiseq.a', prefix.lib)
+        if spec.satisfies('+seq+shared'):
+            install('libseq/libmpiseq.so', prefix.lib)
         install_tree('examples', '%s/lib/mumps/examples' % prefix)

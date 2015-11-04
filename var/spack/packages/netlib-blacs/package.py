@@ -39,16 +39,18 @@ class NetlibBlacs(Package):
         mf.filter('/usr/local/mpich', '%s' % self.spec['mpi'].prefix)
         mf.filter('\$\(MPILIBdir\)/libmpich\.a', '')
         mf.filter('\$\(MPIdir\)/lib/', '')
-
-        if '^openmpi' in spec:
-            mf.filter('DUseMpich', 'DUseMpi2')
-
+        mf.filter('INTFACE\s*=.*', 'INTFACE=-DAdd_')
+        mf.filter('TRANSCOMM\s*=.*', 'TRANSCOMM=')
         mf.filter('F77            = g77', 'F77            = mpif77')
         mf.filter('CC             = gcc', 'CC             = mpicc')
 
+        sf=FileFilter('SRC/MPI/Makefile')
+        sf.filter('\$\(BLACSLIB\) \$\(Fintobj\)', '$(BLACSLIB) $(Fintobj) $(internal)')
+        sf.filter('\$\(ARCH\) \$\(ARCHFLAGS\) \$\(BLACSLIB\) \$\(internal\)', 'mv $(internal) ..')
+
         if spec.satisfies('+shared'):
             mf.filter('ARCH\s*=.*', 'ARCH=$(CC)')
-            mf.filter('ARCHFLAGS\s*=.*', 'ARCHFLAGS=-shared -o')
+            mf.filter('ARCHFLAGS\s*=.*', 'ARCHFLAGS=-shared -o ')
             mf.filter('RANLIB\s*=.*', 'RANLIB=echo')
             mf.filter('CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
             mf.filter('F77FLAGS\s*=', 'F77FLAGS = -fPIC ')
@@ -57,7 +59,7 @@ class NetlibBlacs(Package):
             else:
                 mf.filter('\.a', '.so')
 
-        filter_file('\$\(MAKE\) -f \.\./Makefile I_int \"dlvl=\$\(BTOPdir\)\" \)','echo $(BLACSDEFS) $(MAKE) -f ../Makefile I_int "dlvl=$(BTOPdir)" )', 'SRC/MPI/Makefile')
+        #filter_file('\$\(MAKE\) -f \.\./Makefile I_int \"dlvl=\$\(BTOPdir\)\" \)','echo $(BLACSDEFS) $(MAKE) -f ../Makefile I_int "dlvl=$(BTOPdir)" )', 'SRC/MPI/Makefile')
         call(['cat', 'Bmake.inc'])
         call(['cat', 'SRC/MPI/Makefile'])
 
@@ -79,3 +81,7 @@ class NetlibBlacs(Package):
             install('LIB/blacsCinit_MPI-LINUX-0.a', '%s/libblacsCinit.a' % prefix.lib)
             install('LIB/blacsF77init_MPI-LINUX-0.a', '%s/libblacsF77init.a' % prefix.lib)
             install('LIB/blacs_MPI-LINUX-0.a', '%s/libblacs.a' % prefix.lib)
+        	    
+
+
+

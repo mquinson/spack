@@ -1,6 +1,5 @@
 from spack import *
 import os
-import platform
 
 class NetlibCblas(Package):
     """The BLAS (Basic Linear Algebra Subprograms) are routines that
@@ -47,15 +46,12 @@ class NetlibCblas(Package):
         mf.filter('^FFLAGS =', 'FFLAGS = -fPIC ')
 
         if spec.satisfies('+shared'):
-            mf.filter('ARCH\s*=.*', 'ARCH=$(CC) $(BLLIB)')
-            mf.filter('ARCHFLAGS\s*=.*', 'ARCHFLAGS=-shared -o')
-            mf.filter('RANLIB\s*=.*', 'RANLIB=echo')
-            mf.filter('CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
-            mf.filter('FFLAGS\s*=', 'FFLAGS = -fPIC ')
-            if platform.system() == 'Darwin':
-                mf.filter('\.a', '.dylib')
-            else:
-                mf.filter('\.a', '.so')
+            mf.filter('^ARCH\s*=.*', 'ARCH=$(CC) $(BLLIB)')
+            mf.filter('^ARCHFLAGS\s*=.*', 'ARCHFLAGS=-shared -o')
+            mf.filter('^RANLIB\s*=.*', 'RANLIB=echo')
+            mf.filter('^CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
+            mf.filter('^FFLAGS\s*=', 'FFLAGS = -fPIC ')
+            mf.filter('\.a', '.so')
 
     def install(self, spec, prefix):
 

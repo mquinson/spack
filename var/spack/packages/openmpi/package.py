@@ -24,7 +24,7 @@ class Openmpi(Package):
 
     provides('mpi@:2.2', when='@1.6.5')    # Open MPI 1.6.5 supports MPI-2.2
     provides('mpi@:3.0', when='@1.8.8')    # Open MPI 1.8.8 supports MPI-3.0
-    provides('mpi@:3.0', when='@1.10.0')   # Open MPI 1.10.0 supports MPI-3.0
+    provides('mpi@:3.1', when='@1.10.0')   # Open MPI 1.10.0 supports MPI-3.0
 
 
     def setup_dependent_environment(self, module, spec, dep_spec):

@@ -1,5 +1,6 @@
 from spack import *
 import os
+from subprocess import call
 import platform
 
 class NetlibScalapack(Package):
@@ -18,7 +19,8 @@ class NetlibScalapack(Package):
 
     variant('shared', default=True, description="Use shared library version")
 
-    depends_on("mpi")
+    depends_on("mpi", when='@2:')
+    depends_on("blacs", when='@1.8.0')
     depends_on("blas")
     depends_on("lapack")
 
@@ -56,3 +58,22 @@ class NetlibScalapack(Package):
             cmake(*cmake_args)
             make()
             make("install")
+
+    # Old version, like 1.8.0, dont use CMakeLists.txt
+    @when('@1.8.0')
+    def install(self, spec, prefix):
+        call(['cp', 'SLmake.inc.example', 'SLmake.inc'])
+        mf = FileFilter('SLmake.inc')
+        mf.filter('home\s*=.*', 'home=%s' % os.getcwd())
+        mf.filter('Df77IsF2C', 'DAdd_')
+        if spec.satisfies('+shared'):
+            mf.filter('CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
+            mf.filter('F77FLAGS\s*=', 'F77FLAGS = -fPIC ')
+        make(parallel=False)
+        mkdirp(prefix.lib)
+
+        if spec.satisfies('+shared'):
+            call(['cc', '-shared', '-o', 'libscalapack.so', '-Wl,--whole-archive', 'libscalapack.a', '-Wl,--no-whole-archive'])
+            install('libscalapack.so', '%s/libscalapack.so' % prefix.lib)
+        else:
+            install('libscalapack.a', '%s/libscalapack.a' % prefix.lib)

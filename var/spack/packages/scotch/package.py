@@ -77,6 +77,8 @@ class Scotch(Package):
         module.scotchlibname+=otherlibs
 
     def patch(self):
+        if self.spec.satisfies('~pthread') and self.spec.satisfies('@6.0.4'):
+            sys.exit('Error: SCOTCH 6.0.4 cannot compile without pthread... :(')
         with working_dir('src/Make.inc'):
             spec = self.spec
             makefiles = glob.glob('Makefile.inc.x86-64_pc_linux2*')
@@ -94,9 +96,6 @@ class Scotch(Package):
                 filter_file(r'-DCOMMON_PTHREAD', '-DSCOTCH_DETERMINISTIC -DCOMMON_TIMING_OLD', *makefiles)
                 filter_file(r'-DSCOTCH_PTHREAD', '', *makefiles)
 
-            if spec.satisfies('~pthread') and spec.satisfies('@6.0.4'):
-                sys.exit('Error: SCOTCH 6.0.4 cannot compile without pthread... :(')
-
             if platform.system() == 'Darwin':
                 filter_file(r'-lrt', '', *makefiles)
 
@@ -113,7 +112,7 @@ class Scotch(Package):
         with working_dir('src'):
             mf = FileFilter(makefile)
             if spec.satisfies('+shared'):
-                mf.filter('CFLAGS       =', 'CFLAGS     = -fPIC')
+                mf.filter('CFLAGS\s*=', 'CFLAGS     = -fPIC')
             if spec.satisfies('@5'):
                 mf.filter('LDFLAGS\s*=', 'LDFLAGS = -pthread ')
 

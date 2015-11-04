@@ -14,7 +14,10 @@ class MklBlacs(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     # virtual dependency
-    provides('blacs')
+    if os.getenv('MKLROOT'):
+        mklroot=os.environ['MKLROOT']
+        if os.path.isdir(mklroot):
+            provides('blacs')
 
     variant('mt', default=False, description="Use Multithreaded version")
     variant('shared', default=True, description="Use shared library version")
