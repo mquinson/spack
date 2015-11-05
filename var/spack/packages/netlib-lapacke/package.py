@@ -26,7 +26,7 @@ class NetlibLapacke(Package):
     provides('lapacke')
 
     # blas is a virtual dependency.
-    depends_on('blas')
+    depends_on('lapack')
 
     depends_on('cmake')
 
@@ -53,9 +53,14 @@ class NetlibLapacke(Package):
         blas_libs = blas_libs.replace(' ', ';')
         cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
 
+        lapack_libs = " ".join(lapacklibfortname)
+        lapack_libs = lapack_libs.replace(' ', ';')
+        cmake_args.extend(['-DLAPACK_LIBRARIES=%s' % lapack_libs])
+
         # Enable lapacke here.
         cmake_args.extend(["-DLAPACKE=ON"])
-        cmake_args.extend(["-DLAPACKE_WITH_TMG=ON"])
+        cmake_args.extend(["-DLAPACKE_WITH_TMG=OFF"])
+        cmake_args.extend(["-DBUILD_TESTING=OFF"])
 
         if spec.satisfies('+shared'):
             cmake_args.append('-DBUILD_SHARED_LIBS=ON')

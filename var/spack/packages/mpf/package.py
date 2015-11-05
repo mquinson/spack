@@ -25,7 +25,7 @@ class Mpf(Package):
     depends_on("mumps")
     depends_on("pastix")
     depends_on("hmat")
-    depends_on("blacs")
+#    depends_on("blacs")
 
     def install(self, spec, prefix):
         with working_dir('build', create=True):

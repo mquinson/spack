@@ -21,7 +21,7 @@ class Scab(Package):
 
     depends_on("mpf")
     depends_on("cblas")
-    depends_on("lapack")
+    depends_on("lapacke")
     depends_on("hdf5")
     depends_on("med-fichier")
 
@@ -66,7 +66,7 @@ class Scab(Package):
             cmake_args.extend(["-DCBLAS_LIBRARY_DIRS=%s/" % cblas.lib])
             cmake_args.extend(["-DCBLAS_INCLUDE_DIRS=%s" % cblas.include])
 
-            lapacke = spec['lapack'].prefix
+            lapacke = spec['lapacke'].prefix
             cmake_args.extend(["-DLAPACKE_LIBRARY_DIRS=%s/" % lapacke.lib])
             cmake_args.extend(["-DLAPACKE_INCLUDE_DIRS=%s" % lapacke.include])
             
