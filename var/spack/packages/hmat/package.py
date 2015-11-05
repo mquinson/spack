@@ -1,6 +1,7 @@
 from spack import *
 import os
 from subprocess import call
+from subprocess import check_call
 
 class Hmat(Package):
     """
@@ -23,14 +24,15 @@ class Hmat(Package):
     depends_on("mpi")
     depends_on("starpu+mpi", when='+starpu')
     # depends_on("pkg-config")
-    depends_on("cblas")
+    depends_on("blas")
     depends_on("lapack")
 
     parallel = False
 
     def patch(self):
         # get hmat-oss
-        call(["git" , "submodule" , "update", "--init"])
+        # check_call(["git" , "submodule" , "update", "--init"])
+        check_call(["git" , "clone" , "https://github.com/jeromerobert/hmat-oss/"])
             
     def install(self, spec, prefix):
         with working_dir('build', create=True):
@@ -54,22 +56,23 @@ class Hmat(Package):
             #    mf = FileFilter('../hmat-oss/CMake/FindCBLAS.cmake')
             #    mf.filter('\"cblas\"','"cblas;blas"')
 
-            cblas = spec['cblas'].prefix
-            cmake_args.extend(["-DCBLAS_INCLUDE_DIRS=%s/" % cblas.include])
-            cmake_args.extend(["-DCBLAS_LIBRARY_DIRS=%s/" % cblas.lib])
+            if os.getenv('MKLROOT'):
+                cmake_args.extend(["-DMKL_DETECT=ON"])
+                mf = FileFilter('../hmat-oss/CMake/FindMKL.cmake')
+                mf.filter('set\(MKL_LINKER_FLAGS \"-L\$\{MKL_LIBRARY_DIR\} -lmkl_intel_\$\{MKL_IL\} -lmkl_core -lmkl_gnu_thread\"\)','set(MKL_LINKER_FLAGS "-L${MKL_LIBRARY_DIR} -lmkl_intel_${MKL_IL} -lmkl_core -lmkl_gnu_thread -lm")')
+            else:
+                blas_libs = ";".join(blaslibname)
+                blas = spec['blas'].prefix
+                cmake_args.extend(["-DBLAS_LIBRARY_DIRS=%s/" % blas.lib])
+                cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
 
-            blas_libs = ";".join(blaslibname)
-            blas = spec['blas'].prefix
-            cmake_args.extend(["-DBLAS_LIBRARY_DIRS=%s/" % blas.lib])
-            cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
-
-            lapack_libs = ";".join(lapacklibname)
-            lapack = spec['lapack'].prefix
-            cmake_args.extend(["-DLAPACK_LIBRARY_DIRS=%s/" % lapack.lib])
-            cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
-           
-            cmake_args.extend(["-DMKL_DETECT=OFF"])
-            cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
+                lapack_libs = ";".join(lapacklibname)
+                lapack = spec['lapack'].prefix
+                cmake_args.extend(["-DLAPACK_LIBRARY_DIRS=%s/" % lapack.lib])
+                cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
+                
+                cmake_args.extend(["-DMKL_DETECT=OFF"])
+                cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
 
             cmake_args.extend(std_cmake_args)
             call(["rm" , "-rf" , "CMake*"])
