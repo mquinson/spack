@@ -102,7 +102,7 @@ class Scotch(Package):
     def install(self, spec, prefix):
         # Currently support gcc and icc on x86_64 (maybe others with
         # vanilla makefile)
-        if spec.satisfies('+shared'):
+        if spec.satisfies('@6:+shared'):
             makefile = 'Make.inc/Makefile.inc.x86-64_pc_linux2.shlib'
         else:
             makefile = 'Make.inc/Makefile.inc.x86-64_pc_linux2'
@@ -115,6 +115,11 @@ class Scotch(Package):
                 mf.filter('CFLAGS\s*=', 'CFLAGS     = -fPIC')
             if spec.satisfies('@5'):
                 mf.filter('LDFLAGS\s*=', 'LDFLAGS = -pthread ')
+            if spec.satisfies('+shared'):
+                mf.filter('^AR\s*=.*', 'AR=$(CC) ')
+                mf.filter('^ARFLAGS\s*=.*', 'ARFLAGS=-shared -o')
+                mf.filter('^RANLIB\s*=.*', 'RANLIB=echo')
+                mf.filter('^LIB\s*=.*', 'LIB=.so')
 
             force_symlink(makefile, 'Makefile.inc')
             make('scotch')

@@ -1,5 +1,6 @@
 from spack import *
 import os
+import platform 
 
 class NetlibCblas(Package):
     """The BLAS (Basic Linear Algebra Subprograms) are routines that
