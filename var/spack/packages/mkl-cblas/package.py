@@ -20,6 +20,9 @@ class MklCblas(Package):
             provides('cblas')
 
     variant('mt', default=False, description="Use Multithreaded version")
+    # blas is a virtual dependency.
+    depends_on('blas')
+
     variant('shared', default=True, description="Use shared library version")
 
     def setup_dependent_environment(self, module, spec, dep_spec):

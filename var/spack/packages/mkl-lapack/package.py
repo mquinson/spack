@@ -19,6 +19,9 @@ class MklLapack(Package):
         if os.path.isdir(mklroot):
             provides('lapack')
 
+    # blas is a virtual dependency.
+    depends_on('blas')
+
     variant('mt', default=False, description="Use Multithreaded version")
     variant('shared', default=True, description="Use shared library version")
 
