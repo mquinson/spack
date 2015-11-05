@@ -21,10 +21,13 @@ class Metis(Package):
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the libraries names for Metis."""
-        if platform.system() == 'Darwin':
-            module.metislibname=[os.path.join(self.spec.prefix.lib, "libmetis.dylib")]
-        else:
-            module.metislibname=[os.path.join(self.spec.prefix.lib, "libmetis.so")]
+        module.metislibname=[os.path.join(self.spec.prefix.lib, "libmetis.a")]
+        if spec.satisfies('@5:'):
+            if platform.system() == 'Darwin':
+                module.metislibname=[os.path.join(self.spec.prefix.lib, "libmetis.dylib")]
+            else:
+                module.metislibname=[os.path.join(self.spec.prefix.lib, "libmetis.so")]
+
 
     def install(self, spec, prefix):
         if spec.satisfies('@5:'):
