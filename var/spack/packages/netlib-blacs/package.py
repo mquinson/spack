@@ -20,15 +20,14 @@ class NetlibBlacs(Package):
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the libraries names for netlib-blacs."""
-        module.blacslibname=[os.path.join(self.spec.prefix, "lbf77blas.a"), os.path.join(self.spec.prefix, "libatlas.a")]
         lib_dir = self.spec.prefix.lib
         if spec.satisfies('+shared'):
             if platform.system() == 'Darwin':
-                module.blacslibname=[os.path.join("%s", "libblacsCinit.dylib"), os.path.join("%s", "libblacsF77init.dylib"), os.path.join("%s", "libblacs.dylib") % lib_dir]
+                module.blacslibname=[os.path.join(lib_dir, "libblacsCinit.dylib"), os.path.join(lib_dir, "libblacsF77init.dylib"), os.path.join(lib_dir, "libblacs.dylib")]
             else:
-                module.blacslibname=[os.path.join("%s", "libblacsCinit.so"), os.path.join("%s", "libblacsF77init.so"), os.path.join("%s", "libblacs.so") % lib_dir]
+                module.blacslibname=[os.path.join(lib_dir, "libblacsCinit.so"), os.path.join(lib_dir, "libblacsF77init.so"), os.path.join(lib_dir, "libblacs.so") ]
         else:
-            module.blacslibname=[os.path.join("%s", "libblacsCinit.a"), os.path.join("%s", "libblacsF77init.a"), os.path.join("%s", "libblacs.a") % lib_dir]
+            module.blacslibname=[os.path.join(lib_dir, "libblacsCinit.a"), os.path.join(lib_dir, "libblacsF77init.a"), os.path.join(lib_dir, "libblacs.a") ]
 
     def setup(self):
         spec = self.spec
