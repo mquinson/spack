@@ -65,7 +65,7 @@ class Metis(Package):
             mkdirp(prefix.lib)
             if spec.satisfies('+shared'):
                 if platform.system() == 'Darwin':
-                    call(['cc', '-shared', '-undefined dynamic_lookup', '-o', 'libmetis.so', '-Wl,--whole-archive', 'libmetis.a', '-Wl,--no-whole-archive'])
+                    call(['cc', '-shared', '-undefined dynamic_lookup', '-o', 'libmetis.dylib', '-Wl,--whole-archive', 'libmetis.a', '-Wl,--no-whole-archive'])
                 else:
                     call(['cc', '-shared', '-o', 'libmetis.so', '-Wl,--whole-archive', 'libmetis.a', '-Wl,--no-whole-archive'])
                 install('libmetis.so', prefix.lib)
