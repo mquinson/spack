@@ -120,6 +120,8 @@ class Mumps(Package):
 
         if spec.satisfies('+shared'):
             mf.filter('^AR\s*=.*', 'AR=$(FC) $(SCALAP) $(LSCOTCH) $(LMETIS) -shared -o ')
+            if platform.system() == 'Darwin':
+                mf.filter('-shared -o', '-shared -undefined dynamic_lookup -o')
             mf.filter('^RANLIB\s*=.*', 'RANLIB=echo ')
             mf.filter('^LIBEXT\s*=.*', 'LIBEXT = .so')
         if platform.system() == 'Darwin':
