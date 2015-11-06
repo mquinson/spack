@@ -119,7 +119,7 @@ class Scotch(Package):
                 mf.filter('^AR\s*=.*', 'AR=$(CC) ')
                 mf.filter('^ARFLAGS\s*=.*', 'ARFLAGS=-shared -o')
                 if platform.system() == 'Darwin':
-                    mf.filter('-shared -o', '-shared -undefined dynamic_lookup')
+                    mf.filter('-shared -o', '-shared -undefined dynamic_lookup -o')
                 mf.filter('^RANLIB\s*=.*', 'RANLIB=echo')
                 mf.filter('^LIB\s*=.*', 'LIB=.so')
 
