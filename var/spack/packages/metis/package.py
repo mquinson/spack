@@ -50,6 +50,12 @@ class Metis(Package):
             if spec.satisfies('+shared'):
                 mf = FileFilter('Makefile.in')
                 mf.filter('COPTIONS\s*=', 'COPTIONS = -fPIC ')
+                if platform.system() == 'Darwin':
+                    mf.filter('^AR\s*=.*', 'AR = $(CC) -shared -undefined dynamic_lookup -o ')
+                else:
+                    mf.filter('^AR\s*=.*', 'AR = $(CC) -shared -o ')
+                mf.filter('^RANLIB\s*=.*', 'RANLIB = echo')
+
 
             make()
 
@@ -65,10 +71,10 @@ class Metis(Package):
             mkdirp(prefix.lib)
             if spec.satisfies('+shared'):
                 if platform.system() == 'Darwin':
-                    call(['cc', '-shared', '-undefined dynamic_lookup', '-o', 'libmetis.dylib', '-Wl,--whole-archive', 'libmetis.a', '-Wl,--no-whole-archive'])
+                    call(['mv', 'libmetis.a', 'libmetis.dylib'])
                     install('libmetis.dylib', prefix.lib)
                 else:
-                    call(['cc', '-shared', '-o', 'libmetis.so', '-Wl,--whole-archive', 'libmetis.a', '-Wl,--no-whole-archive'])
+                    call(['mv', 'libmetis.a', 'libmetis.so'])
                     install('libmetis.so', prefix.lib)
             else:
                 install('libmetis.a', prefix.lib)
