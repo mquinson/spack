@@ -1,5 +1,6 @@
 from spack import *
 import os
+import platform
 from subprocess import call
 
 class NetlibBlacs(Package):
@@ -17,7 +18,19 @@ class NetlibBlacs(Package):
 
     variant('shared', default=True, description='Build BLACS as a shared library')
 
-    def install(self, spec, prefix):
+    def setup_dependent_environment(self, module, spec, dep_spec):
+        """Dependencies of this package will get the libraries names for netlib-blacs."""
+        lib_dir = self.spec.prefix.lib
+        if spec.satisfies('+shared'):
+            if platform.system() == 'Darwin':
+                module.blacslibname=[os.path.join(lib_dir, "libblacsCinit.dylib"), os.path.join(lib_dir, "libblacsF77init.dylib"), os.path.join(lib_dir, "libblacs.dylib")]
+            else:
+                module.blacslibname=[os.path.join(lib_dir, "libblacsCinit.so"), os.path.join(lib_dir, "libblacsF77init.so"), os.path.join(lib_dir, "libblacs.so") ]
+        else:
+            module.blacslibname=[os.path.join(lib_dir, "libblacsCinit.a"), os.path.join(lib_dir, "libblacsF77init.a"), os.path.join(lib_dir, "libblacs.a") ]
+
+    def setup(self):
+        spec = self.spec
         call(['cp', 'BMAKES/Bmake.MPI-LINUX', 'Bmake.inc'])
         mf = FileFilter('Bmake.inc')
 
@@ -25,31 +38,44 @@ class NetlibBlacs(Package):
         mf.filter('/usr/local/mpich', '%s' % self.spec['mpi'].prefix)
         mf.filter('\$\(MPILIBdir\)/libmpich\.a', '')
         mf.filter('\$\(MPIdir\)/lib/', '')
-
-        if spec.satisfies('^openmpi'):
-            mf.filter('DUseMpich', 'DUseMpi2')
-
+        mf.filter('INTFACE\s*=.*', 'INTFACE=-DAdd_')
+        mf.filter('TRANSCOMM\s*=.*', 'TRANSCOMM=')
         mf.filter('F77            = g77', 'F77            = mpif77')
         mf.filter('CC             = gcc', 'CC             = mpicc')
 
+        sf=FileFilter('SRC/MPI/Makefile')
+        sf.filter('\$\(BLACSLIB\) \$\(Fintobj\)', '$(BLACSLIB) $(Fintobj) $(internal)')
+        sf.filter('\$\(ARCH\) \$\(ARCHFLAGS\) \$\(BLACSLIB\) \$\(internal\)', 'mv $(internal) ..')
+
         if spec.satisfies('+shared'):
             mf.filter('ARCH\s*=.*', 'ARCH=$(CC)')
-            mf.filter('ARCHFLAGS\s*=.*', 'ARCHFLAGS=-shared -o')
+            mf.filter('ARCHFLAGS\s*=.*', 'ARCHFLAGS=-shared -o ')
             mf.filter('RANLIB\s*=.*', 'RANLIB=echo')
             mf.filter('CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
             mf.filter('F77FLAGS\s*=', 'F77FLAGS = -fPIC ')
-            mf.filter('\.a', '.so')
+            if platform.system() == 'Darwin':
+                mf.filter('\.a', '.dylib')
+            else:
+                mf.filter('\.a', '.so')
 
-        filter_file('\$\(MAKE\) -f \.\./Makefile I_int \"dlvl=\$\(BTOPdir\)\" \)','echo $(BLACSDEFS) $(MAKE) -f ../Makefile I_int "dlvl=$(BTOPdir)" )', 'SRC/MPI/Makefile')
+        #filter_file('\$\(MAKE\) -f \.\./Makefile I_int \"dlvl=\$\(BTOPdir\)\" \)','echo $(BLACSDEFS) $(MAKE) -f ../Makefile I_int "dlvl=$(BTOPdir)" )', 'SRC/MPI/Makefile')
         call(['cat', 'Bmake.inc'])
         call(['cat', 'SRC/MPI/Makefile'])
 
+    def install(self, spec, prefix):
+
+        self.setup()
         make('mpi')
         mkdirp(prefix.lib)
         if spec.satisfies('+shared'):
-            install('LIB/blacsCinit_MPI-LINUX-0.so', '%s/libblacsCinit.so' % prefix.lib)
-            install('LIB/blacsF77init_MPI-LINUX-0.so', '%s/libblacsF77init.so' % prefix.lib)
-            install('LIB/blacs_MPI-LINUX-0.so', '%s/libblacs.so' % prefix.lib)
+            if platform.system() == 'Darwin':
+                install('LIB/blacsCinit_MPI-LINUX-0.so', '%s/libblacsCinit.dylib' % prefix.lib)
+                install('LIB/blacsF77init_MPI-LINUX-0.so', '%s/libblacsF77init.dylib' % prefix.lib)
+                install('LIB/blacs_MPI-LINUX-0.so', '%s/libblacs.dylib' % prefix.lib)
+            else:
+                install('LIB/blacsCinit_MPI-LINUX-0.so', '%s/libblacsCinit.so' % prefix.lib)
+                install('LIB/blacsF77init_MPI-LINUX-0.so', '%s/libblacsF77init.so' % prefix.lib)
+                install('LIB/blacs_MPI-LINUX-0.so', '%s/libblacs.so' % prefix.lib)
         else:
             install('LIB/blacsCinit_MPI-LINUX-0.a', '%s/libblacsCinit.a' % prefix.lib)
             install('LIB/blacsF77init_MPI-LINUX-0.a', '%s/libblacsF77init.a' % prefix.lib)

@@ -1,5 +1,6 @@
 from spack import *
 import os
+import platform
 class NetlibLapack(Package):
     """
     LAPACK version 3.X is a comprehensive FORTRAN library that does
@@ -34,18 +35,26 @@ class NetlibLapack(Package):
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for netlib-lapack."""
         if spec.satisfies('+shared'):
-            module.lapacklibname=[os.path.join(self.spec.prefix.lib, "liblapack.so")]
-            module.lapacklibfortname=[os.path.join(self.spec.prefix.lib, "liblapack.so")]
+            if platform.system() == 'Darwin':
+                module.lapacklibname=[os.path.join(self.spec.prefix.lib, "liblapack.dylib")]
+                module.tmglibname=[os.path.join(self.spec.prefix.lib, "libtmglib.dylib")]
+            else:
+                module.lapacklibname=[os.path.join(self.spec.prefix.lib, "liblapack.so")]
+                module.tmglibname=[os.path.join(self.spec.prefix.lib, "libtmglib.so")]
         else:
             module.lapacklibname=[os.path.join(self.spec.prefix.lib, "liblapack.a")]
-            module.lapacklibfortname=[os.path.join(self.spec.prefix.lib, "liblapack.a")]
+            module.tmglibname=[os.path.join(self.spec.prefix.lib, "libtmglib.a")]
+        module.lapacklibfortname = module.lapacklibname
+        module.tmglibfortname = module.tmglibname
 
     def install(self, spec, prefix):
-        blas_libs = ";".join(blaslibname)
-        cmake_args = [
-            ".", "-Wno-dev",
-            '-DBLAS_LIBRARIES=' + blas_libs]
 
+        cmake_args = [
+            ".", "-Wno-dev"]
+
+        blas_libs = " ".join(blaslibfortname)
+        blas_libs = blas_libs.replace(' ', ';')
+        cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
         if spec.satisfies('+shared'):
             cmake_args.append('-DBUILD_SHARED_LIBS=ON')
             cmake_args.append('-DBUILD_STATIC_LIBS=OFF')

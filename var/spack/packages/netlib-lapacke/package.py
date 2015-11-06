@@ -1,5 +1,7 @@
 from spack import *
 import os
+import platform
+
 class NetlibLapacke(Package):
     """
     LAPACK version 3.X is a comprehensive FORTRAN library that does
@@ -24,7 +26,7 @@ class NetlibLapacke(Package):
     provides('lapacke')
 
     # blas is a virtual dependency.
-    depends_on('blas')
+    depends_on('lapack')
 
     depends_on('cmake')
 
@@ -34,19 +36,31 @@ class NetlibLapacke(Package):
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for netlib-lapacke."""
         if spec.satisfies('+shared'):
-            module.lapackelibname=[os.path.join(self.spec.prefix.lib, "liblapacke.so")]
+            if platform.system() == 'Darwin':
+                module.lapackelibname=[os.path.join(self.spec.prefix.lib, "liblapacke.dylib")]
+            else:
+                module.lapackelibname=[os.path.join(self.spec.prefix.lib, "liblapacke.so")]
         else:
             module.lapackelibname=[os.path.join(self.spec.prefix.lib, "liblapacke.a")]
+        module.lapackelibfortname = module.lapackelibname
 
     def install(self, spec, prefix):
-        blas_libs = ";".join(blaslibname)
+
         cmake_args = [
-            ".", "-Wno-dev",
-            '-DBLAS_LIBRARIES=' + blas_libs]
+            ".", "-Wno-dev"]
+
+        blas_libs = " ".join(blaslibfortname)
+        blas_libs = blas_libs.replace(' ', ';')
+        cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
+
+        lapack_libs = " ".join(lapacklibfortname)
+        lapack_libs = lapack_libs.replace(' ', ';')
+        cmake_args.extend(['-DLAPACK_LIBRARIES=%s' % lapack_libs])
 
         # Enable lapacke here.
         cmake_args.extend(["-DLAPACKE=ON"])
-        cmake_args.extend(["-DLAPACKE_WITH_TMG=ON"])
+        cmake_args.extend(["-DLAPACKE_WITH_TMG=OFF"])
+        cmake_args.extend(["-DBUILD_TESTING=OFF"])
 
         if spec.satisfies('+shared'):
             cmake_args.append('-DBUILD_SHARED_LIBS=ON')

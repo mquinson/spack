@@ -1,5 +1,7 @@
 from spack import *
 import os
+import platform
+from subprocess import call
 
 class Metis(Package):
     """METIS is a set of serial programs for partitioning graphs,
@@ -18,18 +20,37 @@ class Metis(Package):
 
     depends_on('mpi', when='@5:')
 
+    variant('shared', default=True, description='Build METIS as a shared library')
+
+    def setup_dependent_environment(self, module, spec, dep_spec):
+        """Dependencies of this package will get the libraries names for Metis."""
+        module.metislibname=[os.path.join(self.spec.prefix.lib, "libmetis.a")]
+        if spec.satisfies('+shared'):
+            if platform.system() == 'Darwin':
+                module.metislibname=[os.path.join(self.spec.prefix.lib, "libmetis.dylib")]
+            else:
+                module.metislibname=[os.path.join(self.spec.prefix.lib, "libmetis.so")]
+
+
     def install(self, spec, prefix):
         if spec.satisfies('@5:'):
-            cmake(".",
-                  '-DGKLIB_PATH=%s/GKlib' % pwd(),
-                  #'-DCMAKE_C_COMPILER=mpicc',
-                  #'-DCMAKE_CXX_COMPILER=mpicxx',
-                  '-DSHARED=1',
-                  *std_cmake_args)
-
+            if spec.satisfies('+shared'):
+                cmake(".",
+                      '-DGKLIB_PATH=%s/GKlib' % pwd(),
+                      '-DSHARED=1',
+                      *std_cmake_args)
+            else:
+                cmake(".",
+                      '-DGKLIB_PATH=%s/GKlib' % pwd(),
+                      '-DSHARED=0',
+                      *std_cmake_args)
             make()
             make("install")
         else:
+            if spec.satisfies('+shared'):
+                mf = FileFilter('Makefile.in')
+                mf.filter('COPTIONS\s*=', 'COPTIONS = -fPIC ')
+
             make()
 
             # No install provided
@@ -42,4 +63,8 @@ class Metis(Package):
                         install(file, prefix.include)
 
             mkdirp(prefix.lib)
-            install('libmetis.a', prefix.lib)
+            if spec.satisfies('+shared'):
+                call(['cc', '-shared', '-o', 'libmetis.so', '-Wl,--whole-archive', 'libmetis.a', '-Wl,--no-whole-archive'])
+                install('libmetis.so', prefix.lib)
+            else:
+                install('libmetis.a', prefix.lib)

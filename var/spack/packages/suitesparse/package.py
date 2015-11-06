@@ -1,5 +1,6 @@
 from spack import *
 from subprocess import call
+import platform
 
 class Suitesparse(Package):
     """a suite of sparse matrix algorithms."""
@@ -7,8 +8,6 @@ class Suitesparse(Package):
     url      = "http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz"
 
     version('4.4.5', 'a2926c27f8a5285e4a10265cc68bbc18')
-
-    variant('mac', default=False, description='Patch the configuration to make it MAC OS X compatible')
 
     depends_on("blas")
     depends_on("lapack")
@@ -18,27 +17,29 @@ class Suitesparse(Package):
         spec = self.spec
         with working_dir('SuiteSparse_config'):
             mf = FileFilter('SuiteSparse_config.mk')
-            if spec.satisfies('+mac'):
+            if platform.system() == 'Darwin':
                 mf = FileFilter('SuiteSparse_config_Mac.mk')
             mf.filter('^INSTALL_LIB =.*', 'INSTALL_LIB = %s' % spec.prefix.lib)
             mf.filter('^INSTALL_INCLUDE =.*', 'INSTALL_INCLUDE = %s' % spec.prefix.include)
 
-            if spec.satisfies('+mac'):
+            if platform.system() == 'Darwin':
                 mf.filter('LIB = -lm -lrt', 'LIB = -lm')
 
-            blas_libs = ";".join(blaslibname)
-            lapack_libs = ";".join(lapacklibname)
+            blas_libs = " ".join(blaslibfortname)
             mf.filter('  BLAS = -lopenblas', '#  BLAS = -lopenblas')
-            mf.filter('# BLAS = -lblas -lgfortran', '  BLAS = %s -lgfortran' % blas_libs)
+            mf.filter('# BLAS = -lblas -lgfortran', '  BLAS = %s' % blas_libs)
+
+            lapack_libs = " ".join(lapacklibfortname)
             mf.filter('  LAPACK = -llapack', '  LAPACK = %s' % lapack_libs)
 
-            if spec.satisfies('+mac'):
+            if platform.system() == 'Darwin':
                 mf.filter('  BLAS = -framework Accelerate', '')
                 mf.filter('  LAPACK = -framework Accelerate', '')
 
             metis = spec['metis'].prefix
+            metis_libs = " ".join(metislibname)
             mf.filter('^METIS_PATH =.*', 'METIS_PATH = %s' % metis)
-            mf.filter('^METIS =.*', 'METIS = %s/libmetis.a' % metis.lib)
+            mf.filter('^METIS =.*', 'METIS = %s' % metis_libs)
 
         with working_dir('CHOLMOD/Demo'):
             mf = FileFilter('Makefile')

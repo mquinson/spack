@@ -1,5 +1,7 @@
 from spack import *
 import os
+from subprocess import call
+import platform
 
 class NetlibScalapack(Package):
     """A library of high-performance linear algebra routines for parallel distributed memory machines."""
@@ -17,18 +19,20 @@ class NetlibScalapack(Package):
 
     variant('shared', default=True, description="Use shared library version")
 
-    depends_on("mpi")
+    depends_on("mpi", when='@2:')
+    depends_on("blacs", when='@1.8.0')
     depends_on("blas")
     depends_on("lapack")
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for netlib-scalapack."""
         if '+shared' in spec:
-            module.scalapacklibname=[os.path.join(self.spec.prefix.lib, "libscalapack.so")]
-            module.scalapacklibfortname=[os.path.join(self.spec.prefix.lib, "libscalapack.so")]
+            if platform.system() == 'Darwin':
+                module.scalapacklibname=[os.path.join(self.spec.prefix.lib, "libscalapack.dylib")]
+            else:
+                module.scalapacklibname=[os.path.join(self.spec.prefix.lib, "libscalapack.so")]
         else:
             module.scalapacklibname=[os.path.join(self.spec.prefix.lib, "libscalapack.a")]
-            module.scalapacklibfortname=[os.path.join(self.spec.prefix.lib, "libscalapack.a")]
 
     def install(self, spec, prefix):
         with working_dir('spack-build', create=True):
@@ -42,15 +46,34 @@ class NetlibScalapack(Package):
             else:
                 cmake_args.extend(['-DBUILD_SHARED_LIBS=OFF'])
 
-            blas_libs = " ".join(blaslibname)
-            lapack_libs = " ".join(lapacklibname)
-            if spec.satisfies('%gcc'):
-                cmake_args.extend(['-DBLAS_LIBRARIES='+blas_libs+';m;gfortran'])
-            elif spec.satisfies('%icc'):
-                cmake_args.extend(['-DBLAS_LIBRARIES='+blas_libs+';m'])
-            cmake_args.extend(['-DLAPACK_LIBRARIES='+lapack_libs])
+            blas_libs = " ".join(blaslibfortname)
+            blas_libs = blas_libs.replace(' ', ';')
+            cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
+
+            lapack_libs = " ".join(lapacklibfortname)
+            lapack_libs = lapack_libs.replace(' ', ';')
+            cmake_args.extend(['-DLAPACK_LIBRARIES=%s' % lapack_libs])
 
             cmake_args.extend(std_cmake_args)
             cmake(*cmake_args)
             make()
             make("install")
+
+    # Old version, like 1.8.0, dont use CMakeLists.txt
+    @when('@1.8.0')
+    def install(self, spec, prefix):
+        call(['cp', 'SLmake.inc.example', 'SLmake.inc'])
+        mf = FileFilter('SLmake.inc')
+        mf.filter('home\s*=.*', 'home=%s' % os.getcwd())
+        mf.filter('Df77IsF2C', 'DAdd_')
+        if spec.satisfies('+shared'):
+            mf.filter('CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
+            mf.filter('F77FLAGS\s*=', 'F77FLAGS = -fPIC ')
+        make(parallel=False)
+        mkdirp(prefix.lib)
+
+        if spec.satisfies('+shared'):
+            call(['cc', '-shared', '-o', 'libscalapack.so', '-Wl,--whole-archive', 'libscalapack.a', '-Wl,--no-whole-archive']+blacslibname+lapacklibfortname+blaslibfortname)
+            install('libscalapack.so', '%s/libscalapack.so' % prefix.lib)
+        else:
+            install('libscalapack.a', '%s/libscalapack.a' % prefix.lib)
