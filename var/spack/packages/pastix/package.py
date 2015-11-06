@@ -49,6 +49,9 @@ class Pastix(Package):
             mf.filter('#SHARED=1', 'SHARED=1')
             mf.filter('#SOEXT=\.so', 'SOEXT=.so')
             mf.filter('#SHARED_FLAGS =  -shared -Wl,-soname,__SO_NAME__', 'SHARED_FLAGS =  -shared -Wl,-soname,__SO_NAME__')
+            if platform.system() == 'Darwin':
+                mf.filter('\.so', '.dylib')
+                mf.filter('-shared -Wl,-soname,__SO_NAME__', '-shared -Wl,-dylib_install_name -Wl,__SO_NAME_')
             mf.filter('#CCFDEB       := \$\{CCFDEB\} -fPIC', 'CCFDEB       := ${CCFDEB} -fPIC')
             mf.filter('#CCFOPT       := \$\{CCFOPT\} -fPIC', 'CCFOPT       := ${CCFOPT} -fPIC')
             mf.filter('#CFPROG       := \$\{CFPROG\} -fPIC', 'CFPROG       := ${CFPROG} -fPIC')
