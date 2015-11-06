@@ -1,5 +1,6 @@
 from spack import *
 import os
+import sys
 
 class Chameleon(Package):
     """Dense Linear Algebra for Scalable Multi-core Architectures and GPGPUs"""
@@ -22,14 +23,13 @@ class Chameleon(Package):
     variant('fxt', default=False, description='Enable FxT tracing support through StarPU')
     variant('simu', default=False, description='Enable simulation mode through StarPU+SimGrid')
     variant('quark', default=False, description='Enable to use Quark runtime instead of StarPU')
-    variant('starpu', default=True, description='Enable to use StarPU runtime instead of Quark')
     variant('eztrace', default=False, description='Enable EZTrace modules')
 
     depends_on("blas")
     depends_on("lapack")
     depends_on("cblas")
     depends_on("lapacke")
-    depends_on("starpu", when='+starpu')
+    depends_on("starpu", when='~quark')
     depends_on("quark", when='+quark')
     depends_on("mpi", when='+mpi')
     depends_on("magma", when='+magma')
@@ -66,9 +66,6 @@ class Chameleon(Package):
             if spec.satisfies('+quark'):
                 # Enable Quark here.
                 cmake_args.extend(["-DCHAMELEON_SCHED_QUARK=ON"])
-            if spec.satisfies('+starpu'):
-                # Enable StarPU here.
-                cmake_args.extend(["-DCHAMELEON_SCHED_STARPU=ON"])
 
             blas = self.spec['blas']
             cblas = self.spec['cblas']
