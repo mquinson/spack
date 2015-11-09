@@ -6,14 +6,14 @@ import platform
 class Maphys(Package):
     """a Massively Parallel Hybrid Solver."""
     homepage = "https://project.inria.fr/maphys/"
-    url      = "http://maphys.gforge.inria.fr/maphys_0.9.2.tar.gz"
+    url      = "http://maphys.gforge.inria.fr/maphys_0.9.3.tar.gz"
 
-    version('0.9.2', '2dd5d4c21017b2277be93326705e2659',
-            url='http://maphys.gforge.inria.fr/maphys_0.9.2.tar.gz')
+    version('0.9.3', 'f52ff32079991163c8905307ce8b8a79',
+            url='http://maphys.gforge.inria.fr/maphys_0.9.3.tar.gz')
 
     svnroot  = "https://scm.gforge.inria.fr/anonscm/svn/maphys/"
-    version('svn-maphys_0.9.1',
-            svn=svnroot+"branches/maphys_0.9.1")
+    version('svn-maphys-dev',
+            svn=svnroot+"branches/maphys-dev")
 
     variant('mumps', default=False, description='Enable MUMPS direct solver')
     variant('pastix', default=True, description='Enable PASTIX direct solver')
