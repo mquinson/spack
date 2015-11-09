@@ -121,7 +121,10 @@ class Scotch(Package):
                 if platform.system() == 'Darwin':
                     mf.filter('-shared -o', '-shared -undefined dynamic_lookup -o')
                 mf.filter('^RANLIB\s*=.*', 'RANLIB=echo')
-                mf.filter('^LIB\s*=.*', 'LIB=.so')
+                if platform.system() == 'Darwin':
+                    mf.filter('^LIB\s*=.*', 'LIB=.dylib')
+                else:
+                    mf.filter('^LIB\s*=.*', 'LIB=.so')
 
             force_symlink(makefile, 'Makefile.inc')
             make('scotch')
