@@ -143,5 +143,8 @@ class Mumps(Package):
         if spec.satisfies('+seq~shared'):
             install('libseq/libmpiseq.a', prefix.lib)
         if spec.satisfies('+seq+shared'):
-            install('libseq/libmpiseq.so', prefix.lib)
+            if platform.system() == 'Darwin':
+                install('libseq/libmpiseq.dylib', prefix.lib)
+            else:
+                install('libseq/libmpiseq.so', prefix.lib)
         install_tree('examples', '%s/lib/mumps/examples' % prefix)
