@@ -12,6 +12,8 @@ class Openmpi(Package):
 
     homepage = "http://www.open-mpi.org"
 
+    version('1.10.1', 'f0fcd77ed345b7eafb431968124ba16e',
+            url = "http://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-1.10.1.tar.bz2")
     version('1.10.0', '280cf952de68369cebaca886c5ce0304',
             url = "http://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-1.10.0.tar.bz2")
     version('1.8.8', '0dab8e602372da1425e9242ae37faf8c',
@@ -106,5 +108,3 @@ class Openmpi(Package):
             if not os.path.islink(path):
                 filter_file('compiler=.*', 'compiler=%s' % self.compiler.fc,
                             path, **kwargs)
-
-
