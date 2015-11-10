@@ -45,6 +45,7 @@ class Starpu(Package):
 
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
+    depends_on("cuda", when='+cuda')
     depends_on("fxt", when='+fxt')
     depends_on("simgrid", when='+simu')
 
@@ -60,7 +61,7 @@ class Starpu(Package):
     @when('@git')
     def setup(self):
         working_dir("starpu")
-	# execute autogen first if running the SVN version
+        # execute autogen first if running the SVN version
         subprocess.check_call('./autogen.sh')
 
     def install(self, spec, prefix):

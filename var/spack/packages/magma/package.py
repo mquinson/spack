@@ -22,7 +22,7 @@ class Magma(Package):
 
     depends_on("cblas", when='~mkl')
     depends_on("lapack", when='~mkl')
-    #depends_on("cuda")
+    depends_on("cuda")
 
     def install(self, spec, prefix):
         spack_root=os.environ['SPACK_ROOT']
