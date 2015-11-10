@@ -2,6 +2,7 @@ from spack import *
 import os
 import subprocess
 import platform
+import sys
 
 class Maphys(Package):
     """a Massively Parallel Hybrid Solver."""
@@ -86,6 +87,10 @@ class Maphys(Package):
         else:
             mf.filter('PASTIX_topdir := \$\(3rdpartyPREFIX\)/pastix/32bits', '#PASTIX_topdir := %s')
             mf.filter('PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I\$\{PASTIX_topdir\}/install', '#PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I${PASTIX_topdir}/include')
+            mf.filter('PASTIX_LIBS := -L\$\{PASTIX_topdir\}/install -lpastix -lrt', '#PASTIX_LIBS :=')
+
+        if spec.satisfies('~mumps') and spec.satisfies('~pastix'):
+            sys.exit('Maphys depends at least on one direct solver, please enable +mumps or +pastix.')
 
         mf.filter('METIS_topdir  := \$\(3rdpartyPREFIX\)/metis/32bits', '#METIS_topdir  := version without metis')
         mf.filter('METIS_CFLAGS := -DHAVE_LIBMETIS -I\$\{METIS_topdir\}/Lib', 'METIS_CFLAGS := ')
@@ -125,7 +130,7 @@ class Maphys(Package):
         make()
         if spec.satisfies('+examples'):
             make('examples')
-        make("install")
+        make("install", parallel=False)
         if spec.satisfies('+examples'):
             # examples are not installed by default
             install_tree('examples', '%s/lib/maphys/examples' % prefix)
