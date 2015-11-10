@@ -84,7 +84,7 @@ class Scotch(Package):
             makefiles = glob.glob('Makefile.inc.x86-64_pc_linux2*')
             filter_file(r'^CCS\s*=.*$', 'CCS = cc', *makefiles)
             filter_file(r'^CCD\s*=.*$', 'CCD = cc', *makefiles)
-            if spec.satisfies('%icc'):
+            if spec.satisfies('%intel'):
                 call(["cp", "Makefile.inc.x86-64_pc_linux2.shlib", "Makefile.inc.x86-64_pc_linux2.shlib.icc"])
                 filter_file(r'^CLIBFLAGS\s*=.*$', 'CLIBFLAGS = -shared -fpic', *makefiles)
             elif spec.satisfies('+shared'):
@@ -106,7 +106,7 @@ class Scotch(Package):
             makefile = 'Make.inc/Makefile.inc.x86-64_pc_linux2.shlib'
         else:
             makefile = 'Make.inc/Makefile.inc.x86-64_pc_linux2'
-        if spec.satisfies('%icc'):
+        if spec.satisfies('%intel'):
             makefile += '.icc'
 
         with working_dir('src'):
@@ -118,8 +118,13 @@ class Scotch(Package):
             if spec.satisfies('+shared'):
                 mf.filter('^AR\s*=.*', 'AR=$(CC) ')
                 mf.filter('^ARFLAGS\s*=.*', 'ARFLAGS=-shared -o')
+                if platform.system() == 'Darwin':
+                    mf.filter('-shared -o', '-shared -undefined dynamic_lookup -o')
                 mf.filter('^RANLIB\s*=.*', 'RANLIB=echo')
-                mf.filter('^LIB\s*=.*', 'LIB=.so')
+                if platform.system() == 'Darwin':
+                    mf.filter('^LIB\s*=.*', 'LIB=.dylib')
+                else:
+                    mf.filter('^LIB\s*=.*', 'LIB=.so')
 
             force_symlink(makefile, 'Makefile.inc')
             make('scotch')

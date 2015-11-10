@@ -50,6 +50,7 @@ import re
 import textwrap
 import shutil
 from glob import glob
+import platform
 
 import llnl.util.tty as tty
 from llnl.util.filesystem import join_path, mkdirp
@@ -112,6 +113,11 @@ class EnvModule(object):
                 path = self._paths.setdefault(path_name, [])
                 path.append(directory)
 
+            if platform.system() == 'Darwin':
+                dyn_lib_var_env_prefix = 'DYLD'
+            else:
+                dyn_lib_var_env_prefix = 'LD'
+
             # Add paths if they exist.
             for var, directory in [
                     ('PATH', self.spec.prefix.bin),
@@ -119,8 +125,8 @@ class EnvModule(object):
                     ('MANPATH', self.spec.prefix.share_man),
                     ('LIBRARY_PATH', self.spec.prefix.lib),
                     ('LIBRARY_PATH', self.spec.prefix.lib64),
-                    ('LD_LIBRARY_PATH', self.spec.prefix.lib),
-                    ('LD_LIBRARY_PATH', self.spec.prefix.lib64),
+                    (dyn_lib_var_env_prefix+'_LIBRARY_PATH', self.spec.prefix.lib),
+                    (dyn_lib_var_env_prefix+'_LIBRARY_PATH', self.spec.prefix.lib64),
                     ('PKG_CONFIG_PATH', join_path(self.spec.prefix.lib, 'pkgconfig')),
                     ('PKG_CONFIG_PATH', join_path(self.spec.prefix.lib64, 'pkgconfig'))]:
 

@@ -12,6 +12,8 @@ class Openmpi(Package):
 
     homepage = "http://www.open-mpi.org"
 
+    version('1.10.1', 'f0fcd77ed345b7eafb431968124ba16e',
+            url = "http://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-1.10.1.tar.bz2")
     version('1.10.0', '280cf952de68369cebaca886c5ce0304',
             url = "http://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-1.10.0.tar.bz2")
     version('1.8.8', '0dab8e602372da1425e9242ae37faf8c',
@@ -25,7 +27,7 @@ class Openmpi(Package):
     provides('mpi@:2.2', when='@1.6.5')    # Open MPI 1.6.5 supports MPI-2.2
     provides('mpi@:3.0', when='@1.8.8')    # Open MPI 1.8.8 supports MPI-3.0
     provides('mpi@:3.1', when='@1.10.0')   # Open MPI 1.10.0 supports MPI-3.0
-
+    provides('mpi@:3.2', when='@1.10.1')   # Open MPI 1.10.1 supports MPI-3.0
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """For dependencies, make mpicc's use spack wrapper."""
@@ -106,5 +108,3 @@ class Openmpi(Package):
             if not os.path.islink(path):
                 filter_file('compiler=.*', 'compiler=%s' % self.compiler.fc,
                             path, **kwargs)
-
-

@@ -2,18 +2,19 @@ from spack import *
 import os
 import subprocess
 import platform
+import sys
 
 class Maphys(Package):
     """a Massively Parallel Hybrid Solver."""
     homepage = "https://project.inria.fr/maphys/"
-    url      = "http://maphys.gforge.inria.fr/maphys_0.9.2.tar.gz"
+    url      = "http://maphys.gforge.inria.fr/maphys_0.9.3.tar.gz"
 
-    version('0.9.2', '2dd5d4c21017b2277be93326705e2659',
-            url='http://maphys.gforge.inria.fr/maphys_0.9.2.tar.gz')
+    version('0.9.3', 'f52ff32079991163c8905307ce8b8a79',
+            url='http://maphys.gforge.inria.fr/maphys_0.9.3.tar.gz')
 
     svnroot  = "https://scm.gforge.inria.fr/anonscm/svn/maphys/"
-    version('svn-maphys_0.9.1',
-            svn=svnroot+"branches/maphys_0.9.1")
+    version('svn-maphys-dev',
+            svn=svnroot+"branches/maphys-dev")
 
     variant('mumps', default=False, description='Enable MUMPS direct solver')
     variant('pastix', default=True, description='Enable PASTIX direct solver')
@@ -86,6 +87,10 @@ class Maphys(Package):
         else:
             mf.filter('PASTIX_topdir := \$\(3rdpartyPREFIX\)/pastix/32bits', '#PASTIX_topdir := %s')
             mf.filter('PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I\$\{PASTIX_topdir\}/install', '#PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I${PASTIX_topdir}/include')
+            mf.filter('PASTIX_LIBS := -L\$\{PASTIX_topdir\}/install -lpastix -lrt', '#PASTIX_LIBS :=')
+
+        if spec.satisfies('~mumps') and spec.satisfies('~pastix'):
+            sys.exit('Maphys depends at least on one direct solver, please enable +mumps or +pastix.')
 
         mf.filter('METIS_topdir  := \$\(3rdpartyPREFIX\)/metis/32bits', '#METIS_topdir  := version without metis')
         mf.filter('METIS_CFLAGS := -DHAVE_LIBMETIS -I\$\{METIS_topdir\}/Lib', 'METIS_CFLAGS := ')
@@ -124,8 +129,8 @@ class Maphys(Package):
         self.setup()
         make()
         if spec.satisfies('+examples'):
-            make('check-examples')
-        make("install")
+            make('examples')
+        make("install", parallel=False)
         if spec.satisfies('+examples'):
             # examples are not installed by default
             install_tree('examples', '%s/lib/maphys/examples' % prefix)
