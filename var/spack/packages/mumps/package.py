@@ -15,7 +15,6 @@ class Mumps(Package):
     variant('scotch', default=False, description='Enable Scotch')
     variant('ptscotch', default=False, description='Enable PT-Scotch')
     variant('metis', default=False, description='Enable Metis')
-    #variant('parmetis', default=False, description='Enable parMetis')
     variant('shared', default=True, description='Build MUMPS as a shared library')
 
     depends_on("mpi", when='~seq')
@@ -25,34 +24,18 @@ class Mumps(Package):
     depends_on("scotch+mpi", when='+ptscotch')
     depends_on("metis@5:", when='@5:+metis')
     depends_on("metis@:4", when='@:4+metis')
-    #depends_on("parmetis", when='+parmetis')
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the libraries names for Mumps."""
         libdir = self.spec.prefix.lib
         if spec.satisfies('+shared'):
-            if platform.system() == 'Darwin':
-                mumpslibname  = [os.path.join(libdir, "libsmumps.dylib")]
-                mumpslibname += [os.path.join(libdir, "libdmumps.dylib")]
-                mumpslibname += [os.path.join(libdir, "libcmumps.dylib")]
-                mumpslibname += [os.path.join(libdir, "libzmumps.dylib")]
-                mumpslibname += [os.path.join(libdir, "libmumps_common.dylib")]
-                mumpslibname += [os.path.join(libdir, "libpord.dylib")]
-            else:
-                mumpslibname  = [os.path.join(libdir, "libsmumps.so")]
-                mumpslibname += [os.path.join(libdir, "libdmumps.so")]
-                mumpslibname += [os.path.join(libdir, "libcmumps.so")]
-                mumpslibname += [os.path.join(libdir, "libzmumps.so")]
-                mumpslibname += [os.path.join(libdir, "libmumps_common.so")]
-                mumpslibname += [os.path.join(libdir, "libpord.so")]
+            libext=".dylib" if platform.system() == 'Darwin' else ".so"
         else:
-            mumpslibname  = [os.path.join(libdir, "libsmumps.a")]
-            mumpslibname += [os.path.join(libdir, "libdmumps.a")]
-            mumpslibname += [os.path.join(libdir, "libcmumps.a")]
-            mumpslibname += [os.path.join(libdir, "libzmumps.a")]
-            mumpslibname += [os.path.join(libdir, "libmumps_common.a")]
-            mumpslibname += [os.path.join(libdir, "libpord.a")]
-        module.mumpslibname = mumpslibname
+            libext=".a"
+        
+        module.mumpslibname = []
+        for l in ["smumps", "dmumps", "cmumps", "zmumps", "mumps_common", "pord"]:
+            module.mumpslibname  += [os.path.join(libdir, "lib%s%s"%(l, libext))]
 
     def setup(self):
         spec = self.spec
