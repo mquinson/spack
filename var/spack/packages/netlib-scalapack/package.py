@@ -73,7 +73,7 @@ class NetlibScalapack(Package):
         mkdirp(prefix.lib)
 
         if spec.satisfies('+shared'):
-            call(['cc', '-shared', '-o', 'libscalapack.so', '-Wl,--whole-archive', 'libscalapack.a', '-Wl,--no-whole-archive']+blacslibname+lapacklibfortname+blaslibfortname)
+            call((" ".join(['cc -shared -o libscalapack.so -Wl,--whole-archive libscalapack.a -Wl,--no-whole-archive']+blacslibname+lapacklibfortname+blaslibfortname)).split(' ') )
             install('libscalapack.so', '%s/libscalapack.so' % prefix.lib)
         else:
             install('libscalapack.a', '%s/libscalapack.a' % prefix.lib)
