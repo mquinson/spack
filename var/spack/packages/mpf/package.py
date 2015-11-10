@@ -25,7 +25,6 @@ class Mpf(Package):
     depends_on("mumps")
     depends_on("pastix")
     depends_on("hmat")
-#    depends_on("blacs")
 
     def install(self, spec, prefix):
         with working_dir('build', create=True):
@@ -62,31 +61,33 @@ class Mpf(Package):
             cmake_args.extend(["-DMUMPS_INCLUDE_DIRS=%s" % mumps.include])
             cmake_args.extend(["-DENABLE_MUMPS=ON"])
 
-            blas_libs = ";".join(blaslibname)
-            blas = spec['blas'].prefix
-            cmake_args.extend(["-DBLAS_LIBRARY_DIRS=%s/" % blas.lib])
-            cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
+            if '^mkl-blas' in spec:
+                # cree les variables utilisees par as-make/CMake/FindMKL()
+                cmake_args.extend(["-DMKL_DETECT=ON"])
+                mklblas = spec['mkl-blas'].prefix
+                cmake_args.extend(["-DMKL_LIBRARY_DIRS=%s" % mklblas.lib])
+                cmake_args.extend(["-DMKL_INCLUDE_DIRS=%s" % mklblas.include])
+                mkl_libs=[]
+                for l1 in blaslibname:
+                    for l2 in l1.split(' '):
+                        if l2.startswith('-l'):
+                           mkl_libs.extend([l2[2:]])
+                cmake_args.extend(["-DMKL_LIBRARIES=%s" % ";".join(mkl_libs)])
+            else:
+                cmake_args.extend(["-DMKL_DETECT=OFF"])
+                blas_libs = ";".join(blaslibname)
+                blas = spec['blas'].prefix
+                cmake_args.extend(["-DBLAS_LIBRARY_DIRS=%s/" % blas.lib])
+                cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
 
-            lapack_libs = ";".join(lapacklibname)
-            lapack = spec['lapack'].prefix
-            cmake_args.extend(["-DLAPACK_LIBRARY_DIRS=%s/" % lapack.lib])
-            cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
-            cmake_args.extend(["-DMKL_DETECT=OFF"])
+                lapack_libs = ";".join(lapacklibname)
+                lapack = spec['lapack'].prefix
+                cmake_args.extend(["-DLAPACK_LIBRARY_DIRS=%s/" % lapack.lib])
+                cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
+
             cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
             
-           # mklroot=os.environ['MKLROOT']
-           #     cmake_args.extend(["-DMKL_DETECT=ON"])
-           #     cmake_args.extend(["-DMKL_INCLUDE_DIRS=%s" % os.path.join(mklroot, "include") ])
-           #     cmake_args.extend(["-DMKL_LIBRARY_DIRS=%s" % os.path.join(mklroot, "lib/intel64") ] )
-           #     if spec.satisfies('%intel'):
-           #         cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_intel_thread;mkl_core " ] )
-           #     else:
-           #         cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_gnu_thread;mkl_core " ] )
-           #     cmake_args.extend(["-DBLAS_LIBRARIES=\"\" " ] )
-
-
             cmake_args.extend(std_cmake_args)
-            call(["rm" , "-rf" , "CMake*"])
             cmake(*cmake_args)
 
             make()
