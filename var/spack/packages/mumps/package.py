@@ -30,12 +30,28 @@ class Mumps(Package):
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the libraries names for Mumps."""
         libdir = self.spec.prefix.lib
-        mumpslibname  = [os.path.join(libdir, "libsmumps.a")]
-        mumpslibname += [os.path.join(libdir, "libdmumps.a")]
-        mumpslibname += [os.path.join(libdir, "libcmumps.a")]
-        mumpslibname += [os.path.join(libdir, "libzmumps.a")]
-        mumpslibname += [os.path.join(libdir, "libmumps_common.a")]
-        mumpslibname += [os.path.join(libdir, "libpord.a")]
+        if spec.satisfies('+shared'):
+            if platform.system() == 'Darwin':
+                mumpslibname  = [os.path.join(libdir, "libsmumps.dylib")]
+                mumpslibname += [os.path.join(libdir, "libdmumps.dylib")]
+                mumpslibname += [os.path.join(libdir, "libcmumps.dylib")]
+                mumpslibname += [os.path.join(libdir, "libzmumps.dylib")]
+                mumpslibname += [os.path.join(libdir, "libmumps_common.dylib")]
+                mumpslibname += [os.path.join(libdir, "libpord.dylib")]
+            else:
+                mumpslibname  = [os.path.join(libdir, "libsmumps.so")]
+                mumpslibname += [os.path.join(libdir, "libdmumps.so")]
+                mumpslibname += [os.path.join(libdir, "libcmumps.so")]
+                mumpslibname += [os.path.join(libdir, "libzmumps.so")]
+                mumpslibname += [os.path.join(libdir, "libmumps_common.so")]
+                mumpslibname += [os.path.join(libdir, "libpord.so")]
+        else:
+            mumpslibname  = [os.path.join(libdir, "libsmumps.a")]
+            mumpslibname += [os.path.join(libdir, "libdmumps.a")]
+            mumpslibname += [os.path.join(libdir, "libcmumps.a")]
+            mumpslibname += [os.path.join(libdir, "libzmumps.a")]
+            mumpslibname += [os.path.join(libdir, "libmumps_common.a")]
+            mumpslibname += [os.path.join(libdir, "libpord.a")]
         module.mumpslibname = mumpslibname
 
     def setup(self):

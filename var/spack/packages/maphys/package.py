@@ -124,7 +124,7 @@ class Maphys(Package):
         self.setup()
         make()
         if spec.satisfies('+examples'):
-            make('check-examples')
+            make('examples')
         make("install")
         if spec.satisfies('+examples'):
             # examples are not installed by default
