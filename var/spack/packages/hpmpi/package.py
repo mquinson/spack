@@ -20,6 +20,7 @@ class Hpmpi(Package):
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """For dependencies, make mpicc's use spack wrapper."""
+        os.environ['MPI_ROOT']  = '/opt/hpmpi/'
         os.environ['HPMPI_CC']  = 'cc'
         os.environ['HPMPI_CXX'] = 'c++'
         os.environ['HPMPI_F77'] = 'f77'
