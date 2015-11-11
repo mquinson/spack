@@ -24,28 +24,23 @@ class Plasma(Package):
         mf.filter('^FC        =.*', 'FC        = f90')
         mf.filter('^LOADER    =.*', 'LOADER    = f90')
 
+        # disable intel specific options
         if spec.satisfies('%gcc'):
-            mf.filter('LDFLAGS   = -O2 -nofor_main', 'LDFLAGS   = -O2')
-            mf.filter('FFLAGS    = -O2 -fltconsistency -fp_port', 'FFLAGS    = -O2')
+            mf.filter('-nofor_main', '')
+            mf.filter('-fltconsistency -fp_port', '')
+            mf.filter('-diag-disable vec', '')
 
-        if '^netlib-blas' in spec:
-            if spec.satisfies('%gcc'):
-                mf.filter('CFLAGS    = -O2 -DADD_ -diag-disable vec', 'CFLAGS    = -O2 -DADD_')
-        elif '^mkl-blas' in spec:
-            if spec.satisfies('%gcc'):
-                mf.filter('CFLAGS    = -O2 -DADD_ -diag-disable vec', 'CFLAGS    = -O2 -DADD_ -m64 -I${MKLROOT}/include')
-            else:
-                mf.filter('CFLAGS    = -O2 -DADD_ -diag-disable vec', 'CFLAGS    = -O2 -DADD_ -diag-disable vec -m64 -I${MKLROOT}/include')
+        if '^mkl-blas' in spec or '^mkl-cblas' in spec or '^mkl-lapack' in spec:
+            mf.filter('-O2 -DADD_', '-O2 -DADD_ -m64 -I${MKLROOT}/include')
 
         blas = spec['blas'].prefix
         blas_libs = " ".join(blaslibname)
         if '^netlib-blas' in spec:
-            if spec.satisfies('%gcc'):
-                mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = -L%s -lblas -lm' % blas.lib)
-            else:
-                mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = -L%s -lblas -lm' % blas.lib)
+            mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = -L%s -lblas -lm' % blas.lib)
         elif '^mkl-blas' in spec:
             mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = %s' % blas_libs)
+        elif '^openblas' in spec:
+            mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = -L%s -lopenblas' % blas.lib)
 
         cblas = spec['cblas'].prefix
         cblas_libs = " ".join(cblaslibname)
@@ -63,12 +58,9 @@ class Plasma(Package):
             mf.filter('^LIBLAPACK   =.*', 'LIBLAPACK   = %s' % lapack_libs)
 
         lapacke = spec['netlib-lapacke'].prefix
-        lapacke_libs = " ".join(lapackelibname)
         mf.filter('^INCCLAPACK  =.*', 'INCCLAPACK  = -I%s' % lapacke.include)
         if '^netlib-lapacke' in spec:
             mf.filter('^LIBCLAPACK  =.*', 'LIBCLAPACK  = -L%s -llapacke' % lapacke.lib)
-        elif '^mkl-lapacke' in spec:
-            mf.filter('^LIBCLAPACK  =.*', 'LIBCLAPACK  = %s' % lapacke_libs)
 
     def install(self, spec, prefix):
 
