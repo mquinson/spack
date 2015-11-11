@@ -17,6 +17,7 @@ class Mumps(Package):
     variant('metis', default=False, description='Enable Metis')
     #variant('parmetis', default=False, description='Enable parMetis')
     variant('shared', default=True, description='Build MUMPS as a shared library')
+    variant('examples', default=False, description='Enable compilation and installation of example executables')
 
     depends_on("mpi", when='~seq')
     depends_on("blas")
@@ -150,8 +151,9 @@ class Mumps(Package):
         for app in ('s', 'd', 'c', 'z'):
             make(app)
 
-        for app in ('sexamples', 'dexamples', 'cexamples', 'zexamples'):
-            make(app)
+        if spec.satisfies('+examples'):
+            for app in ('sexamples', 'dexamples', 'cexamples', 'zexamples'):
+                make(app)
 
         # No install provided
         install_tree('lib', prefix.lib)
@@ -163,4 +165,5 @@ class Mumps(Package):
                 install('libseq/libmpiseq.dylib', prefix.lib)
             else:
                 install('libseq/libmpiseq.so', prefix.lib)
-        install_tree('examples', '%s/lib/mumps/examples' % prefix)
+        if spec.satisfies('+examples'):
+            install_tree('examples', '%s/lib/mumps/examples' % prefix)
