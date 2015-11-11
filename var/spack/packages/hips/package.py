@@ -14,7 +14,7 @@ class Hips(Package):
     variant('complex',  default=False, description='Build complex float version (real by default)')
     variant('simple',   default=False, description='Build simple precision version (double by default)')
     variant('metis',    default=False, description='Use Metis partitioner')
-    variant('shared',   default=False, description='Build Pastix as a shared library')
+    variant('shared',   default=False, description='Build Hips as a shared library')
     variant('examples', default=False, description='Enable compilation and installation of example executables')
 
     depends_on("mpi")
