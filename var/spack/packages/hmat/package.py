@@ -1,6 +1,7 @@
 from spack import *
 import os
 from subprocess import call
+import platform
 
 class Hmat(Package):
     """
@@ -54,7 +55,7 @@ class Hmat(Package):
                 cmake_args.extend(["-DMKL_DETECT=OFF"])
 
                 # To force FindCBLAS to find MY cblas
-                mf = FileFilter('../CMake/FindCBLAS.cmake')
+                mf = FileFilter('../hmat-oss/CMake/FindCBLAS.cmake')
                 mf.filter('\"cblas\"','"%s"' % ";".join(cblaslibname+blaslibname))
 
                 cblas = spec['cblas'].prefix
@@ -74,6 +75,10 @@ class Hmat(Package):
             cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
 
             cmake_args.extend(std_cmake_args)
+
+            if platform.system() == 'Darwin':
+                filter_file('_LINK_HMAT_OSS LINK_PRIVATE.*', '_LINK_HMAT_OSS LINK_PRIVATE -Wl,-force_load,${_HMAT_OSS_PATH}  ${hmat-oss_LIB_DEPENDS})', '../CMakeLists.txt')
+
             cmake(*cmake_args)
 
             make()

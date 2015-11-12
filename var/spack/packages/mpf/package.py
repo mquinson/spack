@@ -18,8 +18,9 @@ class Mpf(Package):
         pass
 
     variant('shared', default=True, description='Build MPF as a shared library')
+    variant('python', default=False, description='Build MPF python interface')
 
-    depends_on("py-mpi4py")
+    depends_on("py-mpi4py", when='+python')
     depends_on("blas")
     depends_on("lapack")
     depends_on("mumps")
@@ -44,13 +45,21 @@ class Mpf(Package):
             else:
                 cmake_args.extend(['-DBUILD_SHARED_LIBS=OFF'])
 
+            if spec.satisfies('+python'):
+                cmake_args.extend(['-DMPF_BUILD_PYTHON=ON'])
+            else:
+                cmake_args.extend(['-DMPF_BUILD_PYTHON=OFF'])
+
             hmat = spec['hmat'].prefix
             cmake_args.extend(["-DHMAT_DIR=%s/CMake" % hmat.share])
             cmake_args.extend(["-DENABLE_HMAT=ON"])
 
-            blacs = spec['blacs'].prefix
-            cmake_args.extend(["-DBLACS_LIBRARY_DIRS=%s/" % blacs.lib])
-
+            try:
+                blacs = spec['blacs'].prefix
+                cmake_args.extend(["-DBLACS_LIBRARY_DIRS=%s/" % blacs.lib])
+            except KeyError:
+                filter_file('BLACS REQUIRED', 'BLACS', '../CMakeLists.txt')
+            
             pastix = spec['pastix'].prefix
             cmake_args.extend(["-DPASTIX_LIBRARY_DIRS=%s" % pastix.lib])
             cmake_args.extend(["-DPASTIX_INCLUDE_DIRS=%s" % pastix.include])

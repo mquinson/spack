@@ -1,6 +1,7 @@
 from spack import *
 import subprocess
 import os
+import platform
 
 class Starpu(Package):
     """offers support for heterogeneous multicore architecture"""
@@ -96,5 +97,10 @@ class Starpu(Package):
             config_args.append("--disable-opencl")
 
         configure(*config_args)
+
+        # On OSX, deactivate glpk
+        if platform.system() == 'Darwin':
+            filter_file('^#define.*GLPK.*', '', 'src/common/config.h', 'include/starpu_config.h')
+
         make()
         make("install", parallel=False)

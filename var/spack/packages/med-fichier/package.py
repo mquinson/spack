@@ -1,5 +1,7 @@
 from spack import *
 import os
+import platform
+from subprocess import call
 
 class MedFichier(Package):
     """A libray for scientific data exchange."""
@@ -14,6 +16,11 @@ class MedFichier(Package):
 
     def install(self, spec, prefix):
         os.environ['LDFLAGS']="-lm"
+
+        if platform.system() == "Darwin":
+            call ("chmod 644 include/med_outils.h src/ci/MEDunvCr.c".split(' '))
+            filter_file("#include <malloc.h>", "", "include/med_outils.h")
+            filter_file("cuserid", "getpwuid", "src/ci/MEDunvCr.c")
 
         config_args = ["--prefix=" + prefix]
 
