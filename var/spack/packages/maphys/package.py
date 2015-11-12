@@ -48,7 +48,11 @@ class Maphys(Package):
             mf.filter('# THREAD_LDFLAGS := -openmp', 'THREAD_LDFLAGS := -fopenmp')
 
         blas_libs = " ".join(blaslibname)
-        lapack_libs = " ".join(lapacklibname)
+        try:
+            tmg_libs = " ".join(tmglibname)
+        except NameError:
+            tmg_libs = ''
+        lapack_libs=tmg_libs+' '+" ".join(lapacklibname)
         try:
             scalapack_libs = " ".join(scalapacklibname)
         except NameError:
