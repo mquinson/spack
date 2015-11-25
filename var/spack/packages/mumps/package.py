@@ -33,10 +33,13 @@ class Mumps(Package):
             libext=".dylib" if platform.system() == 'Darwin' else ".so"
         else:
             libext=".a"
-        
+
         module.mumpslibname = []
         for l in ["smumps", "dmumps", "cmumps", "zmumps", "mumps_common", "pord"]:
             module.mumpslibname  += [os.path.join(libdir, "lib%s%s"%(l, libext))]
+
+        # there is a bug with the hash calculation of mumps
+        module.mumpsprefix=self.spec.prefix
 
     def setup(self):
         spec = self.spec
