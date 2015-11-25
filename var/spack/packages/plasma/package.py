@@ -41,6 +41,8 @@ class Plasma(Package):
             mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = %s' % blas_libs)
         elif '^openblas' in spec:
             mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = -L%s -lopenblas' % blas.lib)
+        elif '^eigen-blas' in spec:
+            mf.filter('^LIBBLAS     =.*', 'LIBBLAS     = -L%s -leigen_blas' % blas.lib)
 
         cblas = spec['cblas'].prefix
         cblas_libs = " ".join(cblaslibname)

@@ -109,6 +109,8 @@ class Pastix(Package):
             mf.filter('BLASLIB  = -lblas', 'BLASLIB  = %s' % blas_libs)
         elif '^openblas' in spec:
             mf.filter('BLASLIB  = -lblas', 'BLASLIB  = -L%s -lopenblas' % blas.lib)
+        elif '^eigen-blas' in spec:
+            mf.filter('BLASLIB  = -lblas', 'BLASLIB  = -L%s -leigen_blas' % blas.lib)
 
         mf.filter('LDFLAGS  = $(EXTRALIB) $(BLASLIB)', 'LDFLAGS  = $(BLASLIB) $(EXTRALIB)')
 
