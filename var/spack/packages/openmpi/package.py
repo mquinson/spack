@@ -23,11 +23,16 @@ class Openmpi(Package):
 
     patch('ad_lustre_rwcontig_open_source.patch', when="@1.6.5")
     patch('llnl-platforms.patch', when="@1.6.5")
+    patch('configure.patch', when="@1.10.0:")
 
     provides('mpi@:2.2', when='@1.6.5')    # Open MPI 1.6.5 supports MPI-2.2
     provides('mpi@:3.0', when='@1.8.8')    # Open MPI 1.8.8 supports MPI-3.0
     provides('mpi@:3.1', when='@1.10.0')   # Open MPI 1.10.0 supports MPI-3.0
     provides('mpi@:3.2', when='@1.10.1')   # Open MPI 1.10.1 supports MPI-3.0
+
+
+    depends_on('hwloc')
+
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """For dependencies, make mpicc's use spack wrapper."""
@@ -42,6 +47,8 @@ class Openmpi(Package):
 
         # enable MPI_THREAD_MULTIPLE
         config_args.append("--enable-mpi-thread-multiple")
+
+        config_args.append("--with-hwloc=%s" % spec['hwloc'].prefix)
 
         # TODO: use variants for this, e.g. +lanl, +llnl, etc.
         # use this for LANL builds, but for LLNL builds, we need:
