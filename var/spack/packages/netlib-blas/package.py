@@ -5,8 +5,9 @@ import platform
 class NetlibBlas(Package):
     """Netlib reference BLAS"""
     homepage = "http://www.netlib.org/lapack/"
-    url      = "http://www.netlib.org/lapack/lapack-3.5.0.tgz"
+    url      = "http://www.netlib.org/lapack/lapack-3.6.0.tgz"
 
+    version('3.6.0', 'f2f6c67134e851fe189bb3ca1fbb5101')
     version('3.5.0', 'b1d3e3e425b2e44a06760ff173104bdf')
 
     # virtual dependency
