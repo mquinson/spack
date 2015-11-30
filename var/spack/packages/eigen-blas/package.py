@@ -7,7 +7,9 @@ class EigenBlas(Package):
     homepage = "http://eigen.tuxfamily.org/index.php?title=Main_Page"
     url      = "http://bitbucket.org/eigen/eigen/get/3.2.7.tar.bz2"
 
+    version('3.3-alpha1', 'b49260a4cac64f829bf5396c2150360e')
     version('3.2.7', 'cc1bacbad97558b97da6b77c9644f184')
+    version('hg-default', hg='https://bitbucket.org/eigen/eigen/')
 
     # virtual dependency
     provides('blas')
@@ -33,6 +35,9 @@ class EigenBlas(Package):
                 "..",
                 "-DEIGEN_TEST_NOQT=ON",
                 "-DEIGEN_TEST_NO_OPENGL=ON"]
+
+            if spec.satisfies('@3.3:') or spec.satisfies('@hg-default'):
+                cmake_args.extend(["-DCMAKE_CXX_FLAGS=-march=native -mtune=native"])
 
             cmake_args += std_cmake_args
             cmake(*cmake_args)
