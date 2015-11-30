@@ -5,9 +5,12 @@ import os
 class Eztrace(Package):
     """a tool that aims at generating automatically execution trace from HPC."""
     homepage = "http://eztrace.gforge.inria.fr/"
-    url      = "http://gforge.inria.fr/frs/download.php/file/34082/eztrace-1.0.6.tar.gz"
+    url      = "http://gforge.inria.fr/frs/download.php/file/35111/eztrace-1.1.tar.gz"
 
-    version('1.0.6', 'd613ab7caf28d3ce61d5aad39b76f324')
+    version('1.1', '678efede6c1b9f105a0b9e1c458f725d',
+            url='http://gforge.inria.fr/frs/download.php/file/35111/eztrace-1.1.tar.gz')
+    version('1.0.6', 'd613ab7caf28d3ce61d5aad39b76f324',
+            url='http://gforge.inria.fr/frs/download.php/file/34082/eztrace-1.0.6.tar.gz')
     version('master', git='https://scm.gforge.inria.fr/anonscm/git/eztrace/eztrace.git', branch='master')
 
     variant('mpi', default=False, description='Enable MPI')
