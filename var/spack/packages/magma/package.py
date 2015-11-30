@@ -12,6 +12,7 @@ class Magma(Package):
         version('local', '%s' % os.environ['MORSE_MAGMA_TAR_MD5'],
                 url = "file://%s" % os.environ['MORSE_MAGMA_TAR'])
     else:
+        version('1.7.0-b', '19795d41ec15531e7b69a41a52b5fa74')
         version('1.6.2', 'ba22d397a28a957c090b43ba895cb735')
         version('1.6.1', 'ae0fe7fefe2f27847b2f5a48b6fab429')
         version('1.6.0', '10c01eec8763878c85abb83274f65426')
