@@ -30,6 +30,7 @@ class Openmpi(Package):
     provides('mpi@:3.1', when='@1.10.0')   # Open MPI 1.10.0 supports MPI-3.0
     provides('mpi@:3.2', when='@1.10.1')   # Open MPI 1.10.1 supports MPI-3.0
 
+    variant('debug', default=False, description='Enable debug symbols')
 
     depends_on('hwloc')
 
@@ -44,6 +45,9 @@ class Openmpi(Package):
 
     def install(self, spec, prefix):
         config_args = ["--prefix=%s" % prefix]
+
+        if spec.satisfies('+debug'):
+            config_args.append("--enable-debug")
 
         # enable MPI_THREAD_MULTIPLE
         config_args.append("--enable-mpi-thread-multiple")
