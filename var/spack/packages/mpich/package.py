@@ -40,6 +40,8 @@ class Mpich(Package):
     version('3.1', '5643dd176499bfb7d25079aaff25f2ec')
     version('3.0.4', '9c5d5d4fe1e17dd12153f40bc5b6dbc0')
 
+    variant('debug', default=False, description='Enable debug symbols')
+
     provides('mpi@:3.0', when='@3:')
     provides('mpi@:1.3', when='@1:')
 
@@ -54,6 +56,9 @@ class Mpich(Package):
     def install(self, spec, prefix):
         config_args = ["--prefix=" + prefix,
                        "--enable-shared"]
+
+        if spec.satisfies('+debug'):
+            config_args.append("--enable-g=dbg,mem,meminit,handle")
 
         # TODO: Spack should make it so that you can't actually find
         # these compilers if they're "disabled" for the current
