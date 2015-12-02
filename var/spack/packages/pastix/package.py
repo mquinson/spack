@@ -47,6 +47,9 @@ class Pastix(Package):
         mf.filter('^# BINDIR        =.*', 'BINDIR        = ${ROOT}/bin')
         mf.filter('^# PYTHON_PREFIX =.*', 'PYTHON_PREFIX = ${ROOT}')
 
+        if spec.satisfies('%intel'):
+            mf.filter('-lgfortran', '-lifcore')
+
         if spec.satisfies('+shared'):
             mf.filter('#SHARED=1', 'SHARED=1')
             mf.filter('#SOEXT=\.so', 'SOEXT=.so')
