@@ -31,15 +31,14 @@ class EigenBlas(Package):
 
         # configure and build process
         with working_dir('spack-build', create=True):
-            cmake_args = [
-                "..",
-                "-DEIGEN_TEST_NOQT=ON",
-                "-DEIGEN_TEST_NO_OPENGL=ON"]
+            cmake_args = [".."]
+            cmake_args.extend(std_cmake_args)
+            cmake_args.extend(["-DEIGEN_TEST_NOQT=ON"])
+            cmake_args.extend(["-DEIGEN_TEST_NO_OPENGL=ON"])
 
             if spec.satisfies('@3.3:') or spec.satisfies('@hg-default'):
-                cmake_args.extend(["-DCMAKE_CXX_FLAGS=-march=native -mtune=native"])
+                cmake_args.extend(["-DCMAKE_CXX_FLAGS=-march=native"])
 
-            cmake_args += std_cmake_args
             cmake(*cmake_args)
             make('blas')
 

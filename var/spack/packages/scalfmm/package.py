@@ -14,6 +14,7 @@ class Scalfmm(Package):
     variant('fftw', default=False, description='Enable FFTW')
     variant('mpi', default=False, description='Enable MPI')
     variant('starpu', default=False, description='Enable StarPU')
+    variant('debug', default=False, description='Enable debug symbols')
 
     # Does not compile without blas!
     #depends_on("blas", when='+blas')
@@ -27,9 +28,12 @@ class Scalfmm(Package):
 
         with working_dir('spack-build', create=True):
 
-            cmake_args = [
-                "..",
-                "-DBUILD_SHARED_LIBS=ON"]
+            cmake_args = [".."]
+            cmake_args.extend(std_cmake_args)
+            cmake_args+=["-DBUILD_SHARED_LIBS=ON"]
+
+            if spec.satisfies('+debug'):
+                cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
 
             if spec.satisfies('~sse'):
                 # Disable SSE  here.
@@ -70,8 +74,6 @@ class Scalfmm(Package):
             cmake_args.extend(['-DLAPACK_DIR=%s' % lapack.prefix])
             if spec.satisfies('%gcc'):
                 os.environ["LDFLAGS"] = "-lgfortran"
-
-            cmake_args.extend(std_cmake_args)
 
             cmake(*cmake_args)
             make()

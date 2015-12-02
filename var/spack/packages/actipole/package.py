@@ -24,8 +24,9 @@ class Actipole(Package):
     def install(self, spec, prefix):
         with working_dir('build', create=True):
 
-            cmake_args = [
-                "..",
+            cmake_args = [".."]
+            cmake_args.extend(std_cmake_args)
+            cmake_args+=[
                 "-DCMAKE_INSTALL_PREFIX=../install",
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
@@ -39,7 +40,7 @@ class Actipole(Package):
                                    '-DCMAKE_CXX_FLAGS_DEBUG=-g -fopenmp -D_GNU_SOURCE -pthread',
                                    '-DCMAKE_Fortran_FLAGS=-pthread -fopenmp',
                                    '-DCMAKE_Fortran_FLAGS_DEBUG=-g -fopenmp -pthread'])
-            
+
             if spec.satisfies('+shared'):
                 cmake_args.extend(['-DBUILD_SHARED_LIBS=ON'])
             else:
@@ -48,7 +49,6 @@ class Actipole(Package):
             scab = spec['scab'].prefix
             cmake_args.extend(["-DSCAB_DIR=%s/CMake" % scab.share])
 
-            cmake_args.extend(std_cmake_args)
             call(["rm" , "-rf" , "CMake*"])
             cmake(*cmake_args)
 

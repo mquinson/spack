@@ -16,7 +16,7 @@ class Chameleon(Package):
         version('0.9.1', 'fa21b7c44daf34e540ed837a9263772d')
         version('trunk', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/chameleon')
 
-    #variant('debug', default=False, description='Enable debug symbols')
+    variant('debug', default=False, description='Enable debug symbols')
     variant('mpi', default=False, description='Enable MPI')
     variant('cuda', default=False, description='Enable CUDA')
     variant('magma', default=False, description='Enable MAGMA kernels')
@@ -24,6 +24,7 @@ class Chameleon(Package):
     variant('simu', default=False, description='Enable simulation mode through StarPU+SimGrid')
     variant('quark', default=False, description='Enable to use Quark runtime instead of StarPU')
     variant('eztrace', default=False, description='Enable EZTrace modules')
+    variant('examples', default=False, description='Enable compilation and installation of example executables')
 
     depends_on("blas")
     depends_on("lapack")
@@ -41,14 +42,25 @@ class Chameleon(Package):
 
         with working_dir('spack-build', create=True):
 
-            cmake_args = [
-                "..",
-                "-DBUILD_SHARED_LIBS=ON"]
+            cmake_args = [".."]
+            cmake_args.extend(std_cmake_args)
 
-            #if spec.satisfies('+debug'):
-            #    # Enable Debug here.
-            #    cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
+            # Enable build shared libs.
+            cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
 
+            if spec.satisfies('+examples'):
+                # Enable Examples here.
+                cmake_args.extend(["-DCHAMELEON_ENABLE_EXAMPLE=ON"])
+                cmake_args.extend(["-DCHAMELEON_ENABLE_TESTING=ON"])
+                cmake_args.extend(["-DCHAMELEON_ENABLE_TIMING=ON"])
+            else:
+                # Enable Examples here.
+                cmake_args.extend(["-DCHAMELEON_ENABLE_EXAMPLE=OFF"])
+                cmake_args.extend(["-DCHAMELEON_ENABLE_TESTING=OFF"])
+                cmake_args.extend(["-DCHAMELEON_ENABLE_TIMING=OFF"])
+            if spec.satisfies('+debug'):
+                # Enable Debug here.
+                cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
             if spec.satisfies('+mpi'):
                 # Enable MPI here.
                 cmake_args.extend(["-DCHAMELEON_USE_MPI=ON"])
@@ -81,8 +93,6 @@ class Chameleon(Package):
             cmake_args.extend(['-DTMG_DIR=%s' % lapack.prefix])
             if spec.satisfies('%gcc'):
                 os.environ["LDFLAGS"] = "-lgfortran"
-
-            cmake_args.extend(std_cmake_args)
 
             cmake(*cmake_args)
             make()

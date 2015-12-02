@@ -18,9 +18,9 @@ class Vite(Package):
 
         with working_dir('spack-build', create=True):
 
-            cmake_args = [
-                "..",
-                "-DBUILD_SHARED_LIBS=ON"]
+            cmake_args = [".."]
+            cmake_args.extend(std_cmake_args)
+            cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
 
             if spec.satisfies('+otf'):
                 # Enable OTF here.
@@ -29,7 +29,7 @@ class Vite(Package):
                 # Enable QT5 here.
                 cmake_args.extend(["-DUSE_QT5=ON"])
 
-            cmake_args.extend(std_cmake_args)
+
             cmake(*cmake_args)
             make()
             make("install")

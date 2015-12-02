@@ -37,9 +37,9 @@ class NetlibScalapack(Package):
     def install(self, spec, prefix):
         with working_dir('spack-build', create=True):
 
-            cmake_args = [
-                "..",
-                "-DUSE_OPTIMIZED_LAPACK_BLAS=ON"]
+            cmake_args = [".."]
+            cmake_args.extend(std_cmake_args)
+            cmake_args+=["-DUSE_OPTIMIZED_LAPACK_BLAS=ON"]
 
             if spec.satisfies('+shared'):
                 cmake_args.extend(['-DBUILD_SHARED_LIBS=ON'])
@@ -54,7 +54,6 @@ class NetlibScalapack(Package):
             lapack_libs = lapack_libs.replace(' ', ';')
             cmake_args.extend(['-DLAPACK_LIBRARIES=%s' % lapack_libs])
 
-            cmake_args.extend(std_cmake_args)
             cmake(*cmake_args)
             make()
             make("install")

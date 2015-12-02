@@ -17,13 +17,14 @@ class HmatOss(Package):
 
     def install(self, spec, prefix):
         with working_dir('build', create=True):
-            cmake_args = [
-                "..",
+            cmake_args = [".."]
+            cmake_args.extend(std_cmake_args)
+            cmake_args+= [
                 "-DCMAKE_INSTALL_PREFIX=../install",
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
-            
+
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DBUILD_EXAMPLES:BOOL=ON"])
 
@@ -51,9 +52,7 @@ class HmatOss(Package):
                 cmake_args.extend(["-DLAPACK_LIBRARIES=" + lapack_libs])
 
             cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
-            
-            cmake_args.extend(std_cmake_args)
-            
+
             cmake(*cmake_args)
 
             make()

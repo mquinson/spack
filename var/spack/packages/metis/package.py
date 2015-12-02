@@ -34,16 +34,14 @@ class Metis(Package):
 
     def install(self, spec, prefix):
         if spec.satisfies('@5:'):
+            cmake_args = ["."]
+            cmake_args.extend(std_cmake_args)
+            cmake_args.extend(['-DGKLIB_PATH=%s/GKlib' % pwd()])
             if spec.satisfies('+shared'):
-                cmake(".",
-                      '-DGKLIB_PATH=%s/GKlib' % pwd(),
-                      '-DSHARED=1',
-                      *std_cmake_args)
+                cmake_args.extend(['-DSHARED=1'])
             else:
-                cmake(".",
-                      '-DGKLIB_PATH=%s/GKlib' % pwd(),
-                      '-DSHARED=0',
-                      *std_cmake_args)
+                cmake_args.extend(['-DSHARED=0'])
+            cmake(*cmake_args)
             make()
             make("install")
         else:

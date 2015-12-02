@@ -13,14 +13,16 @@ class Parmetis(Package):
     depends_on('mpi')
 
     def install(self, spec, prefix):
-        cmake(".",
+        cmake_args = ["."]
+        cmake_args.extend(std_cmake_args)
+        cmake_args+=[
               '-DGKLIB_PATH=%s/metis/GKlib' % pwd(),
               '-DMETIS_PATH=%s/metis' % pwd(),
               '-DSHARED=1',
               '-DCMAKE_C_COMPILER=mpicc',
               '-DCMAKE_CXX_COMPILER=mpicxx',
-              '-DSHARED=1',
-              *std_cmake_args)
+              '-DSHARED=1']
+        cmake(*cmake_args)
 
         make()
         make("install")

@@ -26,13 +26,17 @@ class Pampa(Package):
 
     def install(self, spec, prefix):
         with working_dir('spack-build', create=True):
-            cmake_args = [
-                "..",
-                "-DCMAKE_BUILD_TYPE=Release",
-                "-DCOMM_TYPE=Point-to-point",
-                "-DPTHREAD=None"]
-            cmake_args.extend(std_cmake_args)
 
+            # configure
+            cmake_args = [".."]
+            cmake_args.extend(std_cmake_args)
+            cmake_args.extend(["-DCMAKE_BUILD_TYPE=Release"])
+            cmake_args.extend(["-DCOMM_TYPE=Point-to-point"])
+            cmake_args.extend(["-DPTHREAD=None"])
             cmake(*cmake_args)
+
+            # build
             make()
+
+            #install
             make("install")

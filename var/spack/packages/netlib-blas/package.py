@@ -37,15 +37,16 @@ class NetlibBlas(Package):
         mf.filter('add_subdirectory\(SRC\)','#add_subdirectory(SRC)')
         mf.filter('set\(ALL_TARGETS \$\{ALL_TARGETS\} lapack\)','#set(ALL_TARGETS ${ALL_TARGETS} lapack)')
 
-        cmake_args = [
-                ".",
+        cmake_args = ["."]
+        cmake_args+= std_cmake_args
+        cmake_args+=[
                 "-DBUILD_TESTING=OFF",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
         if spec.satisfies('+shared'):
             cmake_args.append('-DBUILD_SHARED_LIBS=ON')
             cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
 
-        cmake_args += std_cmake_args
+
         cmake(*cmake_args)
         make()
         make("install")

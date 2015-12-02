@@ -47,8 +47,9 @@ class NetlibLapacke(Package):
 
     def install(self, spec, prefix):
 
-        cmake_args = [
-            ".", "-Wno-dev"]
+        cmake_args = ["."]
+        cmake_args += std_cmake_args
+        cmake_args += ["-Wno-dev"]
 
         blas_libs = " ".join(blaslibfortname)
         blas_libs = blas_libs.replace(' ', ';')
@@ -66,8 +67,6 @@ class NetlibLapacke(Package):
         if spec.satisfies('+shared'):
             cmake_args.append('-DBUILD_SHARED_LIBS=ON')
             cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
-
-        cmake_args += std_cmake_args
 
         cmake(*cmake_args)
         make()

@@ -9,7 +9,7 @@ class Hmat(Package):
     Set the environment variable SOFTWARREEPO1 to get the versions.
     """
     homepage = "http://www.google.com"
-    
+
     try:
         repo=os.environ['SOFTWAREREPO1']
         version('master', git=repo+'hmat.git', branch='master')
@@ -30,12 +30,13 @@ class Hmat(Package):
     def patch(self):
         # get hmat-oss
         call(["git" , "submodule" , "update", "--init"])
-            
+
     def install(self, spec, prefix):
         with working_dir('build', create=True):
 
-            cmake_args = [
-                "..",
+            cmake_args = [".."]
+            cmake_args.extend(std_cmake_args)
+            cmake_args+=[
                 "-DCMAKE_INSTALL_PREFIX=../install",
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
@@ -43,7 +44,7 @@ class Hmat(Package):
 
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DBUILD_EXAMPLES:BOOL=ON"])
-            
+
             if spec.satisfies('+shared'):
                 cmake_args.extend(['-DBUILD_SHARED_LIBS=ON'])
             else:
@@ -73,8 +74,6 @@ class Hmat(Package):
                 cmake_args.extend(["-DLAPACK_LIBRARIES=" + lapack_libs])
 
             cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
-
-            cmake_args.extend(std_cmake_args)
 
             if platform.system() == 'Darwin':
                 filter_file('_LINK_HMAT_OSS LINK_PRIVATE.*', '_LINK_HMAT_OSS LINK_PRIVATE -Wl,-force_load,${_HMAT_OSS_PATH}  ${hmat-oss_LIB_DEPENDS})', '../CMakeLists.txt')
