@@ -19,6 +19,7 @@ class Pastix(Package):
     variant('starpu', default=False, description='Enable StarPU')
     variant('shared', default=True, description='Build Pastix as a shared library')
     variant('examples', default=False, description='Enable compilation and installation of example executables')
+    variant('debug', default=False, description='Enable debug symbols')
 
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
@@ -123,7 +124,10 @@ class Pastix(Package):
         with working_dir('src'):
 
             self.setup()
-            make()
+            if spec.satisfies('+debug'):
+                make('debug')
+            else:
+                make()
             if spec.satisfies('+examples'):
                 make('examples')
             make("install")
