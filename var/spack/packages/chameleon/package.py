@@ -64,6 +64,8 @@ class Chameleon(Package):
             if spec.satisfies('+simu'):
                 # Enable SimGrid here.
                 cmake_args.extend(["-DCHAMELEON_SIMULATION=ON"])
+                simgrid_inc=spec['simgrid'].prefix.include
+                cmake_args.extend(["-DMPI_C_INCLUDE_PATH=%s/smpi"] % simgrid_inc)
             if spec.satisfies('+quark'):
                 # Enable Quark here.
                 cmake_args.extend(["-DCHAMELEON_SCHED_QUARK=ON"])
