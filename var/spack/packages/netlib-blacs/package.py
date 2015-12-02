@@ -49,7 +49,10 @@ class NetlibBlacs(Package):
 
         if spec.satisfies('+shared'):
             mf.filter('ARCH\s*=.*', 'ARCH=$(CC)')
-            mf.filter('ARCHFLAGS\s*=.*', 'ARCHFLAGS=-shared -o ')
+            if platform.system() == 'Darwin':
+                mf.filter('ARCHFLAGS\s*=.*', 'ARCHFLAGS=-shared -undefined dynamic_lookup -o ')
+            else:
+                mf.filter('ARCHFLAGS\s*=.*', 'ARCHFLAGS=-shared -o ')
             mf.filter('RANLIB\s*=.*', 'RANLIB=echo')
             mf.filter('CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
             mf.filter('F77FLAGS\s*=', 'F77FLAGS = -fPIC ')
@@ -68,18 +71,13 @@ class NetlibBlacs(Package):
         make('mpi')
         mkdirp(prefix.lib)
         if spec.satisfies('+shared'):
-            if platform.system() == 'Darwin':
-                install('LIB/blacsCinit_MPI-LINUX-0.so', '%s/libblacsCinit.dylib' % prefix.lib)
-                install('LIB/blacsF77init_MPI-LINUX-0.so', '%s/libblacsF77init.dylib' % prefix.lib)
-                install('LIB/blacs_MPI-LINUX-0.so', '%s/libblacs.dylib' % prefix.lib)
-            else:
-                install('LIB/blacsCinit_MPI-LINUX-0.so', '%s/libblacsCinit.so' % prefix.lib)
-                install('LIB/blacsF77init_MPI-LINUX-0.so', '%s/libblacsF77init.so' % prefix.lib)
-                install('LIB/blacs_MPI-LINUX-0.so', '%s/libblacs.so' % prefix.lib)
+            libext=".dylib" if platform.system() == 'Darwin' else ".so"
         else:
-            install('LIB/blacsCinit_MPI-LINUX-0.a', '%s/libblacsCinit.a' % prefix.lib)
-            install('LIB/blacsF77init_MPI-LINUX-0.a', '%s/libblacsF77init.a' % prefix.lib)
-            install('LIB/blacs_MPI-LINUX-0.a', '%s/libblacs.a' % prefix.lib)
+            libext=".a"
+
+        for l in ["blacsCinit", "blacsF77init", "blacs"]:
+            install('LIB/%s_MPI-LINUX-0%s'%(l, libext), '%s/lib%s%s' % (prefix.lib, l, libext))
+
         	    
 
 
