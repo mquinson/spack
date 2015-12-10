@@ -85,7 +85,11 @@ class Starpu(Package):
                 config_args.append("--enable-paje-codelet-details")
 
         if spec.satisfies('+simu'):
+            simgrid = spec['simgrid'].prefix
             config_args.append("--enable-simgrid")
+            config_args.append("--with-simgrid-dir=%s" % simgrid)
+            if spec.satisfies('+mpi'):
+                config_args.append("--with-mpicc=%s/bin/smpicc" % simgrid)
 
         if not spec.satisfies('+mpi'):
             config_args.append("--without-mpicc")
