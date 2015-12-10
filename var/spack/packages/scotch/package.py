@@ -12,7 +12,8 @@ class Scotch(Package):
     url      = "http://gforge.inria.fr/frs/download.php/file/34099/scotch_6.0.3.tar.gz"
     list_url = "http://gforge.inria.fr/frs/?group_id=248"
 
-    version('6.0.3', '10b0cc0f184de2de99859eafaca83cfc')
+    version('6.0.3', '10b0cc0f184de2de99859eafaca83cfc',
+            url='http://gforge.inria.fr/frs/download.php/file/34099/scotch_6.0.3.tar.gz')
     version('6.0.4', 'd58b825eb95e1db77efe8c6ff42d329f',
             url='https://gforge.inria.fr/frs/download.php/file/34618/scotch_6.0.4.tar.gz')
     version('5.1.11', 'c00a886895b3895529814303afe0d74e',
