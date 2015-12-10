@@ -21,6 +21,7 @@ class Pampa(Package):
 
     version('svn-head', svn='https://scm.gforge.inria.fr/authscm/' + username + '/svn/pampa-p/trunk')
 
+    depends_on('cmake')
     depends_on('mpi')
     depends_on('scotch@6.0.0:6.0.3 +mpi ~pthread')
 

@@ -19,6 +19,7 @@ class NetlibScalapack(Package):
 
     variant('shared', default=True, description="Use shared library version")
 
+    depends_on("cmake", when='@2.0.0:')
     depends_on("mpi", when='@2:')
     depends_on("blacs", when='@1.8.0')
     depends_on("blas")

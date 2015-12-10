@@ -14,6 +14,7 @@ class Dplasma(Package):
     variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
     variant('papi', default=False, description='Enable PAPI')
 
+    depends_on("cmake")
     depends_on("hwloc")
     depends_on("plasma")
     depends_on("mpi", when='+mpi')

@@ -7,6 +7,7 @@ class Parsec(Package):
     version('last-rel', '3c09cc8bd413a435254d6cc0e2e5f663',
             url='http://icl.cs.utk.edu/projectsfiles/parsec/pubs/parsec-b9861d3a818f.tgz')
 
+    depends_on("cmake")
     depends_on("hwloc")
     depends_on("mpi")
     depends_on("papi")

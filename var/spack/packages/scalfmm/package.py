@@ -16,6 +16,7 @@ class Scalfmm(Package):
     variant('starpu', default=False, description='Enable StarPU')
     variant('debug', default=False, description='Enable debug symbols')
 
+    depends_on("cmake")
     # Does not compile without blas!
     #depends_on("blas", when='+blas')
     depends_on("blas")

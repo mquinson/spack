@@ -18,6 +18,7 @@ class Metis(Package):
     version('4.0.3', 'd3848b454532ef18dc83e4fb160d1e10',
             url='http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/OLD/metis-4.0.3.tar.gz')
 
+    depends_on('cmake')
     depends_on('mpi', when='@5:')
 
     variant('shared', default=True, description='Build METIS as a shared library')

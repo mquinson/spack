@@ -26,6 +26,7 @@ class Chameleon(Package):
     variant('eztrace', default=False, description='Enable EZTrace modules')
     variant('examples', default=False, description='Enable compilation and installation of example executables')
 
+    depends_on("cmake")
     depends_on("blas")
     depends_on("lapack")
     depends_on("cblas")

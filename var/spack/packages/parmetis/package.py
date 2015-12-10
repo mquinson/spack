@@ -10,6 +10,7 @@ class Parmetis(Package):
 
     version('4.0.3', 'f69c479586bf6bb7aff6a9bc0c739628')
 
+    depends_on('cmake')
     depends_on('mpi')
 
     def install(self, spec, prefix):

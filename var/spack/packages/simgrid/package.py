@@ -14,6 +14,8 @@ class Simgrid(Package):
             url='http://gforge.inria.fr/frs/download.php/file/33124/SimGrid-3.10.tar.gz')
     version('git-starpumpi', git='git://scm.gforge.inria.fr/simgrid/simgrid.git', branch='starpumpi')
 
+    depends_on('cmake')
+
     def install(self, spec, prefix):
         cmake('.', *std_cmake_args)
         make()
