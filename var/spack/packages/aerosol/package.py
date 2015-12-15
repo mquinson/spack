@@ -4,7 +4,7 @@ import getpass
 import spack
 
 class Aerosol(Package):
-    """Aerosol is a high order Finite Volume C++ library. It requires an MPI
+    """Aerosol is a high order Finite Element C++ library. It requires an MPI
        implementation, Pampa (therefore also Scotch), BLAS or Eigen3/IMKL,
        libXML2 and can also utilize HDF5 and PAPI.
        
