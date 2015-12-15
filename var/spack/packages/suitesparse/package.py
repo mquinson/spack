@@ -7,6 +7,7 @@ class Suitesparse(Package):
     homepage = "http://faculty.cse.tamu.edu/davis/suitesparse.html"
     url      = "http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz"
 
+    version('4.4.6', '131a3a5e2dee784cd946284e44ce9af2')
     version('4.4.5', 'a2926c27f8a5285e4a10265cc68bbc18')
 
     depends_on("blas")
