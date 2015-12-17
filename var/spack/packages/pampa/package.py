@@ -6,10 +6,11 @@ class Pampa(Package):
     """PaMPA is a middleware that manages distributed meshes. It allows
        users to write parallel solver codes without having to bother about
        data exchange, data redistribution, remeshing and load balancing.
-       As there is not yet a public release of the project I need to connect
-       to the svn repository using your gforge account - this is assumed to
-       be the same as your shell's username, if this is not correct please
-       set environment variable PAMPA_USERNAME to your gforge account name."""
+
+       As there is no publically released version of pampa yet, this package
+       requires that the user has access to Pampa's repository on gforge.
+          PLEASE MAKE SURE YOUR USERNAME MATCHES YOUR GFORGE ACCOUNT NAME 
+          OR SET SHELL VAR "GFORGE_USERNAME" TO YOUR GFORGE ACCOUNT NAME"""
 
     homepage = "http://gforge.inria.fr/projects/pampa-p/"
     url      = "http://www.example.com/pampa-1.0.tar.gz"
