@@ -37,6 +37,7 @@ class Starpu(Package):
     version('svn-1.2', svn='svn://scm.gforge.inria.fr/svn/starpu/branches/starpu-1.2')
 
     variant('debug', default=False, description='Enable debug symbols')
+    variant('shared', default=True, description='Build SCOTCH as a shared library')
     variant('fxt', default=False, description='Enable FxT tracing support')
     variant('mpi', default=False, description='Enable MPI support')
     variant('cuda', default=False, description='Enable CUDA support')
@@ -74,6 +75,9 @@ class Starpu(Package):
 
         if spec.satisfies('+debug'):
             config_args.append("--enable-debug")
+
+        if not spec.satisfies('+shared'):
+            config_args.append("--disable-shared")
 
         if not spec.satisfies('+examples'):
             config_args.append("--disable-build-examples")

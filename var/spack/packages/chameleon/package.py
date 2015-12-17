@@ -17,6 +17,7 @@ class Chameleon(Package):
         version('trunk', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/chameleon')
 
     variant('debug', default=False, description='Enable debug symbols')
+    variant('shared', default=True, description='Build SCOTCH as a shared library')
     variant('mpi', default=False, description='Enable MPI')
     variant('cuda', default=False, description='Enable CUDA')
     variant('magma', default=False, description='Enable MAGMA kernels')
@@ -46,9 +47,9 @@ class Chameleon(Package):
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
 
-            # Enable build shared libs.
-            cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
-
+            if spec.satisfies('+shared'):
+                # Enable build shared libs.
+                cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
             if spec.satisfies('+examples'):
                 # Enable Examples here.
                 cmake_args.extend(["-DCHAMELEON_ENABLE_EXAMPLE=ON"])
