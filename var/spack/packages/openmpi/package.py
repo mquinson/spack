@@ -49,9 +49,6 @@ class Openmpi(Package):
         if spec.satisfies('+debug'):
             config_args.append("--enable-debug")
 
-        # enable MPI_THREAD_MULTIPLE
-        config_args.append("--enable-mpi-thread-multiple")
-
         config_args.append("--with-hwloc=%s" % spec['hwloc'].prefix)
 
         # TODO: use variants for this, e.g. +lanl, +llnl, etc.
