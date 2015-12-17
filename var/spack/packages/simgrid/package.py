@@ -1,4 +1,5 @@
 from spack import *
+import os
 
 class Simgrid(Package):
     """To study the behavior of large-scale distributed systems such as Grids, Clouds, HPC or P2P systems."""
