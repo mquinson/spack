@@ -55,24 +55,10 @@ class Starpu(Package):
     depends_on("fxt", when='+fxt')
     depends_on("simgrid", when='+simu')
 
-    def setup(self):
-        # do nothing in the default case
-        pass
-
-    @when('@svn')
-    def setup(self):
-        # execute autogen first if running the SVN version
-        subprocess.check_call('./autogen.sh')
-
-    @when('@git')
-    def setup(self):
-        working_dir("starpu")
-        # execute autogen first if running the SVN version
-        subprocess.check_call('./autogen.sh')
-
     def install(self, spec, prefix):
 
-        self.setup()
+        if os.path.isfile("./autogen.sh"):
+            subprocess.check_call("./autogen.sh")
 
         config_args = ["--prefix=" + prefix]
         config_args.append("--disable-build-doc")
