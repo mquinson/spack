@@ -18,12 +18,14 @@ class Simgrid(Package):
                 url='http://gforge.inria.fr/frs/download.php/file/33124/SimGrid-3.10.tar.gz')
         version('git-starpumpi', git='git://scm.gforge.inria.fr/simgrid/simgrid.git', branch='starpumpi')
 
+    variant('doc', default=False, description='Enable building documentation')
     depends_on('cmake')
 
     def install(self, spec, prefix):
         cmake_args = ["."]
         cmake_args.extend(std_cmake_args)
-        cmake_args.extend(["-Denable_documentation=OFF"])
+        if not spec.satisfies('+doc'):
+            cmake_args.extend(["-Denable_documentation=OFF"])
         cmake(*cmake_args)
         make()
         make("install")
