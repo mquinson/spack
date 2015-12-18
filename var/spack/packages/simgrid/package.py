@@ -19,9 +19,11 @@ class Simgrid(Package):
         version('git-starpumpi', git='git://scm.gforge.inria.fr/simgrid/simgrid.git', branch='starpumpi')
 
     depends_on('cmake')
-    depends_on('doxygen')
 
     def install(self, spec, prefix):
-        cmake('.', *std_cmake_args)
+        cmake_args = ["."]
+        cmake_args.extend(std_cmake_args)
+        cmake_args.extend(["-Denable_documentation=OFF"])
+        cmake(*cmake_args)
         make()
         make("install")
