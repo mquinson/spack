@@ -6,7 +6,7 @@
 # Written by Todd Gamblin, tgamblin@llnl.gov, All rights reserved.
 # LLNL-CODE-647188
 #
-# For details, see https://scalability-llnl.github.io/spack
+# For details, see https://github.com/llnl/spack
 # Please also see the LICENSE file for our notice and the LGPL.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -54,7 +54,9 @@ def extensions(parser, args):
     if not args.spec:
         tty.die("extensions requires a package spec.")
 
+    #
     # Checks
+    #
     spec = spack.cmd.parse_specs(args.spec)
     if len(spec) > 1:
         tty.die("Can only list extensions for one package.")
@@ -70,7 +72,9 @@ def extensions(parser, args):
     if not args.mode:
         args.mode = 'short'
 
+    #
     # List package names of extensions
+    #
     extensions = spack.db.extensions_for(spec)
     if not extensions:
         tty.msg("%s has no extensions." % spec.cshort_spec)
@@ -79,7 +83,9 @@ def extensions(parser, args):
     tty.msg("%d extensions:" % len(extensions))
     colify(ext.name for ext in extensions)
 
+    #
     # List specs of installed extensions.
+    #
     installed = [s.spec for s in spack.installed_db.installed_extensions_for(spec)]
     print
     if not installed:
@@ -88,7 +94,9 @@ def extensions(parser, args):
     tty.msg("%d installed:" % len(installed))
     spack.cmd.find.display_specs(installed, mode=args.mode)
 
+    #
     # List specs of activated extensions.
+    #
     activated = spack.install_layout.extension_map(spec)
     print
     if not activated:

@@ -6,7 +6,7 @@
 # Written by Todd Gamblin, tgamblin@llnl.gov, All rights reserved.
 # LLNL-CODE-647188
 #
-# For details, see https://scalability-llnl.github.io/spack
+# For details, see https://github.com/llnl/spack
 # Please also see the LICENSE file for our notice and the LGPL.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -34,8 +34,8 @@ from llnl.util.filesystem import mkdirp
 import spack
 import spack.cmd
 import spack.cmd.checksum
-import spack.package
 import spack.url
+import spack.util.web
 from spack.util.naming import *
 import spack.util.crypto as crypto
 
@@ -166,7 +166,7 @@ def create(parser, args):
     tty.msg("This looks like a URL for %s version %s." % (name, version))
     tty.msg("Creating template for package %s" % name)
 
-    versions = spack.package.find_versions_of_archive(url)
+    versions = spack.util.web.find_versions_of_archive(url)
     rkeys = sorted(versions.keys(), reverse=True)
     versions = OrderedDict(zip(rkeys, (versions[v] for v in rkeys)))
 

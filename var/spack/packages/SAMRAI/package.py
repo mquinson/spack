@@ -25,7 +25,7 @@ class Samrai(Package):
 
     depends_on("mpi")
     depends_on("zlib")
-    depends_on("hdf5")
+    depends_on("hdf5+mpi")
     depends_on("boost")
 
     # don't build tools with gcc
@@ -33,11 +33,10 @@ class Samrai(Package):
 
     # TODO: currently hard-coded to use openmpi - be careful!
     def install(self, spec, prefix):
-        mpi = next(m for m in ('openmpi', 'mpich', 'mvapich')
-                   if m in spec)
-
         configure(
             "--prefix=%s" % prefix,
+            "--with-CXX=%s" % spec['mpi'].prefix.bin + "/mpic++",
+            "--with-CC=%s" % spec['mpi'].prefix.bin + "/mpicc",
             "--with-hdf5=%s" % spec['hdf5'].prefix,
             "--with-boost=%s" % spec['boost'].prefix,
             "--with-zlib=%s" % spec['zlib'].prefix,

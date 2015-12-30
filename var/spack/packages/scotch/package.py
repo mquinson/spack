@@ -19,46 +19,39 @@ class Scotch(Package):
     version('5.1.11', 'c00a886895b3895529814303afe0d74e',
             url='https://gforge.inria.fr/frs/download.php/28044/scotch_5.1.11_esmumps.tar.gz')
 
-    variant('esmumps', default=False, description='Enable esmumps')
-    variant('mpi', default=False, description='Enable MPI support')
+    variant('mpi', default=False, description='Activate the compilation of PT-Scotch')
     variant('pthread', default=True, description='Enable multithread with pthread')
-    variant('shared', default=True, description='Build SCOTCH as a shared library')
+    variant('compression', default=True, description='Activate the posibility to use compressed files')
+    variant('esmumps', default=False, description='Activate the compilation of the lib esmumps needed by mumps')
+    variant('shared', default=True, description='Build shared libraries')
 
     depends_on('mpi', when='+mpi')
+    depends_on('zlib', when='+compression')
+    depends_on('flex')
+    depends_on('bison')
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the libraries names for Scotch."""
-        libdir = self.spec.prefix.lib
         if spec.satisfies('+shared'):
-            if platform.system() == 'Darwin':
-                scotchlibname=[os.path.join(libdir, "libscotch.dylib")]
-                scotcherrlibname=[os.path.join(libdir, "libscotcherr.dylib")]
-                scotcherrexitlibname=[os.path.join(libdir, "libscotcherrexit.dylib")]
-                ptscotchlibname=[os.path.join(libdir, "libptscotch.dylib")]
-                ptscotcherrlibname=[os.path.join(libdir, "libptscotcherr.dylib")]
-                ptscotcherrexitlibname=[os.path.join(libdir, "libptscotcherrexit.dylib")]
-                esmumpslibname=[os.path.join(libdir, "libesmumps.dylib")]
-                ptesmumpslibname=[os.path.join(libdir, "libptesmumps.dylib")]
-            else:
-                scotchlibname=[os.path.join(libdir, "libscotch.so")]
-                scotcherrlibname=[os.path.join(libdir, "libscotcherr.so")]
-                scotcherrexitlibname=[os.path.join(libdir, "libscotcherrexit.so")]
-                ptscotchlibname=[os.path.join(libdir, "libptscotch.so")]
-                ptscotcherrlibname=[os.path.join(libdir, "libptscotcherr.so")]
-                ptscotcherrexitlibname=[os.path.join(libdir, "libptscotcherrexit.so")]
-                esmumpslibname=[os.path.join(libdir, "libesmumps.so")]
-                ptesmumpslibname=[os.path.join(libdir, "libptesmumps.so")]
+            libext=".dylib" if platform.system() == 'Darwin' else ".so"
         else:
-            scotchlibname=[os.path.join(libdir, "libscotch.a")]
-            scotcherrlibname=[os.path.join(libdir, "libscotcherr.a")]
-            scotcherrexitlibname=[os.path.join(libdir, "libscotcherrexit.a")]
-            ptscotchlibname=[os.path.join(libdir, "libptscotch.a")]
-            ptscotcherrlibname=[os.path.join(libdir, "libptscotcherr.a")]
-            ptscotcherrexitlibname=[os.path.join(libdir, "libptscotcherrexit.a")]
-            esmumpslibname=[os.path.join(libdir, "libesmumps.a")]
-            ptesmumpslibname=[os.path.join(libdir, "libptesmumps.a")]
+            libext=".a"
+        libdir = self.spec.prefix.lib
 
-        otherlibs=["-lz", "-lm", "-lpthread"]
+        scotchlibname=[os.path.join(libdir, "libscotch.%s") % libext]
+        scotcherrlibname=[os.path.join(libdir, "libscotcherr.%s") % libext]
+        scotcherrexitlibname=[os.path.join(libdir, "libscotcherrexit.%s") % libext]
+        ptscotchlibname=[os.path.join(libdir, "libptscotch.%s") % libext]
+        ptscotcherrlibname=[os.path.join(libdir, "libptscotcherr.%s") % libext]
+        ptscotcherrexitlibname=[os.path.join(libdir, "libptscotcherrexit.%s") % libext]
+        esmumpslibname=[os.path.join(libdir, "libesmumps.%s") % libext]
+        ptesmumpslibname=[os.path.join(libdir, "libptesmumps.%s") % libext]
+
+        otherlibs=["-lm"]
+        if spec.satisfies('+pthread'):
+            otherlibs+=["-lpthread"]
+        if spec.satisfies('+compression'):
+            otherlibs+=["-lz"]
         if platform.system() == 'Linux':
             otherlibs+=["-lrt"]
 

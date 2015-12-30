@@ -8,10 +8,10 @@ class Fontconfig(Package):
     version('2.11.1' , 'e75e303b4f7756c2b16203a57ac87eba')
 
     depends_on('freetype')
+    depends_on('libxml2')
 
     def install(self, spec, prefix):
-        config_args = ["--prefix=" + prefix]
-        config_args.append("--disable-docs")
-        configure(*config_args)
+        configure("--prefix=%s" % prefix, "--enable-libxml2")
+
         make()
         make("install")

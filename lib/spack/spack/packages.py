@@ -6,7 +6,7 @@
 # Written by Todd Gamblin, tgamblin@llnl.gov, All rights reserved.
 # LLNL-CODE-647188
 #
-# For details, see https://scalability-llnl.github.io/spack
+# For details, see https://github.com/llnl/spack
 # Please also see the LICENSE file for our notice and the LGPL.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -67,27 +67,28 @@ class PackageDB(object):
         if spec.virtual:
             raise UnknownPackageError(spec.name)
 
+        key = hash(spec)
         if kwargs.get('new', False):
-            if spec in self.instances:
-                del self.instances[spec]
+            if key in self.instances:
+                del self.instances[key]
 
-        if not spec in self.instances:
+        if not key in self.instances:
             package_class = self.get_class_for_package_name(spec.name)
             try:
-                copy = spec.copy()
-                self.instances[copy] = package_class(copy)
+                copy = spec.copy() # defensive copy.  Package owns its spec.
+                self.instances[key] = package_class(copy)
             except Exception, e:
                 if spack.debug:
                     sys.excepthook(*sys.exc_info())
                 raise FailedConstructorError(spec.name, e)
 
-        return self.instances[spec]
+        return self.instances[key]
 
 
     @_autospec
     def delete(self, spec):
         """Force a package to be recreated."""
-        del self.instances[spec]
+        del self.instances[spec.dag_hash()]
 
 
     def purge(self):

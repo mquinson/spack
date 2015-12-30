@@ -6,7 +6,7 @@
 # Written by Todd Gamblin, tgamblin@llnl.gov, All rights reserved.
 # LLNL-CODE-647188
 #
-# For details, see https://scalability-llnl.github.io/spack
+# For details, see https://github.com/llnl/spack
 # Please also see the LICENSE file for our notice and the LGPL.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -634,6 +634,22 @@ def from_url(url):
     return URLFetchStrategy(url)
 
 
+def from_kwargs(**kwargs):
+    """
+    Construct the appropriate FetchStrategy from the given keyword arguments.
+
+    :param kwargs: dictionary of keyword arguments
+    :return: fetcher or raise a FetchError exception
+    """
+    for fetcher in all_strategies:
+        if fetcher.matches(kwargs):
+            return fetcher(**kwargs)
+    # Raise an error in case we can't instantiate any known strategy
+    message = "Cannot instantiate any FetchStrategy"
+    long_message = message + " from the given arguments : {arguments}".format(srguments=kwargs)
+    raise FetchError(message, long_message)
+
+
 def args_are_for(args, fetcher):
     fetcher.matches(args)
 
@@ -671,7 +687,7 @@ def for_package_version(pkg, version):
 
 
 class FetchError(spack.error.SpackError):
-    def __init__(self, msg, long_msg):
+    def __init__(self, msg, long_msg=None):
         super(FetchError, self).__init__(msg, long_msg)
 
 
@@ -689,7 +705,7 @@ class NoArchiveFileError(FetchError):
 
 
 class NoDigestError(FetchError):
-    def __init__(self, msg, long_msg):
+    def __init__(self, msg, long_msg=None):
         super(NoDigestError, self).__init__(msg, long_msg)
 
 

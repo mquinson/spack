@@ -6,7 +6,7 @@
 # Written by Todd Gamblin, tgamblin@llnl.gov, All rights reserved.
 # LLNL-CODE-647188
 #
-# For details, see https://scalability-llnl.github.io/spack
+# For details, see https://github.com/llnl/spack
 # Please also see the LICENSE file for our notice and the LGPL.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -43,6 +43,7 @@ class Cmake(Package):
 
     def install(self, spec, prefix):
         configure('--prefix='   + prefix,
-                  '--parallel=' + str(make_jobs))
+                  '--parallel=' + str(make_jobs),
+                  '--', '-DCMAKE_USE_OPENSSL=ON')
         make()
         make('install')
