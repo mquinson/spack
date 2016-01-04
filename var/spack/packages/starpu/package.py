@@ -75,7 +75,7 @@ class Starpu(Package):
         if spec.satisfies('+fxt'):
             fxt = spec['fxt'].prefix
             config_args.append("--with-fxt=%s" % fxt)
-            if spec.satisfies('@1.2:') or spec.satisfies('@svn-1.2'):
+            if spec.satisfies('@1.2:') or spec.satisfies('@svn-1.2') or spec.satisfies('@svn-trunk'):
                 config_args.append("--enable-paje-codelet-details")
 
         if spec.satisfies('+simu'):
