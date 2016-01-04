@@ -1,5 +1,7 @@
 from spack import *
 import os
+import spack
+import sys
 
 class Openmpi(Package):
     """Open MPI is a project combining technologies and resources from
@@ -21,6 +23,11 @@ class Openmpi(Package):
     version('1.6.5', '03aed2a4aa4d0b27196962a2a65fc475',
             url = "http://www.open-mpi.org/software/ompi/v1.6/downloads/openmpi-1.6.5.tar.bz2")
 
+    pkg_dir = spack.db.dirname_for_package_name("openmpi")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+
     patch('ad_lustre_rwcontig_open_source.patch', when="@1.6.5")
     patch('llnl-platforms.patch', when="@1.6.5")
     patch('configure.patch', when="@1.10.0:")
@@ -29,6 +36,7 @@ class Openmpi(Package):
     provides('mpi@:3.0', when='@1.8.8')    # Open MPI 1.8.8 supports MPI-3.0
     provides('mpi@:3.1', when='@1.10.0')   # Open MPI 1.10.0 supports MPI-3.0
     provides('mpi@:3.2', when='@1.10.1')   # Open MPI 1.10.1 supports MPI-3.0
+    provides('mpi', when='@exist')         # We cannot guess
 
     variant('debug', default=False, description='Enable debug symbols')
 
@@ -68,6 +76,20 @@ class Openmpi(Package):
         make("install")
 
         self.filter_compilers()
+
+    # to use the existing version available in the environment: MPI_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('MPI_DIR'):
+            mpiroot=os.environ['MPI_DIR']
+            if os.path.isdir(mpiroot):
+                os.symlink(mpiroot+"/bin", prefix.bin)
+                os.symlink(mpiroot+"/include", prefix.include)
+                os.symlink(mpiroot+"/lib", prefix.lib)
+            else:
+                sys.exit(mpiroot+' directory does not exist.'+' Do you really have openmpi installed in '+mpiroot+' ?')
+        else:
+            sys.exit('MPI_DIR is not set, you must set this environment variable to the installation path of your openmpi')
 
 
     def filter_compilers(self):
