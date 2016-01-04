@@ -16,7 +16,7 @@ class Simgrid(Package):
                 url='http://gforge.inria.fr/frs/download.php/file/33683/SimGrid-3.11.tar.gz')
         version('3.10', 'a345ad07e37539d54390f817b7271de7',
                 url='http://gforge.inria.fr/frs/download.php/file/33124/SimGrid-3.10.tar.gz')
-        version('git-starpumpi', git='git://scm.gforge.inria.fr/simgrid/simgrid.git', branch='starpumpi')
+        version('git-starpumpi', git='https://scm.gforge.inria.fr/anonscm/git/simgrid/simgrid.git', branch='starpumpi')
 
     variant('doc', default=False, description='Enable building documentation')
     depends_on('cmake')

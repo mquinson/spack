@@ -5,7 +5,7 @@ class Vite(Package):
     homepage = "http://vite.gforge.inria.fr/"
     url      = "https://gforge.inria.fr/frs/download.php/27457/vite_1157.tar.gz"
 
-    version('trunk', svn='svn://scm.gforge.inria.fr/svnroot/vite/trunk')
+    version('trunk', svn='https://scm.gforge.inria.fr/anonscm/svn/vite/trunk')
 
     variant('otf', default=False, description='Enable OTF')
     variant('qt5', default=False, description='Enable QT5 instead of QT4')
