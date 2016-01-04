@@ -14,6 +14,7 @@ class Chameleon(Package):
         version('0.9.0', '67679f3376d4ac4575cc8433a3329abb')
         version('0.9.1', 'fa21b7c44daf34e540ed837a9263772d')
         version('trunk', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/chameleon')
+        version('terry', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/terry')
 
     variant('debug', default=False, description='Enable debug symbols')
     variant('shared', default=True, description='Build SCOTCH as a shared library')

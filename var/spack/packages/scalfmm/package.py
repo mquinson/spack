@@ -6,6 +6,7 @@ class Scalfmm(Package):
     homepage = "http://scalfmm-public.gforge.inria.fr/doc/"
     url      = "https://gforge.inria.fr/frs/download.php/file/34672/SCALFMM-1.3-56.tar.gz"
 
+    version('1.4-148', '666ba8fef226630a2c22df8f0f93ff9c')
     version('1.3-56', '666ba8fef226630a2c22df8f0f93ff9c')
     version('master', git='https://scm.gforge.inria.fr/anonscm/git/scalfmm-public/scalfmm-public.git')
 
