@@ -28,15 +28,15 @@ class Chameleon(Package):
     variant('examples', default=False, description='Enable compilation and installation of example executables')
 
     depends_on("cmake")
-    depends_on("blas")
-    depends_on("lapack")
-    depends_on("cblas")
-    depends_on("lapacke")
+    depends_on("blas", when='~simu')
+    depends_on("lapack", when='~simu')
+    depends_on("cblas", when='~simu')
+    depends_on("lapacke", when='~simu')
     depends_on("starpu", when='~quark')
     depends_on("quark", when='+quark')
     depends_on("mpi", when='+mpi')
     depends_on("cuda", when='+cuda')
-    depends_on("magma", when='+magma')
+    depends_on("magma", when='~simu+magma')
     depends_on("fxt", when='+fxt')
     depends_on("eztrace", when='+eztrace')
 
@@ -82,17 +82,18 @@ class Chameleon(Package):
                 # Enable Quark here.
                 cmake_args.extend(["-DCHAMELEON_SCHED_QUARK=ON"])
 
-            blas = self.spec['blas']
-            cblas = self.spec['cblas']
-            lapack = self.spec['lapack']
-            lapacke = self.spec['lapacke']
-            cmake_args.extend(['-DBLAS_DIR=%s' % blas.prefix])
-            cmake_args.extend(['-DCBLAS_DIR=%s' % cblas.prefix])
-            cmake_args.extend(['-DLAPACK_DIR=%s' % lapack.prefix])
-            cmake_args.extend(['-DLAPACKE_DIR=%s' % lapacke.prefix])
-            cmake_args.extend(['-DTMG_DIR=%s' % lapack.prefix])
-            if spec.satisfies('%gcc'):
-                os.environ["LDFLAGS"] = "-lgfortran"
+            if spec.satisfies('~simu'):
+                blas = self.spec['blas']
+                cblas = self.spec['cblas']
+                lapack = self.spec['lapack']
+                lapacke = self.spec['lapacke']
+                cmake_args.extend(['-DBLAS_DIR=%s' % blas.prefix])
+                cmake_args.extend(['-DCBLAS_DIR=%s' % cblas.prefix])
+                cmake_args.extend(['-DLAPACK_DIR=%s' % lapack.prefix])
+                cmake_args.extend(['-DLAPACKE_DIR=%s' % lapacke.prefix])
+                cmake_args.extend(['-DTMG_DIR=%s' % lapack.prefix])
+                if spec.satisfies('%gcc'):
+                    os.environ["LDFLAGS"] = "-lgfortran"
 
             cmake(*cmake_args)
             make()
