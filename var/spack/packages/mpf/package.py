@@ -17,6 +17,8 @@ class Mpf(Package):
     except KeyError:
         pass
 
+    version('devel', git="/Users/sylvand/local/mpf", branch='gs/file_spido2')
+
     variant('shared', default=True, description='Build MPF as a shared library')
     variant('python', default=False, description='Build MPF python interface')
 
@@ -24,18 +26,29 @@ class Mpf(Package):
     depends_on("blas")
     depends_on("lapack")
     depends_on("mumps")
-    depends_on("pastix")
+    depends_on("pastix+mpi")
     depends_on("hmat")
 
     def install(self, spec, prefix):
         with working_dir('build', create=True):
+           
+            cmake_args = []
+            cmake_args.extend(std_cmake_args)
 
-            cmake_args = [
+            cmake_args.extend([
                 "..",
-                "-DCMAKE_INSTALL_PREFIX=../install",
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
-                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
+
+            if spec.satisfies('%gcc'):
+                cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug",
+                                   "-DCMAKE_C_FLAGS=-fopenmp -D_GNU_SOURCE -pthread",
+                                   '-DCMAKE_C_FLAGS_DEBUG=-g -fopenmp -D_GNU_SOURCE -pthread',
+                                   '-DCMAKE_CXX_FLAGS=-pthread -fopenmp',
+                                   '-DCMAKE_CXX_FLAGS_DEBUG=-g -fopenmp -D_GNU_SOURCE -pthread',
+                                   '-DCMAKE_Fortran_FLAGS=-pthread -fopenmp',
+                                   '-DCMAKE_Fortran_FLAGS_DEBUG=-g -fopenmp -pthread'])
 
             # to activate the test building
             # cmake_args.extend(["-DMPF_TEST:BOOL=ON"])
@@ -66,6 +79,8 @@ class Mpf(Package):
             cmake_args.extend(["-DENABLE_PASTIX=ON"])
 
             mumps = spec['mumps'].prefix
+            # Workaround for the current bug in the hash calculation of mumps
+            mumps = mumpsprefix
             cmake_args.extend(["-DMUMPS_LIBRARY_DIRS=%s" % mumps.lib])
             cmake_args.extend(["-DMUMPS_INCLUDE_DIRS=%s" % mumps.include])
             cmake_args.extend(["-DENABLE_MUMPS=ON"])
@@ -96,7 +111,6 @@ class Mpf(Package):
 
             cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
             
-            cmake_args.extend(std_cmake_args)
             cmake(*cmake_args)
 
             make()

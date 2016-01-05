@@ -37,7 +37,7 @@ class Hmat(Package):
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
             cmake_args+=[
-                "-DCMAKE_INSTALL_PREFIX=../install",
+                '-DCMAKE_INSTALL_PREFIX:PATH=%s' % prefix,
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
@@ -50,11 +50,17 @@ class Hmat(Package):
             else:
                 cmake_args.extend(['-DBUILD_SHARED_LIBS=OFF'])
 
-            if '^mkl-cblas' in spec or '^mkl-lapack' in spec:
-                cmake_args.extend(["-DMKL_DETECT=ON"])
-            else:
-                cmake_args.extend(["-DMKL_DETECT=OFF"])
+            cmake_args.extend(["-DMKL_DETECT=OFF"])
 
+            if '^mkl-cblas' in spec or '^mkl-lapack' in spec:
+                cmake_args.extend(["-DMKL_FOUND=ON"])
+                mklblas = spec['mkl-blas'].prefix
+                cmake_args.extend(["-DMKL_LIBRARY_DIRS=%s" % mklblas.lib])
+                cmake_args.extend(["-DMKL_INCLUDE_DIRS=%s" % mklblas.include])
+                cmake_args.extend(["-DMKL_LINKER_FLAGS=" + " ".join(blaslibname)])
+                cmake_args.extend(["-DMKL_COMPILE_FLAGS="])
+            else:
+                cmake_args.extend(["-DMKL_FOUND=OFF"])
                 # To force FindCBLAS to find MY cblas
                 mf = FileFilter('../hmat-oss/CMake/FindCBLAS.cmake')
                 mf.filter('\"cblas\"','"%s"' % ";".join(cblaslibname+blaslibname))

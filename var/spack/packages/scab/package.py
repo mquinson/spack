@@ -17,6 +17,7 @@ class Scab(Package):
     except KeyError:
         pass
 
+    version('devel', git="/Users/sylvand/local/scab", branch='gs/optim_pwfmm')
     variant('shared', default=True, description='Build SCAB as a shared library')
 
     depends_on("mpf")
@@ -28,19 +29,24 @@ class Scab(Package):
     def install(self, spec, prefix):
         with working_dir('build', create=True):
 
-            cmake_args = [
+            cmake_args = []
+            cmake_args.extend(std_cmake_args)
+
+            cmake_args.extend([
                 "..",
-                "-DCMAKE_INSTALL_PREFIX=../install",
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
-                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
+
+            # Option for invoking the assembler on OSX (for sse/avx intrinsics)
+            opt_ass=" -Wa,-q" if platform.system() == "Darwin" else ""
 
             if spec.satisfies('%gcc'):
                 cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug",
-                                   "-DCMAKE_C_FLAGS=-fopenmp -D_GNU_SOURCE -pthread",
-                                   '-DCMAKE_C_FLAGS_DEBUG=-g -fopenmp -D_GNU_SOURCE -pthread',
-                                   '-DCMAKE_CXX_FLAGS=-pthread -fopenmp',
-                                   '-DCMAKE_CXX_FLAGS_DEBUG=-g -fopenmp -D_GNU_SOURCE -pthread',
+                                   "-DCMAKE_C_FLAGS=-fopenmp -D_GNU_SOURCE -pthread"+opt_ass,
+                                   '-DCMAKE_C_FLAGS_DEBUG=-g -fopenmp -D_GNU_SOURCE -pthread'+opt_ass,
+                                   '-DCMAKE_CXX_FLAGS=-pthread -fopenmp'+opt_ass,
+                                   '-DCMAKE_CXX_FLAGS_DEBUG=-g -fopenmp -D_GNU_SOURCE -pthread'+opt_ass,
                                    '-DCMAKE_Fortran_FLAGS=-pthread -fopenmp',
                                    '-DCMAKE_Fortran_FLAGS_DEBUG=-g -fopenmp -pthread'])
 
@@ -76,6 +82,12 @@ class Scab(Package):
                 cmake_args.extend(["-DMKL_LIBRARIES=%s" % ";".join(mkl_libs)])
             else:
                 cmake_args.extend(["-DMKL_DETECT=OFF"])
+
+                blas_libs = ";".join(blaslibname)
+                blas = spec['blas'].prefix
+                cmake_args.extend(["-DBLAS_LIBRARY_DIRS=%s/" % blas.lib])
+                cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
+                
                 cblas = spec['cblas'].prefix
                 cmake_args.extend(["-DCBLAS_LIBRARY_DIRS=%s/" % cblas.lib])
                 cmake_args.extend(["-DCBLAS_INCLUDE_DIRS=%s" % cblas.include])
@@ -84,19 +96,6 @@ class Scab(Package):
                 cmake_args.extend(["-DLAPACKE_LIBRARY_DIRS=%s/" % lapacke.lib])
                 cmake_args.extend(["-DLAPACKE_INCLUDE_DIRS=%s" % lapacke.include])
             
-            #    mklroot=os.environ['MKLROOT']
-            #    cmake_args.extend(["-DMKL_DETECT=ON"])
-            #    cmake_args.extend(["-DMKL_INCLUDE_DIRS=%s" % os.path.join(mklroot, "include") ])
-            #    cmake_args.extend(["-DMKL_LIBRARY_DIRS=%s" % os.path.join(mklroot, "lib/intel64") ] )
-            #    if spec.satisfies('%intel'):
-            #        cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_intel_thread;mkl_core " ] )
-            #    else:
-            #        cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_gnu_thread;mkl_core " ] )
-            #    cmake_args.extend(["-DBLAS_LIBRARIES=\"\" " ] )
-
-
-            cmake_args.extend(std_cmake_args)
-            call(["rm" , "-rf" , "CMake*"])
             cmake(*cmake_args)
 
             make()

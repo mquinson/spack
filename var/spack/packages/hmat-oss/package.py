@@ -28,10 +28,17 @@ class HmatOss(Package):
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DBUILD_EXAMPLES:BOOL=ON"])
 
+            cmake_args.extend(["-DMKL_DETECT=OFF"])
+
             if '^mkl-cblas' in spec or '^mkl-lapack' in spec:
-                cmake_args.extend(["-DMKL_DETECT=ON"])
+                cmake_args.extend(["-DMKL_FOUND=ON"])
+                mklblas = spec['mkl-blas'].prefix
+                cmake_args.extend(["-DMKL_LIBRARY_DIRS=%s" % mklblas.lib])
+                cmake_args.extend(["-DMKL_INCLUDE_DIRS=%s" % mklblas.include])
+                cmake_args.extend(["-DMKL_LINKER_FLAGS=" + " ".join(blaslibname)])
+                cmake_args.extend(["-DMKL_COMPILE_FLAGS="])
             else:
-                cmake_args.extend(["-DMKL_DETECT=OFF"])
+                cmake_args.extend(["-DMKL_FOUND=OFF"])
 
                 # To force FindCBLAS to find MY cblas
                 mf = FileFilter('../CMake/FindCBLAS.cmake')

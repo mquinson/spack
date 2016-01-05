@@ -17,6 +17,8 @@ class Actipole(Package):
     except KeyError:
         pass
 
+    version('devel', git="/Users/sylvand/local/actipole", branch='master')
+
     variant('shared', default=True, description='Build ACTIPOLE as a shared library')
 
     depends_on("scab")
@@ -26,18 +28,20 @@ class Actipole(Package):
 
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
-            cmake_args+=[
-                "-DCMAKE_INSTALL_PREFIX=../install",
+            cmake_args.extend([
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
-                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
-
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
+            
+            # Option for invoking the assembler on OSX (for sse/avx intrinsics)
+            opt_ass=" -Wa,-q" if platform.system() == "Darwin" else ""
+        
             if spec.satisfies('%gcc'):
                 cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug",
-                                   "-DCMAKE_C_FLAGS=-fopenmp -D_GNU_SOURCE -pthread",
-                                   '-DCMAKE_C_FLAGS_DEBUG=-g -fopenmp -D_GNU_SOURCE -pthread',
-                                   '-DCMAKE_CXX_FLAGS=-pthread -fopenmp',
-                                   '-DCMAKE_CXX_FLAGS_DEBUG=-g -fopenmp -D_GNU_SOURCE -pthread',
+                                   "-DCMAKE_C_FLAGS=-fopenmp -D_GNU_SOURCE -pthread"+opt_ass,
+                                   '-DCMAKE_C_FLAGS_DEBUG=-g -fopenmp -D_GNU_SOURCE -pthread'+opt_ass,
+                                   '-DCMAKE_CXX_FLAGS=-pthread -fopenmp'+opt_ass,
+                                   '-DCMAKE_CXX_FLAGS_DEBUG=-g -fopenmp -D_GNU_SOURCE -pthread'+opt_ass,
                                    '-DCMAKE_Fortran_FLAGS=-pthread -fopenmp',
                                    '-DCMAKE_Fortran_FLAGS_DEBUG=-g -fopenmp -pthread'])
 
@@ -49,7 +53,6 @@ class Actipole(Package):
             scab = spec['scab'].prefix
             cmake_args.extend(["-DSCAB_DIR=%s/CMake" % scab.share])
 
-            call(["rm" , "-rf" , "CMake*"])
             cmake(*cmake_args)
 
             make()
