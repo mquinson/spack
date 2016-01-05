@@ -123,10 +123,13 @@ class Mumps(Package):
 
         if spec.satisfies('+shared'):
             mf.filter('^AR\s*=.*', 'AR=$(FC) $(SCALAP) $(LSCOTCH) $(LMETIS) -shared -o ')
+            mf.filter('^RANLIB\s*=.*', 'RANLIB=echo ')
             if platform.system() == 'Darwin':
                 mf.filter('-shared -o', '-shared -undefined dynamic_lookup -o')
-            mf.filter('^RANLIB\s*=.*', 'RANLIB=echo ')
-            mf.filter('^LIBEXT\s*=.*', 'LIBEXT = .so')
+                mf.filter('^LIBEXT\s*=.*', 'LIBEXT = .dylib')
+            else:
+                mf.filter('^LIBEXT\s*=.*', 'LIBEXT = .so')
+                        
         if platform.system() == 'Darwin':
             mf.filter('-lrt', '');
 
