@@ -61,7 +61,7 @@ class NetlibLapacke(Package):
 
         # Enable lapacke here.
         cmake_args.extend(["-DLAPACKE=ON"])
-        cmake_args.extend(["-DLAPACKE_WITH_TMG=ON"])
+        cmake_args.extend(["-DLAPACKE_WITH_TMG=OFF"])
         cmake_args.extend(["-DBUILD_TESTING=OFF"])
 
         if spec.satisfies('+shared'):

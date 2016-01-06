@@ -2,6 +2,7 @@ from spack import *
 import os
 import spack
 import sys
+import platform
 
 class MklScalapack(Package):
     """Intel MKL Blas, Lapack, Scalapack routines"""
@@ -13,8 +14,8 @@ class MklScalapack(Package):
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
-    # virtual dependency
-    if os.getenv('MKLROOT'):
+    # virtual dependency (no blacs/scalapack in OSX version of MKL)
+    if platform.system() != "Darwin" and os.getenv('MKLROOT'):
         mklroot=os.environ['MKLROOT']
         if os.path.isdir(mklroot):
             provides('scalapack')
@@ -26,24 +27,20 @@ class MklScalapack(Package):
     depends_on("lapack")
 
     def setup_dependent_environment(self, module, spec, dep_spec):
-        if os.getenv('MKLROOT'):
-            mklroot=os.environ['MKLROOT']
-            if os.path.isdir(mklroot):
-                """Dependencies of this package will get the libraries names for mkl-scalapack."""
-                mkllibdir=mklroot+"/lib/intel64/"
-                if spec.satisfies('+shared'):
-                    if spec.satisfies('%gcc'):
-                        module.scalapacklibname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_scalapack_lp64"]
-                    else:
-                        module.scalapacklibname=["-L"+mkllibdir+" -lmkl_scalapack_lp64"]
-                else:
-                    module.scalapacklibname=[mkllibdir+"libmkl_scalapack_lp64.a"]
+        """Dependencies of this package will get the libraries names for mkl-scalapack."""
+        mkllibdir=self.spec.prefix.lib
+        if spec.satisfies('+shared'):
+            if spec.satisfies('%gcc'):
+                module.scalapacklibname=["-Wl,--no-as-needed -L"+mkllibdir+" -lmkl_scalapack_lp64"]
+            else:
+                module.scalapacklibname=["-L"+mkllibdir+" -lmkl_scalapack_lp64"]
+        else:
+            module.scalapacklibname=[mkllibdir+"/libmkl_scalapack_lp64.a"]
 
     def install(self, spec, prefix):
         if os.getenv('MKLROOT'):
             mklroot=os.environ['MKLROOT']
             if os.path.isdir(mklroot):
-                mklroot=os.environ['MKLROOT']
                 os.symlink(mklroot+"/bin", prefix.bin)
                 os.symlink(mklroot+"/include", prefix.include)
                 os.symlink(mklroot+"/lib/intel64", prefix.lib)

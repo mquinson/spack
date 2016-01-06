@@ -47,11 +47,11 @@ class NetlibScalapack(Package):
             else:
                 cmake_args.extend(['-DBUILD_SHARED_LIBS=OFF'])
 
-            blas_libs = " ".join(blaslibfortname)
+            blas_libs = " ".join(blaslibname)
             blas_libs = blas_libs.replace(' ', ';')
             cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
 
-            lapack_libs = " ".join(lapacklibfortname)
+            lapack_libs = " ".join(lapacklibname)
             lapack_libs = lapack_libs.replace(' ', ';')
             cmake_args.extend(['-DLAPACK_LIBRARIES=%s' % lapack_libs])
 
@@ -73,7 +73,13 @@ class NetlibScalapack(Package):
         mkdirp(prefix.lib)
 
         if spec.satisfies('+shared'):
-            call((" ".join(['cc -shared -o libscalapack.so -Wl,--whole-archive libscalapack.a -Wl,--no-whole-archive']+blacslibname+lapacklibfortname+blaslibfortname)).split(' ') )
-            install('libscalapack.so', '%s/libscalapack.so' % prefix.lib)
+            if platform.system() == 'Darwin':
+                libext=".dylib"
+                call((" ".join(['cc -dynamiclib -undefined dynamic_lookup -o libscalapack.dylib -Wl,-force_load,libscalapack.a ']+blacslibname+lapacklibfortname+blaslibfortname)).split(' ') )
+            else:
+                libext=".so"
+                call((" ".join(['cc -shared -o libscalapack.so -Wl,--whole-archive libscalapack.a -Wl,--no-whole-archive']+blacslibname+lapacklibfortname+blaslibfortname)).split(' ') )
         else:
-            install('libscalapack.a', '%s/libscalapack.a' % prefix.lib)
+            libext=".a"
+
+        install('libscalapack%s'%libext, '%s/libscalapack%s' % (prefix.lib, libext))

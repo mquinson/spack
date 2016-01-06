@@ -20,44 +20,42 @@ class Mpf(Package):
 
     variant('shared', default=True , description='Build MPF as a shared library')
     variant('metis' , default=False, description='Use Metis')
+    version('devel', git="/Users/sylvand/local/mpf", branch='gs/file_spido2')
+
     variant('python', default=False, description='Build MPF python interface')
 
     depends_on("py-mpi4py", when='+python')
-    depends_on("blacs")
     depends_on("blas")
     depends_on("lapack")
-    depends_on("scalapack")
     depends_on("metis", when="+metis")
-    depends_on("mpi")
     depends_on("mumps +scotch")
-    depends_on("pastix")
+    depends_on("pastix+mpi")
     depends_on("hmat")
 
     def install(self, spec, prefix):
         project_dir = os.getcwd()
-        DefaultCache = project_dir + '/as-make/CMake/InitialCacheDefault.cmake'
 
         with working_dir('build', create=True):
             scotch = spec['scotch'].prefix
             mumps = spec['mumps'].prefix
-            mpi = spec['mpi'].prefix
 
             cmake_args = [
                 project_dir,
-                "-C" + DefaultCache,
-                "-DMPI_DIR="+ mpi,
-                "-DMPI_C_COMPILER="+mpi+"/bin/mpicc",
-                "-DMPI_CXX_COMPILER="+mpi+"/bin/mpicxx",
-                "-DMPI_Fortran_COMPILER="+mpi+"/bin/mpif77",
-                '-DCMAKE_C_FLAGS=-fopenmp -D_GNU_SOURCE -pthread',
-                '-DCMAKE_CXX_FLAGS=-fopenmp -D_GNU_SOURCE -pthread',
-                '-DCMAKE_Fortran_FLAGS=-fopenmp -pthread',
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
                 "-DSCOTCH_INCLUDE_DIRS="+ scotch.include,
                 "-DSCOTCH_LIBRARY_DIRS="+ scotch.lib,
                 ]
+
+            if spec.satisfies('%gcc'):
+                cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug",
+                                   "-DCMAKE_C_FLAGS=-fopenmp -D_GNU_SOURCE -pthread",
+                                   '-DCMAKE_C_FLAGS_DEBUG=-g -fopenmp -D_GNU_SOURCE -pthread',
+                                   '-DCMAKE_CXX_FLAGS=-pthread -fopenmp',
+                                   '-DCMAKE_CXX_FLAGS_DEBUG=-g -fopenmp -D_GNU_SOURCE -pthread',
+                                   '-DCMAKE_Fortran_FLAGS=-pthread -fopenmp',
+                                   '-DCMAKE_Fortran_FLAGS_DEBUG=-g -fopenmp -pthread'])
 
             # to activate the test building
             # cmake_args.extend(["-DMPF_TEST:BOOL=ON"])
@@ -88,6 +86,8 @@ class Mpf(Package):
             cmake_args.extend(["-DENABLE_PASTIX=ON"])
 
             mumps = spec['mumps'].prefix
+            # Workaround for the current bug in the hash calculation of mumps
+            mumps = mumpsprefix
             cmake_args.extend(["-DMUMPS_LIBRARY_DIRS=%s" % mumps.lib])
             cmake_args.extend(["-DMUMPS_INCLUDE_DIRS=%s" % mumps.include])
             cmake_args.extend(["-DENABLE_MUMPS=ON"])
@@ -118,29 +118,16 @@ class Mpf(Package):
 
             cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
             
-            # if spec.satisfies('+metis'):
-                # cmake_args.extend(["-DMETIS_LIBRARY_DIRS="+ spec['metis'].prefix.lib])
+            if spec.satisfies('+metis'):
+                cmake_args.extend(["-DMETIS_LIBRARY_DIRS="+ spec['metis'].prefix.lib])
 
             mklroot = os.environ['MKLROOT']
             if mklroot:
                 cmake_args.extend(["-DMKL_LIBRARIES=mkl_blacs_lp64;mkl_scalapack_lp64;mkl_intel_lp64;mkl_core;mkl_gnu_thread;"])
-                cmake_args.extend(["-DMKL_DETECT=ON;"])
-                cmake_args.extend(["-DMKL_INCLUDE_DIRS="+mklroot+"/include"])
-                cmake_args.extend(["-DMKL_LIBRARY_DIRS="+mklroot+"/lib/intel64"])
                 
                 # problem with static library blacs... 
                 mf = FileFilter(project_dir + '/as-make/CMake/FindMKL.cmake')
                 mf.filter('set\(MKL_LIBRARIES -Wl,--start-group;\$\{MKL_LIBRARIES\};-Wl,--end-group\)','set(MKL_LIBRARIES -Wl,--start-group,--whole-archive;${MKL_LIBRARIES};-Wl,--end-group,--no-whole-archive )')  
-           # mklroot=os.environ['MKLROOT']
-           #     cmake_args.extend(["-DMKL_DETECT=ON"])
-           #     cmake_args.extend(["-DMKL_INCLUDE_DIRS=%s" % os.path.join(mklroot, "include") ])
-           #     cmake_args.extend(["-DMKL_LIBRARY_DIRS=%s" % os.path.join(mklroot, "lib/intel64") ] )
-           #     if spec.satisfies('%intel'):
-           #         cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_intel_thread;mkl_core " ] )
-           #     else:
-           #         cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_gnu_thread;mkl_core " ] )
-           #     cmake_args.extend(["-DBLAS_LIBRARIES=\"\" " ] )
-
 
             cmake_args.extend(std_cmake_args)
             cmake(*cmake_args)
