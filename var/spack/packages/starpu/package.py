@@ -48,12 +48,14 @@ class Starpu(Package):
     variant('opencl', default=False, description='Enable OpenCL support')
     variant('simu', default=False, description='Enable SimGrid support')
     variant('examples', default=False, description='Enable Examples')
+    variant('blas', default=False, description='Enable BLAS related features')
 
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
     depends_on("cuda", when='+cuda')
     depends_on("fxt", when='+fxt')
     depends_on("simgrid", when='+simu')
+    depends_on("blas", when='+blas')
 
     def install(self, spec, prefix):
 
