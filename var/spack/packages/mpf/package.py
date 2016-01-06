@@ -10,6 +10,7 @@ class Mpf(Package):
     homepage = "http://www.google.com"
 
     try:
+        version('nd',     git='hades:/home/falco/Airbus/mpf.git', branch='master')
         repo=os.environ['SOFTWAREREPO1']
         version('master', git=repo+'mpf.git', branch='master')
         version('1.22',   git=repo+'mpf.git', branch='v1.22')
@@ -17,25 +18,46 @@ class Mpf(Package):
     except KeyError:
         pass
 
-    variant('shared', default=True, description='Build MPF as a shared library')
+    variant('shared', default=True , description='Build MPF as a shared library')
+    variant('metis' , default=False, description='Use Metis')
     variant('python', default=False, description='Build MPF python interface')
 
     depends_on("py-mpi4py", when='+python')
+    depends_on("blacs")
     depends_on("blas")
     depends_on("lapack")
-    depends_on("mumps")
+    depends_on("scalapack")
+    depends_on("metis", when="+metis")
+    depends_on("mpi")
+    depends_on("mumps +scotch")
     depends_on("pastix")
     depends_on("hmat")
 
     def install(self, spec, prefix):
+        project_dir = os.getcwd()
+        DefaultCache = project_dir + '/as-make/CMake/InitialCacheDefault.cmake'
+
         with working_dir('build', create=True):
+            scotch = spec['scotch'].prefix
+            mumps = spec['mumps'].prefix
+            mpi = spec['mpi'].prefix
 
             cmake_args = [
-                "..",
-                "-DCMAKE_INSTALL_PREFIX=../install",
+                project_dir,
+                "-C" + DefaultCache,
+                "-DMPI_DIR="+ mpi,
+                "-DMPI_C_COMPILER="+mpi+"/bin/mpicc",
+                "-DMPI_CXX_COMPILER="+mpi+"/bin/mpicxx",
+                "-DMPI_Fortran_COMPILER="+mpi+"/bin/mpif77",
+                '-DCMAKE_C_FLAGS=-fopenmp -D_GNU_SOURCE -pthread',
+                '-DCMAKE_CXX_FLAGS=-fopenmp -D_GNU_SOURCE -pthread',
+                '-DCMAKE_Fortran_FLAGS=-fopenmp -pthread',
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
-                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
+                "-DSCOTCH_INCLUDE_DIRS="+ scotch.include,
+                "-DSCOTCH_LIBRARY_DIRS="+ scotch.lib,
+                ]
 
             # to activate the test building
             # cmake_args.extend(["-DMPF_TEST:BOOL=ON"])
@@ -96,6 +118,30 @@ class Mpf(Package):
 
             cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
             
+            # if spec.satisfies('+metis'):
+                # cmake_args.extend(["-DMETIS_LIBRARY_DIRS="+ spec['metis'].prefix.lib])
+
+            mklroot = os.environ['MKLROOT']
+            if mklroot:
+                cmake_args.extend(["-DMKL_LIBRARIES=mkl_blacs_lp64;mkl_scalapack_lp64;mkl_intel_lp64;mkl_core;mkl_gnu_thread;"])
+                cmake_args.extend(["-DMKL_DETECT=ON;"])
+                cmake_args.extend(["-DMKL_INCLUDE_DIRS="+mklroot+"/include"])
+                cmake_args.extend(["-DMKL_LIBRARY_DIRS="+mklroot+"/lib/intel64"])
+                
+                # problem with static library blacs... 
+                mf = FileFilter(project_dir + '/as-make/CMake/FindMKL.cmake')
+                mf.filter('set\(MKL_LIBRARIES -Wl,--start-group;\$\{MKL_LIBRARIES\};-Wl,--end-group\)','set(MKL_LIBRARIES -Wl,--start-group,--whole-archive;${MKL_LIBRARIES};-Wl,--end-group,--no-whole-archive )')  
+           # mklroot=os.environ['MKLROOT']
+           #     cmake_args.extend(["-DMKL_DETECT=ON"])
+           #     cmake_args.extend(["-DMKL_INCLUDE_DIRS=%s" % os.path.join(mklroot, "include") ])
+           #     cmake_args.extend(["-DMKL_LIBRARY_DIRS=%s" % os.path.join(mklroot, "lib/intel64") ] )
+           #     if spec.satisfies('%intel'):
+           #         cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_intel_thread;mkl_core " ] )
+           #     else:
+           #         cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_gnu_thread;mkl_core " ] )
+           #     cmake_args.extend(["-DBLAS_LIBRARIES=\"\" " ] )
+
+
             cmake_args.extend(std_cmake_args)
             cmake(*cmake_args)
 

@@ -10,6 +10,7 @@ class Actipole(Package):
     homepage = "http://www.google.com"
 
     try:
+        version('nd',     git='hades:/home/falco/Airbus/actipole.git', branch='master')
         repo=os.environ['SOFTWAREREPO1']
         version('master', git=repo+'actipole.git', branch='master')
         version('1.21',   git=repo+'actipole.git', branch='v1.21')
@@ -27,7 +28,6 @@ class Actipole(Package):
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
             cmake_args+=[
-                "-DCMAKE_INSTALL_PREFIX=../install",
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]

@@ -38,14 +38,14 @@ class Scotch(Package):
             libext=".a"
         libdir = self.spec.prefix.lib
 
-        scotchlibname=[os.path.join(libdir, "libscotch.%s") % libext]
-        scotcherrlibname=[os.path.join(libdir, "libscotcherr.%s") % libext]
-        scotcherrexitlibname=[os.path.join(libdir, "libscotcherrexit.%s") % libext]
-        ptscotchlibname=[os.path.join(libdir, "libptscotch.%s") % libext]
-        ptscotcherrlibname=[os.path.join(libdir, "libptscotcherr.%s") % libext]
-        ptscotcherrexitlibname=[os.path.join(libdir, "libptscotcherrexit.%s") % libext]
-        esmumpslibname=[os.path.join(libdir, "libesmumps.%s") % libext]
-        ptesmumpslibname=[os.path.join(libdir, "libptesmumps.%s") % libext]
+        scotchlibname=[os.path.join(libdir, "libscotch%s") % libext]
+        scotcherrlibname=[os.path.join(libdir, "libscotcherr%s") % libext]
+        scotcherrexitlibname=[os.path.join(libdir, "libscotcherrexit%s") % libext]
+        ptscotchlibname=[os.path.join(libdir, "libptscotch%s") % libext]
+        ptscotcherrlibname=[os.path.join(libdir, "libptscotcherr%s") % libext]
+        ptscotcherrexitlibname=[os.path.join(libdir, "libptscotcherrexit%s") % libext]
+        esmumpslibname=[os.path.join(libdir, "libesmumps%s") % libext]
+        ptesmumpslibname=[os.path.join(libdir, "libptesmumps%s") % libext]
 
         otherlibs=["-lm"]
         if spec.satisfies('+pthread'):

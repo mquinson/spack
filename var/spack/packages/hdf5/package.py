@@ -31,14 +31,20 @@ class Hdf5(Package):
                 "CC=%s" % spec['mpi'].prefix.bin + "/mpicc",
                 "CXX=%s" % spec['mpi'].prefix.bin + "/mpic++",
             ])
+        else:
+            extra_args.extend([
+                "--disable-parallel",
+                "CC=%s" % self.compiler.cc,
+                "CXX=%s" % self.compiler.cxx,
+            ])
 
         configure(
             "--prefix=%s" % prefix,
-            "--with-zlib=%s" % spec['zlib'].prefix,
+            # "--with-zlib=%s" % spec['zlib'].prefix,
             "--enable-shared",
             *extra_args)
-
-        make()
+        make("lib")
+        make("progs")
         make("install")
 
     def url_for_version(self, version):

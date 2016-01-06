@@ -10,6 +10,7 @@ class Scab(Package):
     homepage = "http://www.google.com"
 
     try:
+        version('nd',     git='hades:/home/falco/Airbus/scab.git', branch='master')
         repo=os.environ['SOFTWAREREPO1']
         version('master', git=repo+'scab.git', branch='master')
         version('1.6',    git=repo+'scab.git', branch='v1.6')
@@ -18,19 +19,18 @@ class Scab(Package):
         pass
 
     variant('shared', default=True, description='Build SCAB as a shared library')
+    variant('hdf5',  default=False, description='Build SCAB with hdf5')
 
     depends_on("mpf")
     depends_on("cblas")
     depends_on("lapacke")
-    depends_on("hdf5")
-    depends_on("med-fichier")
+    depends_on("med-fichier", when="+hdf5")
 
     def install(self, spec, prefix):
         with working_dir('build', create=True):
 
             cmake_args = [
                 "..",
-                "-DCMAKE_INSTALL_PREFIX=../install",
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
@@ -55,13 +55,10 @@ class Scab(Package):
             mpf = spec['mpf'].prefix
             cmake_args.extend(["-DMPF_DIR=%s/CMake" % mpf.share])
 
-            hdf5 = spec['hdf5'].prefix
-            cmake_args.extend(["-DHDF5_LIBRARY_DIRS=%s" % hdf5.lib])
-            cmake_args.extend(["-DHDF5_INCLUDE_DIRS=%s" % hdf5.include])
-
-            med = spec['med-fichier'].prefix
-            cmake_args.extend(["-DMED_LIBRARY_DIRS=%s" % med.lib])
-            cmake_args.extend(["-DMED_INCLUDE_DIRS=%s" % med.include])
+            if spec.satisfies('+hdf5'):
+                med = spec['med-fichier'].prefix
+                cmake_args.extend(["-DMED_LIBRARY_DIRS=%s" % med.lib])
+                cmake_args.extend(["-DMED_INCLUDE_DIRS=%s" % med.include])
 
             if '^mkl-cblas' in spec:
                 cmake_args.extend(["-DMKL_DETECT=ON"])
@@ -84,17 +81,6 @@ class Scab(Package):
                 cmake_args.extend(["-DLAPACKE_LIBRARY_DIRS=%s/" % lapacke.lib])
                 cmake_args.extend(["-DLAPACKE_INCLUDE_DIRS=%s" % lapacke.include])
             
-            #    mklroot=os.environ['MKLROOT']
-            #    cmake_args.extend(["-DMKL_DETECT=ON"])
-            #    cmake_args.extend(["-DMKL_INCLUDE_DIRS=%s" % os.path.join(mklroot, "include") ])
-            #    cmake_args.extend(["-DMKL_LIBRARY_DIRS=%s" % os.path.join(mklroot, "lib/intel64") ] )
-            #    if spec.satisfies('%intel'):
-            #        cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_intel_thread;mkl_core " ] )
-            #    else:
-            #        cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_gnu_thread;mkl_core " ] )
-            #    cmake_args.extend(["-DBLAS_LIBRARIES=\"\" " ] )
-
-
             cmake_args.extend(std_cmake_args)
             call(["rm" , "-rf" , "CMake*"])
             cmake(*cmake_args)

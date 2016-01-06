@@ -1,6 +1,8 @@
 from spack import *
 import os
+import sys
 from subprocess import call
+from subprocess import check_call
 import platform
 
 class Hmat(Package):
@@ -11,33 +13,35 @@ class Hmat(Package):
     homepage = "http://www.google.com"
 
     try:
+        version('nd',     git='hades:/home/falco/Airbus/hmat.git', branch='af/BinaryNestedDissection')
         repo=os.environ['SOFTWAREREPO1']
         version('master', git=repo+'hmat.git', branch='master')
     except KeyError:
         pass
 
-    variant('starpu'  , default=True, description='Use StarPU library')
-    variant('examples', default=True, description='Build and run examples at installation')
-    variant('shared',   default=True, description='Build HMAT as a shared library')
+    variant('starpu'  , default=True , description='Use StarPU library')
+    variant('examples', default=False, description='Build and run examples at installation')
+    variant('shared',   default=True , description='Build HMAT as a shared library')
 
     depends_on("mpi")
     depends_on("starpu+mpi", when='+starpu')
     depends_on("cblas")
+    depends_on("pkg-config")
+    depends_on("blas")
     depends_on("lapack")
-
-    parallel = False
 
     def patch(self):
         # get hmat-oss
-        call(["git" , "submodule" , "update", "--init"])
+        check_call(["git" , "submodule" , "update", "--init"])
 
     def install(self, spec, prefix):
+        check_call(["git" , "submodule" , "update"])
+
         with working_dir('build', create=True):
 
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
             cmake_args+=[
-                "-DCMAKE_INSTALL_PREFIX=../install",
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
