@@ -10,6 +10,7 @@ class Mpf(Package):
     homepage = "http://www.google.com"
 
     try:
+        version('nd',     git='hades:/home/falco/Airbus/mpf.git', branch='master')
         repo=os.environ['SOFTWAREREPO1']
         version('master', git=repo+'mpf.git', branch='master')
         version('1.22',   git=repo+'mpf.git', branch='v1.22')
@@ -17,29 +18,35 @@ class Mpf(Package):
     except KeyError:
         pass
 
+    variant('shared', default=True , description='Build MPF as a shared library')
+    variant('metis' , default=False, description='Use Metis')
     version('devel', git="/Users/sylvand/local/mpf", branch='gs/file_spido2')
 
-    variant('shared', default=True, description='Build MPF as a shared library')
     variant('python', default=False, description='Build MPF python interface')
 
     depends_on("py-mpi4py", when='+python')
     depends_on("blas")
     depends_on("lapack")
-    depends_on("mumps")
+    depends_on("metis", when="+metis")
+    depends_on("mumps +scotch")
     depends_on("pastix+mpi")
     depends_on("hmat")
 
     def install(self, spec, prefix):
-        with working_dir('build', create=True):
-           
-            cmake_args = []
-            cmake_args.extend(std_cmake_args)
+        project_dir = os.getcwd()
 
-            cmake_args.extend([
-                "..",
+        with working_dir('build', create=True):
+            scotch = spec['scotch'].prefix
+            mumps = spec['mumps'].prefix
+
+            cmake_args = [
+                project_dir,
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
-                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
+                "-DSCOTCH_INCLUDE_DIRS="+ scotch.include,
+                "-DSCOTCH_LIBRARY_DIRS="+ scotch.lib,
+                ]
 
             if spec.satisfies('%gcc'):
                 cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug",
@@ -111,6 +118,18 @@ class Mpf(Package):
 
             cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
             
+            if spec.satisfies('+metis'):
+                cmake_args.extend(["-DMETIS_LIBRARY_DIRS="+ spec['metis'].prefix.lib])
+
+            mklroot = os.environ['MKLROOT']
+            if mklroot:
+                cmake_args.extend(["-DMKL_LIBRARIES=mkl_blacs_lp64;mkl_scalapack_lp64;mkl_intel_lp64;mkl_core;mkl_gnu_thread;"])
+                
+                # problem with static library blacs... 
+                mf = FileFilter(project_dir + '/as-make/CMake/FindMKL.cmake')
+                mf.filter('set\(MKL_LIBRARIES -Wl,--start-group;\$\{MKL_LIBRARIES\};-Wl,--end-group\)','set(MKL_LIBRARIES -Wl,--start-group,--whole-archive;${MKL_LIBRARIES};-Wl,--end-group,--no-whole-archive )')  
+
+            cmake_args.extend(std_cmake_args)
             cmake(*cmake_args)
 
             make()

@@ -1,6 +1,7 @@
 from spack import *
 import os
 from subprocess import call
+import platform
 
 class Scab(Package):
     """
@@ -10,6 +11,7 @@ class Scab(Package):
     homepage = "http://www.google.com"
 
     try:
+        version('nd',     git='hades:/home/falco/Airbus/scab.git', branch='master')
         repo=os.environ['SOFTWAREREPO1']
         version('master', git=repo+'scab.git', branch='master')
         version('1.6',    git=repo+'scab.git', branch='v1.6')
@@ -19,12 +21,12 @@ class Scab(Package):
 
     version('devel', git="/Users/sylvand/local/scab", branch='gs/optim_pwfmm')
     variant('shared', default=True, description='Build SCAB as a shared library')
+    variant('hdf5',  default=False, description='Build SCAB with hdf5')
 
     depends_on("mpf")
     depends_on("cblas")
     depends_on("lapacke")
-    depends_on("hdf5")
-    depends_on("med-fichier")
+    depends_on("med-fichier", when="+hdf5")
 
     def install(self, spec, prefix):
         with working_dir('build', create=True):
@@ -61,13 +63,10 @@ class Scab(Package):
             mpf = spec['mpf'].prefix
             cmake_args.extend(["-DMPF_DIR=%s/CMake" % mpf.share])
 
-            hdf5 = spec['hdf5'].prefix
-            cmake_args.extend(["-DHDF5_LIBRARY_DIRS=%s" % hdf5.lib])
-            cmake_args.extend(["-DHDF5_INCLUDE_DIRS=%s" % hdf5.include])
-
-            med = spec['med-fichier'].prefix
-            cmake_args.extend(["-DMED_LIBRARY_DIRS=%s" % med.lib])
-            cmake_args.extend(["-DMED_INCLUDE_DIRS=%s" % med.include])
+            if spec.satisfies('+hdf5'):
+                med = spec['med-fichier'].prefix
+                cmake_args.extend(["-DMED_LIBRARY_DIRS=%s" % med.lib])
+                cmake_args.extend(["-DMED_INCLUDE_DIRS=%s" % med.include])
 
             if '^mkl-cblas' in spec:
                 cmake_args.extend(["-DMKL_DETECT=ON"])

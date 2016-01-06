@@ -1,6 +1,7 @@
 from spack import *
 import os
 from subprocess import call
+import platform
 
 class Actipole(Package):
     """
@@ -10,6 +11,7 @@ class Actipole(Package):
     homepage = "http://www.google.com"
 
     try:
+        version('nd',     git='hades:/home/falco/Airbus/actipole.git', branch='master')
         repo=os.environ['SOFTWAREREPO1']
         version('master', git=repo+'actipole.git', branch='master')
         version('1.21',   git=repo+'actipole.git', branch='v1.21')
