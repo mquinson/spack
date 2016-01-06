@@ -1,6 +1,7 @@
 from spack import *
 import os
 from subprocess import call
+import platform
 
 class Actipole(Package):
     """

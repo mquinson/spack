@@ -26,7 +26,6 @@ class Hmat(Package):
     depends_on("mpi")
     depends_on("starpu+mpi", when='+starpu')
     depends_on("cblas")
-    depends_on("pkg-config")
     depends_on("blas")
     depends_on("lapack")
 
