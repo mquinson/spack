@@ -18,7 +18,7 @@ class Chameleon(Package):
         version('external-prio', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/chameleon-external-prio')
 
     variant('debug', default=False, description='Enable debug symbols')
-    variant('shared', default=True, description='Build SCOTCH as a shared library')
+    variant('shared', default=True, description='Build chameleon as a shared library')
     variant('mpi', default=False, description='Enable MPI')
     variant('cuda', default=False, description='Enable CUDA')
     variant('magma', default=False, description='Enable MAGMA kernels')
