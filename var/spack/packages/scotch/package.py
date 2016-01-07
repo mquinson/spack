@@ -3,6 +3,7 @@ import glob
 import os
 from subprocess import call
 import sys
+import spack
 import platform
 
 class Scotch(Package):
@@ -18,6 +19,11 @@ class Scotch(Package):
             url='https://gforge.inria.fr/frs/download.php/file/34618/scotch_6.0.4.tar.gz')
     version('5.1.11', 'c00a886895b3895529814303afe0d74e',
             url='https://gforge.inria.fr/frs/download.php/28044/scotch_5.1.11_esmumps.tar.gz')
+
+    pkg_dir = spack.db.dirname_for_package_name("scotch")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('mpi', default=False, description='Activate the compilation of PT-Scotch')
     variant('pthread', default=True, description='Enable multithread with pthread')
@@ -70,7 +76,7 @@ class Scotch(Package):
         module.scotchlibname+=scotcherrlibname
         module.scotchlibname+=otherlibs
 
-    def patch(self):
+    def setup(self):
         if self.spec.satisfies('~pthread') and self.spec.satisfies('@6.0.4'):
             sys.exit('Error: SCOTCH 6.0.4 cannot compile without pthread... :(')
         with working_dir('src/Make.inc'):
@@ -94,6 +100,9 @@ class Scotch(Package):
                 filter_file(r'-lrt', '', *makefiles)
 
     def install(self, spec, prefix):
+
+        self.setup()
+
         # Currently support gcc and icc on x86_64 (maybe others with
         # vanilla makefile)
         if spec.satisfies('@6:+shared'):
@@ -133,3 +142,17 @@ class Scotch(Package):
         install_tree('lib', prefix.lib)
         install_tree('include', prefix.include)
         install_tree('man/man1', prefix.share_man1)
+
+    # to use the existing version available in the environment: SCOTCH_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('SCOTCH_DIR'):
+            scotchroot=os.environ['SCOTCH_DIR']
+            if os.path.isdir(scotchroot):
+                os.symlink(scotchroot+"/bin", prefix.bin)
+                os.symlink(scotchroot+"/include", prefix.include)
+                os.symlink(scotchroot+"/lib", prefix.lib)
+            else:
+                sys.exit(scotchroot+' directory does not exist.'+' Do you really have openmpi installed in '+scotchroot+' ?')
+        else:
+            sys.exit('SCOTCH_DIR is not set, you must set this environment variable to the installation path of your scotch')
