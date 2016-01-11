@@ -38,9 +38,19 @@ class Maphys(Package):
         mf.filter('prefix := /usr/local', 'prefix := %s' % spec.prefix)
 
         mpi = spec['mpi'].prefix
-        mf.filter('MPIFC := mpif90', 'MPIFC := mpif90 -I%s -ffree-form -ffree-line-length-0' % mpi.include)
-        mf.filter('MPICC := mpicc', 'MPICC := mpicc -I%s' % mpi.include)
-        mf.filter('MPIF77 := mpif77', 'MPIF77 := mpif77 -I%s' % mpi.include)
+        if spec.satisfies("%intel"):
+            mpicc = "mpiicc"
+            mpif90 = "mpiifort"
+            mpif77 = "mpiifort"
+            mpif90_add_flags = ""
+        else:
+            mpicc = "mpicc"
+            mpif90 = "mpif90"
+            mpif77 = "mpif77"
+            mpif90_add_flags = "-ffree-form -ffree-line-length-0"
+        mf.filter('MPIFC := mpif90', 'MPIFC := %s -I%s %s' % ( mpif90, mpi.include, mpif90_add_flags) )
+        mf.filter('MPICC := mpicc', 'MPICC := %s -I%s' % ( mpicc, mpi.include) )
+        mf.filter('MPIF77 := mpif77', 'MPIF77 := %s -I%s' % ( mpif77, mpi.include) )
 
         if '^mkl-blas' in spec:
             mf.filter('# THREAD_FCFLAGS \+= -DMULTITHREAD_VERSION -openmp',
