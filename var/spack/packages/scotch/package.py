@@ -76,67 +76,121 @@ class Scotch(Package):
         module.scotchlibname+=scotcherrlibname
         module.scotchlibname+=otherlibs
 
+    def compiler_specifics(self, makefile_inc, defines):
+        if self.compiler.name == 'gcc':
+            defines.append('-Drestrict=__restrict')
+        elif self.compiler.name == 'intel':
+            defines.append('-restrict')
+
+        makefile_inc.append('CCS       = $(CC)')
+
+        if '+mpi' in self.spec:
+            makefile_inc.extend([
+                    'CCP       = %s' % os.path.join(self.spec['mpi'].prefix.bin, 'mpicc'),
+                    'CCD       = $(CCP)'
+                    ])
+        else:
+            makefile_inc.extend([
+                    'CCP       = mpicc', # It is set but not used
+                    'CCD       = $(CCS)'
+                    ])
+
+    def library_build_type(self, makefile_inc, defines):
+        makefile_inc.extend([
+            'LIB       = .a',
+            'CLIBFLAGS = ',
+            'RANLIB    = ranlib',
+            'AR        = ar',
+            'ARFLAGS   = -ruv '
+            ])
+
+    @when('+shared')
+    def library_build_type(self, makefile_inc, defines):
+        if platform.system() == 'Darwin':
+            libext = ".dylib"
+            addarflags = "-undefined dynamic_lookup"
+        else:
+            libext = ".so"
+            addarflags = ""
+        makefile_inc.extend([
+            'LIB       = %s' % libext,
+            'CLIBFLAGS = -shared -fPIC',
+            'RANLIB    = echo',
+            'AR        = $(CC)',
+            'ARFLAGS   = -shared $(LDFLAGS) %s -o' % addarflags
+            ])
+
+    def extra_features(self, makefile_inc, defines):
+        ldflags = []
+
+        if '+compression' in self.spec:
+            defines.append('-DCOMMON_FILE_COMPRESS_GZ')
+            ldflags.append('-L%s -lz' % (self.spec['zlib'].prefix.lib))
+
+        if self.spec.satisfies('+pthread'):
+            defines.append('-DCOMMON_PTHREAD')
+            defines.append('-DCOMMON_PTHREAD_BARRIER')
+
+        if platform.system() == 'Darwin':
+            ldflags.append('-lm -pthread')
+        else:
+            ldflags.append('-lm -lrt -pthread')
+
+        makefile_inc.append('LDFLAGS   = %s' % ' '.join(ldflags))
+
     def setup(self):
+
         if self.spec.satisfies('~pthread') and self.spec.satisfies('@6.0.4'):
             sys.exit('Error: SCOTCH 6.0.4 cannot compile without pthread... :(')
-        with working_dir('src/Make.inc'):
-            spec = self.spec
-            makefiles = glob.glob('Makefile.inc.x86-64_pc_linux2*')
-            filter_file(r'^CCS\s*=.*$', 'CCS = cc', *makefiles)
-            filter_file(r'^CCD\s*=.*$', 'CCD = cc', *makefiles)
-            if spec.satisfies('%intel'):
-                call(["cp", "Makefile.inc.x86-64_pc_linux2.shlib", "Makefile.inc.x86-64_pc_linux2.shlib.icc"])
-                filter_file(r'^CLIBFLAGS\s*=.*$', 'CLIBFLAGS = -shared -fpic', *makefiles)
-            elif spec.satisfies('+shared'):
-                filter_file(r'^CLIBFLAGS\s*=.*$', 'CLIBFLAGS = -shared -fpic', *makefiles)
 
-            if spec.satisfies('+pthread'):
-                filter_file(r'-DCOMMON_PTHREAD', '-DSCOTCH_DETERMINISTIC -DCOMMON_PTHREAD -DCOMMON_PTHREAD_BARRIER -DCOMMON_TIMING_OLD', *makefiles)
-            else:
-                filter_file(r'-DCOMMON_PTHREAD', '-DSCOTCH_DETERMINISTIC -DCOMMON_TIMING_OLD', *makefiles)
-                filter_file(r'-DSCOTCH_PTHREAD', '', *makefiles)
+        makefile_inc = []
+        defines = [
+            '-DCOMMON_TIMING_OLD',
+            '-DCOMMON_RANDOM_FIXED_SEED',
+            '-DSCOTCH_DETERMINISTIC',
+            '-DSCOTCH_RENAME',
+            '-DIDXSIZE64' ]
 
-            if platform.system() == 'Darwin':
-                filter_file(r'-lrt', '', *makefiles)
+        self.library_build_type(makefile_inc, defines)
+        self.compiler_specifics(makefile_inc, defines)
+        self.extra_features(makefile_inc, defines)
+
+        makefile_inc.extend([
+            'EXE       =',
+            'OBJ       = .o',
+            'MAKE      = make',
+            'CAT       = cat',
+            'LN        = ln',
+            'MKDIR     = mkdir',
+            'MV        = mv',
+            'CP        = cp',
+            'CFLAGS    = -O3 %s' % (' '.join(defines)),
+            'LEX       = %s -Pscotchyy -olex.yy.c' % os.path.join(self.spec['flex'].prefix.bin , 'flex'),
+            'YACC      = %s -pscotchyy -y -b y' %    os.path.join(self.spec['bison'].prefix.bin, 'bison'),
+            'prefix    = %s' % self.prefix,
+            ''
+            ])
+
+        with working_dir('src'):
+            with open('Makefile.inc', 'w') as fh:
+                fh.write('\n'.join(makefile_inc))
 
     def install(self, spec, prefix):
 
         self.setup()
 
-        # Currently support gcc and icc on x86_64 (maybe others with
-        # vanilla makefile)
-        if spec.satisfies('@6:+shared'):
-            makefile = 'Make.inc/Makefile.inc.x86-64_pc_linux2.shlib'
-        else:
-            makefile = 'Make.inc/Makefile.inc.x86-64_pc_linux2'
-        if spec.satisfies('%intel'):
-            makefile += '.icc'
+        targets = ['scotch']
+        if '+mpi' in self.spec:
+            targets.append('ptscotch')
+
+        if '+esmumps' in self.spec:
+            targets.append('esmumps')
+            if '+mpi' in self.spec:
+                targets.append('ptesmumps')
 
         with working_dir('src'):
-            mf = FileFilter(makefile)
-            if spec.satisfies('+shared'):
-                mf.filter('CFLAGS\s*=', 'CFLAGS     = -fPIC')
-            if spec.satisfies('@5'):
-                mf.filter('LDFLAGS\s*=', 'LDFLAGS = -pthread ')
-            if spec.satisfies('+shared'):
-                mf.filter('^AR\s*=.*', 'AR=$(CC) ')
-                mf.filter('^ARFLAGS\s*=.*', 'ARFLAGS=-shared -o')
-                if platform.system() == 'Darwin':
-                    mf.filter('-shared -o', '-shared -undefined dynamic_lookup -o')
-                mf.filter('^RANLIB\s*=.*', 'RANLIB=echo')
-                if platform.system() == 'Darwin':
-                    mf.filter('^LIB\s*=.*', 'LIB=.dylib')
-                else:
-                    mf.filter('^LIB\s*=.*', 'LIB=.so')
-
-            force_symlink(makefile, 'Makefile.inc')
-            make('scotch')
-            if spec.satisfies('@6:') and spec.satisfies('+esmumps'):
-                make('esmumps')
-            if spec.satisfies('+mpi'):
-                make('ptscotch')
-                if spec.satisfies('@6:') and spec.satisfies('+esmumps'):
-                    make('ptesmumps',parallel=False)
+            for app in targets:
+                make(app, parallel=(not app=='ptesmumps'))
 
         install_tree('bin', prefix.bin)
         install_tree('lib', prefix.lib)
