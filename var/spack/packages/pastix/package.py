@@ -26,6 +26,7 @@ class Pastix(Package):
     variant('shared', default=True, description='Build Pastix as a shared library')
     variant('examples', default=False, description='Enable compilation and installation of example executables')
     variant('debug', default=False, description='Enable debug symbols')
+    variant('int64', default=False, description='to use 64 bits integers')
 
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
@@ -66,6 +67,13 @@ class Pastix(Package):
             mf.filter('#CCFDEB       := \$\{CCFDEB\} -fPIC', 'CCFDEB       := ${CCFDEB} -fPIC')
             mf.filter('#CCFOPT       := \$\{CCFOPT\} -fPIC', 'CCFOPT       := ${CCFOPT} -fPIC')
             mf.filter('#CFPROG       := \$\{CFPROG\} -fPIC', 'CFPROG       := ${CFPROG} -fPIC')
+
+        if spec.satisfies('+int64'):
+            mf.filter('#VERSIONINT  = _int64', 'VERSIONINT  = _int64')
+            mf.filter('#CCTYPES     = -DINTSSIZE64', 'CCTYPES     = -DINTSSIZE64')
+        else:
+            mf.filter('#VERSIONINT  = _int32', 'VERSIONINT  = _int32')
+            mf.filter('#CCTYPES     = -DINTSIZE32', 'CCTYPES     = -DINTSSIZE32')
 
         if not spec.satisfies('+mpi'):
             mf.filter('^#VERSIONMPI  = _nompi', 'VERSIONMPI  = _nompi')
