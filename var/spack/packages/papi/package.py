@@ -13,9 +13,10 @@ class Papi(Package):
        across the hardware and software stack."""
     homepage = "http://icl.cs.utk.edu/papi/index.html"
 
-    url      = "http://icl.cs.utk.edu/projects/papi/downloads/papi-5.4.1.tar.gz"
-    version('5.4.1', '9134a99219c79767a11463a76b0b01a2')
-    version('5.3.0', '367961dd0ab426e5ae367c2713924ffb')
+    version('5.4.1', '9134a99219c79767a11463a76b0b01a2',
+            url="http://icl.cs.utk.edu/projects/papi/downloads/papi-5.4.1.tar.gz")
+    version('5.3.0', '367961dd0ab426e5ae367c2713924ffb',
+            url="http://icl.cs.utk.edu/projects/papi/downloads/papi-5.3.0.tar.gz")
 
     pkg_dir = spack.db.dirname_for_package_name("papi")
     # fake tarball because we consider it is already installed

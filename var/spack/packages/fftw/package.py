@@ -36,9 +36,9 @@ class Fftw(Package):
     most applications.
     """
     homepage = "http://www.fftw.org"
-    url      = "http://www.fftw.org/fftw-3.3.4.tar.gz"
 
-    version('3.3.4', '2edab8c06b24feeb3b82bbb3ebf3e7b3')
+    version('3.3.4', '2edab8c06b24feeb3b82bbb3ebf3e7b3',
+            url="http://www.fftw.org/fftw-3.3.4.tar.gz")
 
     pkg_dir = spack.db.dirname_for_package_name("fftw")
     # fake tarball because we consider it is already installed

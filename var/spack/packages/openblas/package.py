@@ -6,9 +6,9 @@ import spack
 class Openblas(Package):
     """An optimized BLAS library based on GotoBLAS2 1.13 BSD version."""
     homepage = "http://www.openblas.net/"
-    url      = "http://github.com/xianyi/OpenBLAS/archive/v0.2.15.tar.gz"
 
-    version('0.2.15', 'b1190f3d3471685f17cfd1ec1d252ac9')
+    version('0.2.15', 'b1190f3d3471685f17cfd1ec1d252ac9',
+            url="http://github.com/xianyi/OpenBLAS/archive/v0.2.15.tar.gz")
     version('develop', git='https://github.com/xianyi/OpenBLAS.git', branch='develop')
 
     pkg_dir = spack.db.dirname_for_package_name("openblas")

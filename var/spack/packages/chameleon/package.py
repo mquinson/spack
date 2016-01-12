@@ -6,14 +6,15 @@ import spack
 class Chameleon(Package):
     """Dense Linear Algebra for Scalable Multi-core Architectures and GPGPUs"""
     homepage = "https://project.inria.fr/chameleon/"
-    url      = "http://morse.gforge.inria.fr/chameleon-0.9.1.tar.gz"
 
     # Install from sources
     if os.environ.has_key("SPACK_CHAMELEON_TAR"):
         version('custom', 'fa21b7c44daf34e540ed837a9263772d', url = "file://%s" % os.environ['SPACK_CHAMELEON_TAR'])
     else:
-        version('0.9.0', '67679f3376d4ac4575cc8433a3329abb')
-        version('0.9.1', 'fa21b7c44daf34e540ed837a9263772d')
+        version('0.9.0', '67679f3376d4ac4575cc8433a3329abb',
+                url = "http://morse.gforge.inria.fr/chameleon-0.9.0.tar.gz")
+        version('0.9.1', 'fa21b7c44daf34e540ed837a9263772d',
+                url = "http://morse.gforge.inria.fr/chameleon-0.9.1.tar.gz")
         version('trunk', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/chameleon')
         version('clusters', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/chameleon-clusters')
         version('external-prio', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/chameleon-external-prio')

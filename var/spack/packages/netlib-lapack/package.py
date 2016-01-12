@@ -13,14 +13,19 @@ class NetlibLapack(Package):
     use in the scientific community.
     """
     homepage = "http://www.netlib.org/lapack/"
-    url      = "http://www.netlib.org/lapack/lapack-3.6.0.tgz"
 
-    version('3.6.0', 'f2f6c67134e851fe189bb3ca1fbb5101')
-    version('3.5.0', 'b1d3e3e425b2e44a06760ff173104bdf')
-    version('3.4.2', '61bf1a8a4469d4bdb7604f5897179478')
-    version('3.4.1', '44c3869c38c8335c2b9c2a8bb276eb55')
-    version('3.4.0', '02d5706ec03ba885fc246e5fa10d8c70')
-    version('3.3.1', 'd0d533ec9a5b74933c2a1e84eedc58b4')
+    version('3.6.0', 'f2f6c67134e851fe189bb3ca1fbb5101',
+            url="http://www.netlib.org/lapack/lapack-3.6.0.tgz")
+    version('3.5.0', 'b1d3e3e425b2e44a06760ff173104bdf',
+            url="http://www.netlib.org/lapack/lapack-3.5.0.tgz")
+    version('3.4.2', '61bf1a8a4469d4bdb7604f5897179478',
+            url="http://www.netlib.org/lapack/lapack-3.4.2.tgz")
+    version('3.4.1', '44c3869c38c8335c2b9c2a8bb276eb55',
+            url="http://www.netlib.org/lapack/lapack-3.4.1.tgz")
+    version('3.4.0', '02d5706ec03ba885fc246e5fa10d8c70',
+            url="http://www.netlib.org/lapack/lapack-3.4.0.tgz")
+    version('3.3.1', 'd0d533ec9a5b74933c2a1e84eedc58b4',
+            url="http://www.netlib.org/lapack/lapack-3.3.1.tgz")
 
     pkg_dir = spack.db.dirname_for_package_name("netlib-lapack")
     # fake tarball because we consider it is already installed

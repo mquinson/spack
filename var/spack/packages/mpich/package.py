@@ -30,16 +30,21 @@ class Mpich(Package):
     """MPICH is a high performance and widely portable implementation of
        the Message Passing Interface (MPI) standard."""
     homepage = "http://www.mpich.org"
-    url      = "http://www.mpich.org/static/downloads/3.0.4/mpich-3.0.4.tar.gz"
     list_url   = "http://www.mpich.org/static/downloads/"
     list_depth = 2
 
-    version('3.1.4', '2ab544607986486562e076b83937bba2')
-    version('3.1.3', '93cb17f91ac758cbf9174ecb03563778')
-    version('3.1.2', '7fbf4b81dcb74b07ae85939d1ceee7f1')
-    version('3.1.1', '40dc408b1e03cc36d80209baaa2d32b7')
-    version('3.1', '5643dd176499bfb7d25079aaff25f2ec')
-    version('3.0.4', '9c5d5d4fe1e17dd12153f40bc5b6dbc0')
+    version('3.1.4', '2ab544607986486562e076b83937bba2',
+            url="http://www.mpich.org/static/downloads/3.1.4/mpich-3.1.4.tar.gz")
+    version('3.1.3', '93cb17f91ac758cbf9174ecb03563778',
+            url="http://www.mpich.org/static/downloads/3.1.3/mpich-3.1.3.tar.gz")
+    version('3.1.2', '7fbf4b81dcb74b07ae85939d1ceee7f1',
+            url="http://www.mpich.org/static/downloads/3.1.2/mpich-3.1.2.tar.gz")
+    version('3.1.1', '40dc408b1e03cc36d80209baaa2d32b7',
+            url="http://www.mpich.org/static/downloads/3.1.1/mpich-3.1.1.tar.gz")
+    version('3.1', '5643dd176499bfb7d25079aaff25f2ec',
+            url="http://www.mpich.org/static/downloads/3.1/mpich-3.1.tar.gz")
+    version('3.0.4', '9c5d5d4fe1e17dd12153f40bc5b6dbc0',
+            url="http://www.mpich.org/static/downloads/3.0.4/mpich-3.0.4.tar.gz")
 
     pkg_dir = spack.db.dirname_for_package_name("mpich")
     # fake tarball because we consider it is already installed

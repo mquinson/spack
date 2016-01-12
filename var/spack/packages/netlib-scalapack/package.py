@@ -7,12 +7,15 @@ import spack
 class NetlibScalapack(Package):
     """A library of high-performance linear algebra routines for parallel distributed memory machines."""
     homepage = "http://www.netlib.org/scalapack/"
-    url      = "http://www.netlib.org/scalapack/scalapack-2.0.0.tgz"
 
-    version('2.0.2', '2f75e600a2ba155ed9ce974a1c4b536f')
-    version('2.0.1', '17b8cde589ea0423afe1ec43e7499161')
-    version('2.0.0', '9e76ae7b291be27faaad47cfc256cbfe')
-    version('1.8.0', 'f4a3f3d7ef32029bd79ab8abcc026624')
+    version('2.0.2', '2f75e600a2ba155ed9ce974a1c4b536f',
+            url="http://www.netlib.org/scalapack/scalapack-2.0.2.tgz")
+    version('2.0.1', '17b8cde589ea0423afe1ec43e7499161',
+            url="http://www.netlib.org/scalapack/scalapack-2.0.1.tgz")
+    version('2.0.0', '9e76ae7b291be27faaad47cfc256cbfe',
+            url="http://www.netlib.org/scalapack/scalapack-2.0.0.tgz")
+    version('1.8.0', 'f4a3f3d7ef32029bd79ab8abcc026624',
+            url="http://www.netlib.org/scalapack/scalapack-1.8.0.tgz")
     version('trunk', svn='https://icl.cs.utk.edu/svn/scalapack-dev/scalapack/trunk')
 
     pkg_dir = spack.db.dirname_for_package_name("netlib-scalapack")

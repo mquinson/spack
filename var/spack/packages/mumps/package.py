@@ -6,11 +6,13 @@ import spack
 class Mumps(Package):
     """a MUltifrontal Massively Parallel sparse direct Solver."""
     homepage = "http://mumps.enseeiht.fr/"
-    url      = "http://mumps.enseeiht.fr/MUMPS_5.0.1.tar.gz"
 
-    version('4.10.0', '959e9981b606cd574f713b8422ef0d9f')
-    version('5.0.0', '3c6aeab847e9d775ca160194a9db2b75')
-    version('5.0.1', 'b477573fdcc87babe861f62316833db0')
+    version('4.10.0', '959e9981b606cd574f713b8422ef0d9f',
+            url="http://mumps.enseeiht.fr/MUMPS_4.10.0.tar.gz")
+    version('5.0.0', '3c6aeab847e9d775ca160194a9db2b75',
+            url="http://mumps.enseeiht.fr/MUMPS_5.0.0.tar.gz")
+    version('5.0.1', 'b477573fdcc87babe861f62316833db0',
+            url="http://mumps.enseeiht.fr/MUMPS_5.0.1.tar.gz")
 
     pkg_dir = spack.db.dirname_for_package_name("mumps")
     # fake tarball because we consider it is already installed

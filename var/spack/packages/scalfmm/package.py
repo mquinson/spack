@@ -5,10 +5,11 @@ import spack
 class Scalfmm(Package):
     """a software library to simulate N-body interactions using the Fast Multipole Method."""
     homepage = "http://scalfmm-public.gforge.inria.fr/doc/"
-    url      = "https://gforge.inria.fr/frs/download.php/file/34672/SCALFMM-1.3-56.tar.gz"
 
-    version('1.4-148', '666ba8fef226630a2c22df8f0f93ff9c')
-    version('1.3-56', '666ba8fef226630a2c22df8f0f93ff9c')
+    version('1.4-148', '26ee5f58103992be9080b74377f095ff',
+            url="https://gforge.inria.fr/frs/download.php/file/35369/SCALFMM-1.4-148.tar.gz")
+    version('1.3-56', '666ba8fef226630a2c22df8f0f93ff9c',
+            url="https://gforge.inria.fr/frs/download.php/file/34672/SCALFMM-1.3-56.tar.gz")
     version('master', git='https://scm.gforge.inria.fr/anonscm/git/scalfmm-public/scalfmm-public.git')
 
     pkg_dir = spack.db.dirname_for_package_name("scalfmm")

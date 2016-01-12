@@ -6,7 +6,8 @@ class Quark(Package):
     homepage = "http://icl.cs.utk.edu/quark/index.html"
     url      = "http://icl.cs.utk.edu/projectsfiles/quark/pubs/quark-0.9.0.tgz"
 
-    version('0.9.0', '52066a24b21c390d2f4fb3b57e976d08')
+    version('0.9.0', '52066a24b21c390d2f4fb3b57e976d08',
+            url="http://icl.cs.utk.edu/projectsfiles/quark/pubs/quark-0.9.0.tgz")
 
     pkg_dir = spack.db.dirname_for_package_name("quark")
     # fake tarball because we consider it is already installed

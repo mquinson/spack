@@ -7,7 +7,6 @@ import spack
 class Hips(Package):
     """Hierarchical Iterative Parallel Solver."""
     homepage = "http://hips.gforge.inria.fr/index.html"
-    url      = "http://hips.gforge.inria.fr/release/hips-1.0.tar.gz"
 
     version('1.2b-rc5', '385f66475eb77e3dce27c6a9a53232e8',
             url='http://hips.gforge.inria.fr/release/hips-1.2b-rc5.tar.gz')

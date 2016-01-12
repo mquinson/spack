@@ -14,7 +14,6 @@ class Pampa(Package):
           OR SET SHELL VAR "GFORGE_USERNAME" TO YOUR GFORGE ACCOUNT NAME"""
 
     homepage = "http://gforge.inria.fr/projects/pampa-p/"
-    url      = "http://www.example.com/pampa-1.0.tar.gz"
 
     try:
         username = os.environ['PAMPA_USERNAME']

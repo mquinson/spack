@@ -5,10 +5,11 @@ import spack
 class Plasma(Package):
     """Parallel Linear Algebra for Scalable Multi-core Architectures."""
     homepage = "http://icl.cs.utk.edu/plasma/"
-    url      = "http://icl.cs.utk.edu/projectsfiles/plasma/pubs/plasma_2.7.1.tar.gz"
 
-    version('2.7.1', 'c3deb85ccf10e6eaac9f0ba663702805')
-    version('2.7.0', '8fcdfaf36832ab98e59b8299263999ca')
+    version('2.7.1', 'c3deb85ccf10e6eaac9f0ba663702805',
+            url="http://icl.cs.utk.edu/projectsfiles/plasma/pubs/plasma_2.7.1.tar.gz")
+    version('2.7.0', '8fcdfaf36832ab98e59b8299263999ca',
+            url="http://icl.cs.utk.edu/projectsfiles/plasma/pubs/plasma_2.7.0.tar.gz")
 
     pkg_dir = spack.db.dirname_for_package_name("plasma")
     # fake tarball because we consider it is already installed

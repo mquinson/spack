@@ -8,7 +8,6 @@ import spack
 class Maphys(Package):
     """a Massively Parallel Hybrid Solver."""
     homepage = "https://project.inria.fr/maphys/"
-    url      = "http://maphys.gforge.inria.fr/maphys_0.9.3.tar.gz"
 
     version('0.9.3', 'f52ff32079991163c8905307ce8b8a79',
             url='http://maphys.gforge.inria.fr/maphys_0.9.3.tar.gz')

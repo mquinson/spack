@@ -12,7 +12,6 @@ class Metis(Package):
        multilevel k-way, and multi-constraint partitioning schemes."""
 
     homepage = "http://glaros.dtc.umn.edu/gkhome/metis/metis/overview"
-    url      = "http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-5.1.0.tar.gz"
 
     version('5.1.0', '5465e67079419a69e0116de24fce58fe',
             url='http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-5.1.0.tar.gz')

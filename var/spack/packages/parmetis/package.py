@@ -7,9 +7,9 @@ class Parmetis(Package):
        meshes, and for computing fill-reducing orderings of sparse
        matrices."""
     homepage = "http://glaros.dtc.umn.edu/gkhome/metis/parmetis/overview"
-    url      = "http://glaros.dtc.umn.edu/gkhome/fetch/sw/parmetis/parmetis-4.0.3.tar.gz"
 
-    version('4.0.3', 'f69c479586bf6bb7aff6a9bc0c739628')
+    version('4.0.3', 'f69c479586bf6bb7aff6a9bc0c739628',
+            url="http://glaros.dtc.umn.edu/gkhome/fetch/sw/parmetis/parmetis-4.0.3.tar.gz")
 
     pkg_dir = spack.db.dirname_for_package_name("parmetis")
     # fake tarball because we consider it is already installed
