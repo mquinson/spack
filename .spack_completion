@@ -1,0 +1,35 @@
+_spack()
+{
+    local cur prev words cword
+    _init_completion -n = || return
+
+    case "$prev" in
+        install)
+            COMPREPLY=( $( compgen -W '-h -i -j -n -v $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+            return
+            ;;
+        mirror)
+            COMPREPLY=( $( compgen -W 'create add remove list' -- "$cur" ) )
+            return
+            ;; 
+        spec)
+            COMPREPLY=( $( compgen -W '-h -i $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+            return
+            ;;
+        uninstall)
+            COMPREPLY=( $( compgen -W ' -h --help -f --force -a --all' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    _filedir
+        local cur
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        COMPREPLY=($( compgen -W 'activate  arch bootstrap cd checksum clean compiler compilers config create deactivate dependents diy doc edit  env extensions fetch find graph help info install list load location md5 mirror module package-listpatch pkg providers purge python reindex restage spec stage test test-install uninstall unload unuse url-parse urls use versions ' -- $cur ))
+}
+complete -F _spack spack
+
+
+  
