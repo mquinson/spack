@@ -6,10 +6,11 @@ import spack
 class Suitesparse(Package):
     """a suite of sparse matrix algorithms."""
     homepage = "http://faculty.cse.tamu.edu/davis/suitesparse.html"
-    url      = "http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz"
 
-    version('4.4.6', '131a3a5e2dee784cd946284e44ce9af2')
-    version('4.4.5', 'a2926c27f8a5285e4a10265cc68bbc18')
+    version('4.4.6', '131a3a5e2dee784cd946284e44ce9af2',
+            url = "http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.6.tar.gz")
+    version('4.4.5', 'a2926c27f8a5285e4a10265cc68bbc18',
+            url = "http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz")
 
     pkg_dir = spack.db.dirname_for_package_name("suitesparse")
     # fake tarball because we consider it is already installed
