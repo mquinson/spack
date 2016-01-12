@@ -28,22 +28,29 @@ class Hmat(Package):
     depends_on("cblas")
     depends_on("blas")
     depends_on("lapack")
+    depends_on("scotch@6.0.3")
 
     def patch(self):
         # get hmat-oss
-        check_call(["git" , "submodule" , "update", "--init"])
+        if os.environ.has_key("SPACK_HMAT_TAR"):
+            check_call(["tar" , "xvf" , os.environ['SPACK_HMAT_TAR'] ])
+        else:
+            check_call(["git" , "submodule" , "update", "--init"])
 
     def install(self, spec, prefix):
-        check_call(["git" , "submodule" , "update"])
 
         with working_dir('build', create=True):
+            scotch = spec['scotch'].prefix
 
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
             cmake_args+=[
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
-                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
+                "-DSCOTCH_INCLUDE_DIRS="+ scotch.include,
+                "-DSCOTCH_LIBRARY_DIRS="+ scotch.lib,
+                ]
 
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DBUILD_EXAMPLES:BOOL=ON"])
@@ -55,7 +62,7 @@ class Hmat(Package):
 
             cmake_args.extend(["-DMKL_DETECT=OFF"])
 
-            if '^mkl-cblas' in spec or '^mkl-lapack' in spec:
+            if '^mkl-blas' in spec or '^mkl-lapack' in spec:
                 cmake_args.extend(["-DMKL_FOUND=ON"])
                 mklblas = spec['mkl-blas'].prefix
                 cmake_args.extend(["-DMKL_LIBRARY_DIRS=%s" % mklblas.lib])

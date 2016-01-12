@@ -28,6 +28,7 @@ class Mpf(Package):
     depends_on("blas")
     depends_on("lapack")
     depends_on("metis", when="+metis")
+    depends_on("scotch +esmumps")
     depends_on("mumps +scotch")
     depends_on("pastix+mpi")
     depends_on("hmat")
@@ -123,7 +124,7 @@ class Mpf(Package):
 
             mklroot = os.environ['MKLROOT']
             if mklroot:
-                cmake_args.extend(["-DMKL_LIBRARIES=mkl_blacs_lp64;mkl_scalapack_lp64;mkl_intel_lp64;mkl_core;mkl_gnu_thread;"])
+                cmake_args.extend(["-DMKL_LIBRARIES=mkl_scalapack_lp64;mkl_intel_lp64;mkl_core;mkl_gnu_thread;mkl_blacs_lp64;"])
                 
                 # problem with static library blacs... 
                 mf = FileFilter(project_dir + '/as-make/CMake/FindMKL.cmake')
