@@ -30,6 +30,7 @@ class Scotch(Package):
     variant('compression', default=True, description='Activate the posibility to use compressed files')
     variant('esmumps', default=False, description='Activate the compilation of the lib esmumps needed by mumps')
     variant('shared', default=True, description='Build shared libraries')
+    variant('int64', default=False, description='to use 64 bits integers')
 
     depends_on('mpi', when='+mpi')
     depends_on('zlib', when='+compression')
@@ -133,6 +134,9 @@ class Scotch(Package):
             defines.append('-DCOMMON_PTHREAD')
             defines.append('-DCOMMON_PTHREAD_BARRIER')
 
+        if self.spec.satisfies('+int64'):
+            defines.append('-DIDXSIZE64')
+
         if platform.system() == 'Darwin':
             ldflags.append('-lm -pthread')
         else:
@@ -150,8 +154,8 @@ class Scotch(Package):
             '-DCOMMON_TIMING_OLD',
             '-DCOMMON_RANDOM_FIXED_SEED',
             '-DSCOTCH_DETERMINISTIC',
-            '-DSCOTCH_RENAME',
-            '-DIDXSIZE64' ]
+            '-DSCOTCH_RENAME'
+            ]
 
         self.library_build_type(makefile_inc, defines)
         self.compiler_specifics(makefile_inc, defines)
