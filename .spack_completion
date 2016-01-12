@@ -4,32 +4,101 @@ _spack()
     _init_completion -n = || return
 
     case "$prev" in
-        install)
-            COMPREPLY=( $( compgen -W '-h -i -j -n -v $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
-            return
-            ;;
-        mirror)
-            COMPREPLY=( $( compgen -W 'create add remove list' -- "$cur" ) )
-            return
-            ;; 
-        spec)
-            COMPREPLY=( $( compgen -W '-h -i $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
-            return
-            ;;
-        uninstall)
-            COMPREPLY=( $( compgen -W ' -h --help -f --force -a --all' -- "$cur" ) )
-            return
-            ;;
+	cd)
+	    COMPREPLY=( $( compgen -W '-h -m -r -i -p -P -s -S -b' -- "$cur" ) )
+	    return
+	    ;;
+	checksum)
+	    COMPREPLY=( $( compgen -W '-h --keep-stage' -- "$cur" ) )
+	    return
+	    ;;
+	compiler)
+	    COMPREPLY=( $( compgen -W 'add remove list info' -- "$cur" ) )
+	    return
+	    ;;
+	config)
+	    COMPREPLY=( $( compgen -W 'get edit' -- "$cur" ) )
+	    return
+	    ;;
+	create)
+	    COMPREPLY=( $( compgen -W '-h --keep-stage -n -f' -- "$cur" ) )
+	    return
+	    ;;
+	deactivate)
+	    COMPREPLY=( $( compgen -W '-h -f -a' -- "$cur" ) )
+	    return
+	    ;;
+	edit)
+	    COMPREPLY=( $( compgen -W '-h -f -c $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    return
+	    ;;
+	extensions)
+	    COMPREPLY=( $( compgen -W '-h -l -p -d' -- "$cur" ) )
+	    return
+	    ;;
+	fetch)
+	    COMPREPLY=( $( compgen -W '-h -n -m -D' -- "$cur" ) )
+	    return
+	    ;;
+	find)
+	    COMPREPLY=( $( compgen -W '-h -p -d -l -L -u -m -M' -- "$cur" ) )
+	    return
+	    ;;
+	graph)
+	    COMPREPLY=( $( compgen -W '-h --ascii --dot --concretize' -- "$cur" ) )
+	    return
+	    ;;
+	info)
+	    COMPREPLY=( $( compgen -W '$(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    return
+	    ;;
+	install)
+	    COMPREPLY=( $( compgen -W '-h -i -j -n -v $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    return
+	    ;;
+	list)
+	    COMPREPLY=( $( compgen -W '-h -i' -- "$cur" ) )
+	    return
+	    ;;
+	location)
+	    COMPREPLY=( $( compgen -W '-h -m -r -i -p -P -s -S -b' -- "$cur" ) )
+	    return
+	    ;;
+	mirror)
+	    COMPREPLY=( $( compgen -W 'create add remove list' -- "$cur" ) )
+	    return
+	    ;;
+	module)
+	    COMPREPLY=( $( compgen -W 'refresh find' -- "$cur" ) )
+	    return
+	    ;;
+	patch)
+	    COMPREPLY=( $( compgen -W '-h -n' -- "$cur" ) )
+	    return
+	    ;;
+	spec)
+	    COMPREPLY=( $( compgen -W '-h -i $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    return
+	    ;;
+	stage)
+	    COMPREPLY=( $( compgen -W '-h -n $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    return
+	    ;;
+	uninstall)
+	    COMPREPLY=( $( compgen -W ' -h --help -f --force -a --all' -- "$cur" ) )
+	    return
+	    ;;
+	versions)
+	    COMPREPLY=( $( compgen -W ' -h $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    return
+	    ;;
     esac
 
     _filedir
-        local cur
+	local cur
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
-        COMPREPLY=($( compgen -W 'activate  arch bootstrap cd checksum clean compiler compilers config create deactivate dependents diy doc edit  env extensions fetch find graph help info install list load location md5 mirror module package-listpatch pkg providers purge python reindex restage spec stage test test-install uninstall unload unuse url-parse urls use versions ' -- $cur ))
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=($( compgen -W 'activate  arch bootstrap cd checksum clean compiler compilers config create deactivate dependents diy doc edit  env extensions fetch find graph help info install list load location md5 mirror module package-listpatch pkg providers purge python reindex restage spec stage test test-install uninstall unload unuse url-parse urls use versions ' -- $cur ))
 }
 complete -F _spack spack
-
-
-  
