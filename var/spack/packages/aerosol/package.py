@@ -14,7 +14,6 @@ class Aerosol(Package):
           OR SET SHELL VAR "GFORGE_USERNAME" TO YOUR GFORGE ACCOUNT NAME"""
 
     homepage = "https://gforge.inria.fr/projects/aerosol-p/"
-    url      = "http://www.dontexist.com/aerosol-0.0.0.tar.gz"
 
     try:
         username = os.environ['GFORGE_USERNAME']
