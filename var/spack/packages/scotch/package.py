@@ -79,14 +79,16 @@ class Scotch(Package):
     def compiler_specifics(self, makefile_inc, defines):
         if self.compiler.name == 'gcc':
             defines.append('-Drestrict=__restrict')
+            mpicc = "mpicc"
         elif self.compiler.name == 'intel':
             defines.append('-restrict')
+            mpicc = "mpiicc"
 
         makefile_inc.append('CCS       = $(CC)')
 
         if '+mpi' in self.spec:
             makefile_inc.extend([
-                    'CCP       = %s' % os.path.join(self.spec['mpi'].prefix.bin, 'mpicc'),
+                    'CCP       = %s' % os.path.join(self.spec['mpi'].prefix.bin, '%s' % mpicc),
                     'CCD       = $(CCP)'
                     ])
         else:
