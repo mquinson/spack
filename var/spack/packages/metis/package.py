@@ -2,6 +2,7 @@ from spack import *
 import os
 import platform
 from subprocess import call
+import spack
 
 class Metis(Package):
     """METIS is a set of serial programs for partitioning graphs,
@@ -17,6 +18,11 @@ class Metis(Package):
             url='http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-5.1.0.tar.gz')
     version('4.0.3', 'd3848b454532ef18dc83e4fb160d1e10',
             url='http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/OLD/metis-4.0.3.tar.gz')
+
+    pkg_dir = spack.db.dirname_for_package_name("metis")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     depends_on('cmake')
     depends_on('mpi', when='@5:')
@@ -77,3 +83,17 @@ class Metis(Package):
                     install('libmetis.so', prefix.lib)
             else:
                 install('libmetis.a', prefix.lib)
+
+    # to use the existing version available in the environment: METIS_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('METIS_DIR'):
+            metisroot=os.environ['METIS_DIR']
+            if os.path.isdir(metisroot):
+                os.symlink(metisroot+"/bin", prefix.bin)
+                os.symlink(metisroot+"/include", prefix.include)
+                os.symlink(metisroot+"/lib", prefix.lib)
+            else:
+                sys.exit(metisroot+' directory does not exist.'+' Do you really have openmpi installed in '+metisroot+' ?')
+        else:
+            sys.exit('METIS_DIR is not set, you must set this environment variable to the installation path of your metis')

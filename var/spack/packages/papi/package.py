@@ -1,5 +1,6 @@
 from spack import *
 import os
+import spack
 
 class Papi(Package):
     """PAPI provides the tool designer and application engineer with a
@@ -16,6 +17,11 @@ class Papi(Package):
     version('5.4.1', '9134a99219c79767a11463a76b0b01a2')
     version('5.3.0', '367961dd0ab426e5ae367c2713924ffb')
 
+    pkg_dir = spack.db.dirname_for_package_name("papi")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+
     def install(self, spec, prefix):
         os.chdir("src/")
 
@@ -31,3 +37,16 @@ class Papi(Package):
         make()
         make("install")
 
+    # to use the existing version available in the environment: PAPI_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('PAPI_DIR'):
+            papiroot=os.environ['PAPI_DIR']
+            if os.path.isdir(papiroot):
+                os.symlink(papiroot+"/bin", prefix.bin)
+                os.symlink(papiroot+"/include", prefix.include)
+                os.symlink(papiroot+"/lib", prefix.lib)
+            else:
+                sys.exit(papiroot+' directory does not exist.'+' Do you really have openmpi installed in '+papiroot+' ?')
+        else:
+            sys.exit('PAPI_DIR is not set, you must set this environment variable to the installation path of your papi')

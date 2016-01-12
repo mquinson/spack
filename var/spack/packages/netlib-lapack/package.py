@@ -1,6 +1,8 @@
 from spack import *
 import os
 import platform
+import spack
+
 class NetlibLapack(Package):
     """
     LAPACK version 3.X is a comprehensive FORTRAN library that does
@@ -19,6 +21,11 @@ class NetlibLapack(Package):
     version('3.4.1', '44c3869c38c8335c2b9c2a8bb276eb55')
     version('3.4.0', '02d5706ec03ba885fc246e5fa10d8c70')
     version('3.3.1', 'd0d533ec9a5b74933c2a1e84eedc58b4')
+
+    pkg_dir = spack.db.dirname_for_package_name("netlib-lapack")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('shared', default=True, description="Build shared library version")
 
@@ -66,3 +73,17 @@ class NetlibLapack(Package):
         cmake(*cmake_args)
         make()
         make("install")
+
+    # to use the existing version available in the environment: LAPACK_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('LAPACK_DIR'):
+            netliblapackroot=os.environ['LAPACK_DIR']
+            if os.path.isdir(netliblapackroot):
+                os.symlink(netliblapackroot+"/bin", prefix.bin)
+                os.symlink(netliblapackroot+"/include", prefix.include)
+                os.symlink(netliblapackroot+"/lib", prefix.lib)
+            else:
+                sys.exit(netliblapackroot+' directory does not exist.'+' Do you really have openmpi installed in '+netliblapackroot+' ?')
+        else:
+            sys.exit('LAPACK_DIR is not set, you must set this environment variable to the installation path of your netlib-lapack')

@@ -1,6 +1,7 @@
 from spack import *
 import os
 import platform
+import spack
 
 class Pastix(Package):
     """a high performance parallel solver for very large sparse linear systems based on direct methods"""
@@ -12,6 +13,11 @@ class Pastix(Package):
             url='https://gforge.inria.fr/frs/download.php/file/35070/pastix_5.2.2.22.tar.bz2')
     version('master', git='https://scm.gforge.inria.fr/anonscm/git/ricar/ricar.git', branch='master')
     version('develop', git='https://scm.gforge.inria.fr/anonscm/git/ricar/ricar.git', branch='develop')
+
+    pkg_dir = spack.db.dirname_for_package_name("pastix")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('mpi', default=False, description='Enable MPI')
     variant('cuda', default=False, description='Enable CUDA kernels. Caution: only available if StarPU variant is enabled')
@@ -137,3 +143,17 @@ class Pastix(Package):
             # examples are not installed by default
             if spec.satisfies('+examples'):
                 install_tree('example/bin', '%s/lib/pastix/examples' % prefix)
+
+    # to use the existing version available in the environment: PASTIX_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('PASTIX_DIR'):
+            pastixroot=os.environ['PASTIX_DIR']
+            if os.path.isdir(pastixroot):
+                os.symlink(pastixroot+"/bin", prefix.bin)
+                os.symlink(pastixroot+"/include", prefix.include)
+                os.symlink(pastixroot+"/lib", prefix.lib)
+            else:
+                sys.exit(pastixroot+' directory does not exist.'+' Do you really have openmpi installed in '+pastixroot+' ?')
+        else:
+            sys.exit('PASTIX_DIR is not set, you must set this environment variable to the installation path of your pastix')

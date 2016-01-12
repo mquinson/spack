@@ -1,6 +1,7 @@
 from spack import *
 import os
 import platform
+import spack
 
 class NetlibBlas(Package):
     """Netlib reference BLAS"""
@@ -9,6 +10,11 @@ class NetlibBlas(Package):
 
     version('3.6.0', 'f2f6c67134e851fe189bb3ca1fbb5101')
     version('3.5.0', 'b1d3e3e425b2e44a06760ff173104bdf')
+
+    pkg_dir = spack.db.dirname_for_package_name("netlib-blas")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     # virtual dependency
     provides('blas')
@@ -50,3 +56,17 @@ class NetlibBlas(Package):
         cmake(*cmake_args)
         make()
         make("install")
+
+    # to use the existing version available in the environment: BLAS_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('BLAS_DIR'):
+            netlibblasroot=os.environ['BLAS_DIR']
+            if os.path.isdir(netlibblasroot):
+                os.symlink(netlibblasroot+"/bin", prefix.bin)
+                os.symlink(netlibblasroot+"/include", prefix.include)
+                os.symlink(netlibblasroot+"/lib", prefix.lib)
+            else:
+                sys.exit(netlibblasroot+' directory does not exist.'+' Do you really have openmpi installed in '+netlibblasroot+' ?')
+        else:
+            sys.exit('BLAS_DIR is not set, you must set this environment variable to the installation path of your netlib-blas')

@@ -1,5 +1,6 @@
 from spack import *
 import os
+import spack
 
 class Plasma(Package):
     """Parallel Linear Algebra for Scalable Multi-core Architectures."""
@@ -8,6 +9,11 @@ class Plasma(Package):
 
     version('2.7.1', 'c3deb85ccf10e6eaac9f0ba663702805')
     version('2.7.0', '8fcdfaf36832ab98e59b8299263999ca')
+
+    pkg_dir = spack.db.dirname_for_package_name("plasma")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     depends_on("hwloc")
     depends_on("cblas")
@@ -72,3 +78,17 @@ class Plasma(Package):
         # examples are not installed by default
         install_tree('testing', '%s/lib/plasma/testing' % prefix)
         install_tree('timing', '%s/lib/plasma/timing' % prefix)
+
+    # to use the existing version available in the environment: PLASMA_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('PLASMA_DIR'):
+            plasmaroot=os.environ['PLASMA_DIR']
+            if os.path.isdir(plasmaroot):
+                os.symlink(plasmaroot+"/bin", prefix.bin)
+                os.symlink(plasmaroot+"/include", prefix.include)
+                os.symlink(plasmaroot+"/lib", prefix.lib)
+            else:
+                sys.exit(plasmaroot+' directory does not exist.'+' Do you really have openmpi installed in '+plasmaroot+' ?')
+        else:
+            sys.exit('PLASMA_DIR is not set, you must set this environment variable to the installation path of your plasma')

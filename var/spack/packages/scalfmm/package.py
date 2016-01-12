@@ -1,5 +1,6 @@
 from spack import *
 import os
+import spack
 
 class Scalfmm(Package):
     """a software library to simulate N-body interactions using the Fast Multipole Method."""
@@ -9,6 +10,11 @@ class Scalfmm(Package):
     version('1.4-148', '666ba8fef226630a2c22df8f0f93ff9c')
     version('1.3-56', '666ba8fef226630a2c22df8f0f93ff9c')
     version('master', git='https://scm.gforge.inria.fr/anonscm/git/scalfmm-public/scalfmm-public.git')
+
+    pkg_dir = spack.db.dirname_for_package_name("scalfmm")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('sse', default=True, description='Enable SSE')
     #variant('blas', default=False, description='Enable BLAS')
@@ -80,3 +86,17 @@ class Scalfmm(Package):
             cmake(*cmake_args)
             make()
             make("install")
+
+    # to use the existing version available in the environment: SCALFMM_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('SCALFMM_DIR'):
+            scalfmmroot=os.environ['SCALFMM_DIR']
+            if os.path.isdir(scalfmmroot):
+                os.symlink(scalfmmroot+"/bin", prefix.bin)
+                os.symlink(scalfmmroot+"/include", prefix.include)
+                os.symlink(scalfmmroot+"/lib", prefix.lib)
+            else:
+                sys.exit(scalfmmroot+' directory does not exist.'+' Do you really have openmpi installed in '+scalfmmroot+' ?')
+        else:
+            sys.exit('SCALFMM_DIR is not set, you must set this environment variable to the installation path of your scalfmm')

@@ -1,6 +1,7 @@
 from spack import *
 import os
 import getpass
+import spack
 
 class Pampa(Package):
     """PaMPA is a middleware that manages distributed meshes. It allows
@@ -22,6 +23,11 @@ class Pampa(Package):
 
     version('svn-head', svn='https://scm.gforge.inria.fr/authscm/' + username + '/svn/pampa-p/trunk')
 
+    pkg_dir = spack.db.dirname_for_package_name("pampa")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+
     depends_on('cmake')
     depends_on('mpi')
     depends_on('scotch@6.0.0:6.0.3 +mpi ~pthread')
@@ -42,3 +48,17 @@ class Pampa(Package):
 
             #install
             make("install")
+
+    # to use the existing version available in the environment: PAMPA_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('PAMPA_DIR'):
+            pamparoot=os.environ['PAMPA_DIR']
+            if os.path.isdir(pamparoot):
+                os.symlink(pamparoot+"/bin", prefix.bin)
+                os.symlink(pamparoot+"/include", prefix.include)
+                os.symlink(pamparoot+"/lib", prefix.lib)
+            else:
+                sys.exit(pamparoot+' directory does not exist.'+' Do you really have openmpi installed in '+pamparoot+' ?')
+        else:
+            sys.exit('PAMPA_DIR is not set, you must set this environment variable to the installation path of your pampa')

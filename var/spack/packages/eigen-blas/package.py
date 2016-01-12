@@ -1,6 +1,7 @@
 from spack import *
 import os
 import platform
+import spack
 
 class EigenBlas(Package):
     """Eigen BLAS"""
@@ -11,6 +12,11 @@ class EigenBlas(Package):
     version('3.3-alpha1', 'b49260a4cac64f829bf5396c2150360e')
     version('3.2.7', 'cc1bacbad97558b97da6b77c9644f184')
     version('hg-default', hg='https://bitbucket.org/eigen/eigen/')
+
+    pkg_dir = spack.db.dirname_for_package_name("eigen-blas")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     # virtual dependency
     provides('blas')
@@ -54,3 +60,17 @@ class EigenBlas(Package):
         blaslibname="libeigen_blas%s" % libext
         mkdirp('%s/lib'%prefix)
         install('spack-build/blas/%s'%eigenblaslibname, '%s/lib/%s'%(prefix, blaslibname))
+
+    # to use the existing version available in the environment: BLAS_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('BLAS_DIR'):
+            eigenblasroot=os.environ['BLAS_DIR']
+            if os.path.isdir(eigenblasroot):
+                os.symlink(eigenblasroot+"/bin", prefix.bin)
+                os.symlink(eigenblasroot+"/include", prefix.include)
+                os.symlink(eigenblasroot+"/lib", prefix.lib)
+            else:
+                sys.exit(eigenblasroot+' directory does not exist.'+' Do you really have openmpi installed in '+eigenblasroot+' ?')
+        else:
+            sys.exit('BLAS_DIR is not set, you must set this environment variable to the installation path of your eigenblas')

@@ -7,7 +7,7 @@ class Aerosol(Package):
     """Aerosol is a high order Finite Element C++ library. It requires an MPI
        implementation, Pampa (therefore also Scotch), BLAS or Eigen3/IMKL,
        libXML2 and can also utilize HDF5 and PAPI.
-       
+
        As there is no publically released version of aerosol yet, this package
        requires the user has access to Aerosol's repository on gforge.
           PLEASE MAKE SURE YOUR USERNAME MATCHES YOUR GFORGE ACCOUNT NAME 
@@ -24,6 +24,9 @@ class Aerosol(Package):
     version('svn-head', svn='https://scm.gforge.inria.fr/authscm/' + username + '/svn/aerosol-p/trunk')
 
     pkg_dir = spack.db.dirname_for_package_name("aerosol")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('papi', default=True, description='Enable PAPI usage')
     variant('hdf5', default=True, description='Enable IO using parallel HDF5')
@@ -63,3 +66,17 @@ class Aerosol(Package):
 
             #install
             make("install")
+
+    # to use the existing version available in the environment: AEROSOL_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('AEROSOL_DIR'):
+            aerosolroot=os.environ['AEROSOL_DIR']
+            if os.path.isdir(aerosolroot):
+                os.symlink(aerosolroot+"/bin", prefix.bin)
+                os.symlink(aerosolroot+"/include", prefix.include)
+                os.symlink(aerosolroot+"/lib", prefix.lib)
+            else:
+                sys.exit(aerosolroot+' directory does not exist.'+' Do you really have openmpi installed in '+aerosolroot+' ?')
+        else:
+            sys.exit('AEROSOL_DIR is not set, you must set this environment variable to the installation path of your aerosol')

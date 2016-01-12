@@ -1,6 +1,7 @@
 from spack import *
 import os
-import platform 
+import platform
+import spack
 
 class NetlibCblas(Package):
     """The BLAS (Basic Linear Algebra Subprograms) are routines that
@@ -12,6 +13,11 @@ class NetlibCblas(Package):
     # tarball has no version, but on the date below, this MD5 was correct.
     version('2015-06-06', '1e8830f622d2112239a4a8a83b84209a',
             url='http://www.netlib.org/blas/blast-forum/cblas.tgz')
+
+    pkg_dir = spack.db.dirname_for_package_name("netlib-cblas")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('shared', default=True, description='Build CBLAS as a shared library')
 
@@ -71,3 +77,17 @@ class NetlibCblas(Package):
             install('./lib/cblas_LINUX.a', '%s/libcblas.a' % prefix.lib)
         install('./include/cblas.h','%s' % prefix.include)
         install('./include/cblas_f77.h','%s' % prefix.include)
+
+    # to use the existing version available in the environment: CBLAS_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('CBLAS_DIR'):
+            netlibcblasroot=os.environ['CBLAS_DIR']
+            if os.path.isdir(netlibcblasroot):
+                os.symlink(netlibcblasroot+"/bin", prefix.bin)
+                os.symlink(netlibcblasroot+"/include", prefix.include)
+                os.symlink(netlibcblasroot+"/lib", prefix.lib)
+            else:
+                sys.exit(netlibcblasroot+' directory does not exist.'+' Do you really have openmpi installed in '+netlibcblasroot+' ?')
+        else:
+            sys.exit('CBLAS_DIR is not set, you must set this environment variable to the installation path of your netlib-cblas')

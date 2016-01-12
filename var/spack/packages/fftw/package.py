@@ -25,6 +25,7 @@
 
 
 from spack import *
+import spack
 
 
 class Fftw(Package):
@@ -38,6 +39,11 @@ class Fftw(Package):
     url      = "http://www.fftw.org/fftw-3.3.4.tar.gz"
 
     version('3.3.4', '2edab8c06b24feeb3b82bbb3ebf3e7b3')
+
+    pkg_dir = spack.db.dirname_for_package_name("fftw")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     ##########
     # Floating point precision
@@ -94,3 +100,16 @@ class Fftw(Package):
         make()
         make("install")
 
+    # to use the existing version available in the environment: FFTW_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('FFTW_DIR'):
+            fftwroot=os.environ['FFTW_DIR']
+            if os.path.isdir(fftwroot):
+                os.symlink(fftwroot+"/bin", prefix.bin)
+                os.symlink(fftwroot+"/include", prefix.include)
+                os.symlink(fftwroot+"/lib", prefix.lib)
+            else:
+                sys.exit(fftwroot+' directory does not exist.'+' Do you really have openmpi installed in '+fftwroot+' ?')
+        else:
+            sys.exit('FFTW_DIR is not set, you must set this environment variable to the installation path of your fftw')

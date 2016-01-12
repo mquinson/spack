@@ -1,6 +1,7 @@
 from spack import *
 import subprocess
 import os
+import spack
 
 class Eztrace(Package):
     """a tool that aims at generating automatically execution trace from HPC."""
@@ -12,6 +13,11 @@ class Eztrace(Package):
     version('1.0.6', 'd613ab7caf28d3ce61d5aad39b76f324',
             url='http://gforge.inria.fr/frs/download.php/file/34082/eztrace-1.0.6.tar.gz')
     version('master', git='https://scm.gforge.inria.fr/anonscm/git/eztrace/eztrace.git', branch='master')
+
+    pkg_dir = spack.db.dirname_for_package_name("eztrace")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('mpi', default=False, description='Enable MPI')
     variant('papi', default=False, description='Enable papi, a hardware counter software')
@@ -40,3 +46,17 @@ class Eztrace(Package):
         configure(*config_args)
         make()
         make("install")
+
+    # to use the existing version available in the environment: EZTRACE_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('EZTRACE_DIR'):
+            eztraceroot=os.environ['EZTRACE_DIR']
+            if os.path.isdir(eztraceroot):
+                os.symlink(eztraceroot+"/bin", prefix.bin)
+                os.symlink(eztraceroot+"/include", prefix.include)
+                os.symlink(eztraceroot+"/lib", prefix.lib)
+            else:
+                sys.exit(eztraceroot+' directory does not exist.'+' Do you really have openmpi installed in '+eztraceroot+' ?')
+        else:
+            sys.exit('EZTRACE_DIR is not set, you must set this environment variable to the installation path of your eztrace')

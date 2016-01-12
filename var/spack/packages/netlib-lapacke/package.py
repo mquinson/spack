@@ -1,6 +1,7 @@
 from spack import *
 import os
 import platform
+import spack
 
 class NetlibLapacke(Package):
     """
@@ -20,6 +21,11 @@ class NetlibLapacke(Package):
     version('3.4.1', '44c3869c38c8335c2b9c2a8bb276eb55')
     version('3.4.0', '02d5706ec03ba885fc246e5fa10d8c70')
     version('3.3.1', 'd0d533ec9a5b74933c2a1e84eedc58b4')
+
+    pkg_dir = spack.db.dirname_for_package_name("netlib-lapacke")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('shared', default=True, description="Build shared library version")
 
@@ -71,3 +77,17 @@ class NetlibLapacke(Package):
         cmake(*cmake_args)
         make()
         make("install")
+
+    # to use the existing version available in the environment: LAPACKE_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('LAPACKE_DIR'):
+            netliblapackeroot=os.environ['LAPACKE_DIR']
+            if os.path.isdir(netliblapackeroot):
+                os.symlink(netliblapackeroot+"/bin", prefix.bin)
+                os.symlink(netliblapackeroot+"/include", prefix.include)
+                os.symlink(netliblapackeroot+"/lib", prefix.lib)
+            else:
+                sys.exit(netliblapackeroot+' directory does not exist.'+' Do you really have openmpi installed in '+netliblapackeroot+' ?')
+        else:
+            sys.exit('LAPACKE_DIR is not set, you must set this environment variable to the installation path of your netlib-lapacke')

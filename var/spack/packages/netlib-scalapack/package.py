@@ -2,6 +2,7 @@ from spack import *
 import os
 from subprocess import call
 import platform
+import spack
 
 class NetlibScalapack(Package):
     """A library of high-performance linear algebra routines for parallel distributed memory machines."""
@@ -13,6 +14,11 @@ class NetlibScalapack(Package):
     version('2.0.0', '9e76ae7b291be27faaad47cfc256cbfe')
     version('1.8.0', 'f4a3f3d7ef32029bd79ab8abcc026624')
     version('trunk', svn='https://icl.cs.utk.edu/svn/scalapack-dev/scalapack/trunk')
+
+    pkg_dir = spack.db.dirname_for_package_name("netlib-scalapack")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     # virtual dependency
     provides('scalapack')
@@ -83,3 +89,17 @@ class NetlibScalapack(Package):
             libext=".a"
 
         install('libscalapack%s'%libext, '%s/libscalapack%s' % (prefix.lib, libext))
+
+    # to use the existing version available in the environment: SCALAPACK_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('SCALAPACK_DIR'):
+            netlibscalapackroot=os.environ['SCALAPACK_DIR']
+            if os.path.isdir(netlibscalapackroot):
+                os.symlink(netlibscalapackroot+"/bin", prefix.bin)
+                os.symlink(netlibscalapackroot+"/include", prefix.include)
+                os.symlink(netlibscalapackroot+"/lib", prefix.lib)
+            else:
+                sys.exit(netlibscalapackroot+' directory does not exist.'+' Do you really have openmpi installed in '+netlibscalapackroot+' ?')
+        else:
+            sys.exit('SCALAPACK_DIR is not set, you must set this environment variable to the installation path of your netlib-scalapack')

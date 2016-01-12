@@ -1,6 +1,7 @@
 from spack import *
 import os
 import platform
+import spack
 
 class Hwloc(Package):
     """The Portable Hardware Locality (hwloc) software package
@@ -25,6 +26,11 @@ class Hwloc(Package):
     version('1.10.1', '27f2966df120a74df19dc244d5340107', url='http://www.open-mpi.org/software/hwloc/v1.10/downloads/hwloc-1.10.1.tar.gz')
     version('1.11.0', '150a6a0b7a136bae5443e9c2cf8f316c', url='http://www.open-mpi.org/software/hwloc/v1.11/downloads/hwloc-1.11.0.tar.gz')
 
+    pkg_dir = spack.db.dirname_for_package_name("hwloc")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+
     def install(self, spec, prefix):
 
         sys_name = platform.system()
@@ -35,3 +41,17 @@ class Hwloc(Package):
 
         make()
         make("install")
+
+    # to use the existing version available in the environment: HWLOC_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('HWLOC_DIR'):
+            hwlocroot=os.environ['HWLOC_DIR']
+            if os.path.isdir(hwlocroot):
+                os.symlink(hwlocroot+"/bin", prefix.bin)
+                os.symlink(hwlocroot+"/include", prefix.include)
+                os.symlink(hwlocroot+"/lib", prefix.lib)
+            else:
+                sys.exit(hwlocroot+' directory does not exist.'+' Do you really have openmpi installed in '+hwlocroot+' ?')
+        else:
+            sys.exit('HWLOC_DIR is not set, you must set this environment variable to the installation path of your hwloc')

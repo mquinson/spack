@@ -3,6 +3,7 @@ import os
 import subprocess
 import platform
 import sys
+import spack
 
 class Maphys(Package):
     """a Massively Parallel Hybrid Solver."""
@@ -15,6 +16,11 @@ class Maphys(Package):
     svnroot  = "https://scm.gforge.inria.fr/anonscm/svn/maphys/"
     version('svn-maphys-dev',
             svn=svnroot+"branches/maphys-dev")
+
+    pkg_dir = spack.db.dirname_for_package_name("scotch")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('mumps', default=False, description='Enable MUMPS direct solver')
     variant('pastix', default=True, description='Enable PASTIX direct solver')
@@ -147,3 +153,17 @@ class Maphys(Package):
         if spec.satisfies('+examples'):
             # examples are not installed by default
             install_tree('examples', '%s/lib/maphys/examples' % prefix)
+
+    # to use the existing version available in the environment: MAPHYS_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('MAPHYS_DIR'):
+            scotchroot=os.environ['MAPHYS_DIR']
+            if os.path.isdir(scotchroot):
+                os.symlink(scotchroot+"/bin", prefix.bin)
+                os.symlink(scotchroot+"/include", prefix.include)
+                os.symlink(scotchroot+"/lib", prefix.lib)
+            else:
+                sys.exit(scotchroot+' directory does not exist.'+' Do you really have openmpi installed in '+scotchroot+' ?')
+        else:
+            sys.exit('MAPHYS_DIR is not set, you must set this environment variable to the installation path of your scotch')

@@ -1,6 +1,7 @@
 from spack import *
 import os
 import sys
+import spack
 
 class Chameleon(Package):
     """Dense Linear Algebra for Scalable Multi-core Architectures and GPGPUs"""
@@ -16,6 +17,11 @@ class Chameleon(Package):
         version('trunk', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/chameleon')
         version('clusters', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/chameleon-clusters')
         version('external-prio', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/chameleon-external-prio')
+
+    pkg_dir = spack.db.dirname_for_package_name("chameleon")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('debug', default=False, description='Enable debug symbols')
     variant('shared', default=True, description='Build chameleon as a shared library')
@@ -99,3 +105,16 @@ class Chameleon(Package):
             cmake(*cmake_args)
             make()
             make("install")
+
+    # to use the existing version available in the environment: CHAMELEON_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('CHAMELEON_DIR'):
+            chameleonroot=os.environ['CHAMELEON_DIR']
+            if os.path.isdir(chameleonroot):
+                os.symlink(chameleonroot+"/include", prefix.include)
+                os.symlink(chameleonroot+"/lib", prefix.lib)
+            else:
+                sys.exit(chameleonroot+' directory does not exist.'+' Do you really have openmpi installed in '+chameleonroot+' ?')
+        else:
+            sys.exit('CHAMELEON_DIR is not set, you must set this environment variable to the installation path of your chameleon')

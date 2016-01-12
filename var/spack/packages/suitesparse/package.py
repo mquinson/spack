@@ -1,6 +1,7 @@
 from spack import *
 from subprocess import call
 import platform
+import spack
 
 class Suitesparse(Package):
     """a suite of sparse matrix algorithms."""
@@ -9,6 +10,11 @@ class Suitesparse(Package):
 
     version('4.4.6', '131a3a5e2dee784cd946284e44ce9af2')
     version('4.4.5', 'a2926c27f8a5285e4a10265cc68bbc18')
+
+    pkg_dir = spack.db.dirname_for_package_name("suitesparse")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     depends_on("blas")
     depends_on("lapack")
@@ -53,3 +59,17 @@ class Suitesparse(Package):
         mkdirp(prefix.include)
         mkdirp(prefix.lib)
         make("install")
+
+    # to use the existing version available in the environment: SUITESPARSE_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('SUITESPARSE_DIR'):
+            suitesparseroot=os.environ['SUITESPARSE_DIR']
+            if os.path.isdir(suitesparseroot):
+                os.symlink(suitesparseroot+"/bin", prefix.bin)
+                os.symlink(suitesparseroot+"/include", prefix.include)
+                os.symlink(suitesparseroot+"/lib", prefix.lib)
+            else:
+                sys.exit(suitesparseroot+' directory does not exist.'+' Do you really have openmpi installed in '+suitesparseroot+' ?')
+        else:
+            sys.exit('SUITESPARSE_DIR is not set, you must set this environment variable to the installation path of your suitesparse')

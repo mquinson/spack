@@ -2,6 +2,7 @@ from spack import *
 import subprocess
 import os
 import platform
+import spack
 
 class Starpu(Package):
     """offers support for heterogeneous multicore architecture"""
@@ -40,8 +41,13 @@ class Starpu(Package):
     version('svn-1.1', svn='https://scm.gforge.inria.fr/anonscm/svn/starpu/branches/starpu-1.1')
     version('svn-1.2', svn='https://scm.gforge.inria.fr/anonscm/svn/starpu/branches/starpu-1.2')
 
+    pkg_dir = spack.db.dirname_for_package_name("starpu")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+
     variant('debug', default=False, description='Enable debug symbols')
-    variant('shared', default=True, description='Build SCOTCH as a shared library')
+    variant('shared', default=True, description='Build STARPU as a shared library')
     variant('fxt', default=False, description='Enable FxT tracing support')
     variant('mpi', default=False, description='Enable MPI support')
     variant('cuda', default=False, description='Enable CUDA support')
@@ -104,3 +110,17 @@ class Starpu(Package):
 
         make()
         make("install", parallel=False)
+
+    # to use the existing version available in the environment: STARPU_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('STARPU_DIR'):
+            starpuroot=os.environ['STARPU_DIR']
+            if os.path.isdir(starpuroot):
+                os.symlink(starpuroot+"/bin", prefix.bin)
+                os.symlink(starpuroot+"/include", prefix.include)
+                os.symlink(starpuroot+"/lib", prefix.lib)
+            else:
+                sys.exit(starpuroot+' directory does not exist.'+' Do you really have openmpi installed in '+starpuroot+' ?')
+        else:
+            sys.exit('STARPU_DIR is not set, you must set this environment variable to the installation path of your starpu')

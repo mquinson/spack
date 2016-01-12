@@ -1,6 +1,7 @@
 from spack import *
 import os
 import platform
+import spack
 
 class Mumps(Package):
     """a MUltifrontal Massively Parallel sparse direct Solver."""
@@ -10,6 +11,11 @@ class Mumps(Package):
     version('4.10.0', '959e9981b606cd574f713b8422ef0d9f')
     version('5.0.0', '3c6aeab847e9d775ca160194a9db2b75')
     version('5.0.1', 'b477573fdcc87babe861f62316833db0')
+
+    pkg_dir = spack.db.dirname_for_package_name("mumps")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('seq', default=False, description='Sequential version (no MPI)')
     variant('scotch', default=False, description='Enable Scotch')
@@ -129,7 +135,7 @@ class Mumps(Package):
                 mf.filter('^LIBEXT\s*=.*', 'LIBEXT = .dylib')
             else:
                 mf.filter('^LIBEXT\s*=.*', 'LIBEXT = .so')
-                        
+
         if platform.system() == 'Darwin':
             mf.filter('-lrt', '');
 
@@ -156,3 +162,17 @@ class Mumps(Package):
                 install('libseq/libmpiseq.so', prefix.lib)
         if spec.satisfies('+examples'):
             install_tree('examples', '%s/lib/mumps/examples' % prefix)
+
+    # to use the existing version available in the environment: MUMPS_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('MUMPS_DIR'):
+            mumpsroot=os.environ['MUMPS_DIR']
+            if os.path.isdir(mumpsroot):
+                os.symlink(mumpsroot+"/bin", prefix.bin)
+                os.symlink(mumpsroot+"/include", prefix.include)
+                os.symlink(mumpsroot+"/lib", prefix.lib)
+            else:
+                sys.exit(mumpsroot+' directory does not exist.'+' Do you really have openmpi installed in '+mumpsroot+' ?')
+        else:
+            sys.exit('MUMPS_DIR is not set, you must set this environment variable to the installation path of your mumps')

@@ -24,6 +24,7 @@
 ##############################################################################
 from spack import *
 import os
+import spack
 
 class Mpich(Package):
     """MPICH is a high performance and widely portable implementation of
@@ -39,6 +40,11 @@ class Mpich(Package):
     version('3.1.1', '40dc408b1e03cc36d80209baaa2d32b7')
     version('3.1', '5643dd176499bfb7d25079aaff25f2ec')
     version('3.0.4', '9c5d5d4fe1e17dd12153f40bc5b6dbc0')
+
+    pkg_dir = spack.db.dirname_for_package_name("mpich")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('debug', default=False, description='Enable debug symbols')
 
@@ -100,3 +106,17 @@ class Mpich(Package):
         filter_file('CXX="%s"'% spack_cxx, 'CXX="%s"' % self.compiler.cxx, mpicxx, **kwargs)
         filter_file('F77="%s"'% spack_f77, 'F77="%s"' % self.compiler.f77, mpif77, **kwargs)
         filter_file('FC="%s"' % spack_fc , 'FC="%s"'  % self.compiler.fc,  mpif90, **kwargs)
+
+    # to use the existing version available in the environment: MPI_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('MPI_DIR'):
+            mpichroot=os.environ['MPI_DIR']
+            if os.path.isdir(mpichroot):
+                os.symlink(mpichroot+"/bin", prefix.bin)
+                os.symlink(mpichroot+"/include", prefix.include)
+                os.symlink(mpichroot+"/lib", prefix.lib)
+            else:
+                sys.exit(mpichroot+' directory does not exist.'+' Do you really have openmpi installed in '+mpichroot+' ?')
+        else:
+            sys.exit('MPI_DIR is not set, you must set this environment variable to the installation path of your mpich')

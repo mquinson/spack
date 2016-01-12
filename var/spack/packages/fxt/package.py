@@ -1,5 +1,6 @@
 from spack import *
 import os
+import spack
 
 class Fxt(Package):
     """This library provides efficient support for recording traces"""
@@ -17,6 +18,11 @@ class Fxt(Package):
         version('0.2.13', 'c688d01cc50945a0cd6364cc39e33b95')
         version('0.2.12', 'd5d910fd818088f01fcf955eed9bc42a')
 
+    pkg_dir = spack.db.dirname_for_package_name("fxt")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+
     def install(self, spec, prefix):
         configure("--prefix=%s" % prefix)
 
@@ -27,3 +33,17 @@ class Fxt(Package):
         make(parallel=False)
         # The mkdir commands in fxt's install can fail in parallel
         make("install", parallel=False)
+
+    # to use the existing version available in the environment: FXT_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('FXT_DIR'):
+            fxtroot=os.environ['FXT_DIR']
+            if os.path.isdir(fxtroot):
+                os.symlink(fxtroot+"/bin", prefix.bin)
+                os.symlink(fxtroot+"/include", prefix.include)
+                os.symlink(fxtroot+"/lib", prefix.lib)
+            else:
+                sys.exit(fxtroot+' directory does not exist.'+' Do you really have openmpi installed in '+fxtroot+' ?')
+        else:
+            sys.exit('FXT_DIR is not set, you must set this environment variable to the installation path of your fxt')

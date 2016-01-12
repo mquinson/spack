@@ -1,5 +1,6 @@
 from spack import *
 import os
+import spack
 
 class Mvapich2(Package):
     """MVAPICH2 is an MPI implementation for Infiniband networks."""
@@ -13,6 +14,12 @@ class Mvapich2(Package):
 
     version('1.9', '5dc58ed08fd3142c260b70fe297e127c',
             url="http://mvapich.cse.ohio-state.edu/download/mvapich2/mv2/mvapich2-1.9.tgz")
+
+    pkg_dir = spack.db.dirname_for_package_name("mvapich2")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+
     patch('ad_lustre_rwcontig_open_source.patch', when='@1.9')
 
     provides('mpi@:2.2', when='@1.9')  # MVAPICH2-1.9 supports MPI 2.2
@@ -182,3 +189,17 @@ class Mvapich2(Package):
         filter_file('CXX="%s"'% spack_cxx, 'CXX="%s"' % self.compiler.cxx, mpicxx, **kwargs)
         filter_file('F77="%s"'% spack_f77, 'F77="%s"' % self.compiler.f77, mpif77, **kwargs)
         filter_file('FC="%s"' % spack_fc , 'FC="%s"'  % self.compiler.fc,  mpif90, **kwargs)
+
+    # to use the existing version available in the environment: MPI_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('MPI_DIR'):
+            mvapich2root=os.environ['MPI_DIR']
+            if os.path.isdir(mvapich2root):
+                os.symlink(mvapich2root+"/bin", prefix.bin)
+                os.symlink(mvapich2root+"/include", prefix.include)
+                os.symlink(mvapich2root+"/lib", prefix.lib)
+            else:
+                sys.exit(mvapich2root+' directory does not exist.'+' Do you really have openmpi installed in '+mvapich2root+' ?')
+        else:
+            sys.exit('MPI_DIR is not set, you must set this environment variable to the installation path of your mvapich2')

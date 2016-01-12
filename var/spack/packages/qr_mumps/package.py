@@ -1,11 +1,17 @@
 from spack import *
 import os
+import spack
 
 class QrMumps(Package):
     """a software package for the solution of sparse, linear systems on multicore computers based on the QR factorization of the input matrix."""
     homepage = "http://buttari.perso.enseeiht.fr/qr_mumps/"
 
     version('qrm_starpu_2d', svn='https://wwwsecu.irit.fr/svn/qr_mumps/branches/qrm_starpu_2d')
+
+    pkg_dir = spack.db.dirname_for_package_name("qr_mumps")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     depends_on("blas")
     depends_on("lapack")
@@ -105,3 +111,17 @@ class QrMumps(Package):
         mkdirp('%s/lib/qr_mumps/examples' % prefix)
         with working_dir('examples'):
             install('dqrm_test', '%s/lib/qr_mumps/examples' % prefix)
+
+    # to use the existing version available in the environment: QR_MUMPS_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('QR_MUMPS_DIR'):
+            qrmumpsroot=os.environ['QR_MUMPS_DIR']
+            if os.path.isdir(qrmumpsroot):
+                os.symlink(qrmumpsroot+"/bin", prefix.bin)
+                os.symlink(qrmumpsroot+"/include", prefix.include)
+                os.symlink(qrmumpsroot+"/lib", prefix.lib)
+            else:
+                sys.exit(qrmumpsroot+' directory does not exist.'+' Do you really have openmpi installed in '+qrmumpsroot+' ?')
+        else:
+            sys.exit('QR_MUMPS_DIR is not set, you must set this environment variable to the installation path of your qr_mumps')

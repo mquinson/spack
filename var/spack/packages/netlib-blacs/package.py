@@ -2,6 +2,7 @@ from spack import *
 import os
 import platform
 from subprocess import call
+import spack
 
 class NetlibBlacs(Package):
     """The BLACS (Basic Linear Algebra Communication Subprograms) project is an ongoing investigation whose purpose is to create a linear algebra oriented message passing interface that may be implemented efficiently and uniformly across a large range of distributed memory platforms."""
@@ -11,6 +12,11 @@ class NetlibBlacs(Package):
     # tarball has no version, but on the date below, this MD5 was correct.
     version('1997-05-05', '28ae5b91b3193402fe1ae8d06adcf500', url='http://www.netlib.org/blacs/mpiblacs.tgz')
     version('lib','82687f1e07fd98e0b9f78b71911459fe', url='http://www.netlib.org/blacs/archives/blacs_MPI-LINUX-0.tgz')
+
+    pkg_dir = spack.db.dirname_for_package_name("netlib-blacs")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     provides('blacs')
 
@@ -78,7 +84,20 @@ class NetlibBlacs(Package):
         for l in ["blacsCinit", "blacsF77init", "blacs"]:
             install('LIB/%s_MPI-LINUX-0%s'%(l, libext), '%s/lib%s%s' % (prefix.lib, l, libext))
 
-        	    
+    # to use the existing version available in the environment: BLACS_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('BLACS_DIR'):
+            netlibblacsroot=os.environ['BLACS_DIR']
+            if os.path.isdir(netlibblacsroot):
+                os.symlink(netlibblacsroot+"/bin", prefix.bin)
+                os.symlink(netlibblacsroot+"/include", prefix.include)
+                os.symlink(netlibblacsroot+"/lib", prefix.lib)
+            else:
+                sys.exit(netlibblacsroot+' directory does not exist.'+' Do you really have openmpi installed in '+netlibblacsroot+' ?')
+        else:
+            sys.exit('BLACS_DIR is not set, you must set this environment variable to the installation path of your netlib-blacs')
+
 
 
 

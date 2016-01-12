@@ -1,5 +1,6 @@
 from spack import *
 import os
+import spack
 
 class Simgrid(Package):
     """To study the behavior of large-scale distributed systems such as Grids, Clouds, HPC or P2P systems."""
@@ -19,6 +20,11 @@ class Simgrid(Package):
         version('master', git='https://scm.gforge.inria.fr/anonscm/git/simgrid/simgrid.git')
         version('starpumpi', git='https://scm.gforge.inria.fr/anonscm/git/simgrid/simgrid.git', branch='starpumpi')
 
+    pkg_dir = spack.db.dirname_for_package_name("simgrid")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+
     variant('doc', default=False, description='Enable building documentation')
     depends_on('cmake')
 
@@ -30,3 +36,17 @@ class Simgrid(Package):
         cmake(*cmake_args)
         make()
         make("install")
+
+    # to use the existing version available in the environment: SIMGRID_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('SIMGRID_DIR'):
+            simgridroot=os.environ['SIMGRID_DIR']
+            if os.path.isdir(simgridroot):
+                os.symlink(simgridroot+"/bin", prefix.bin)
+                os.symlink(simgridroot+"/include", prefix.include)
+                os.symlink(simgridroot+"/lib", prefix.lib)
+            else:
+                sys.exit(simgridroot+' directory does not exist.'+' Do you really have openmpi installed in '+simgridroot+' ?')
+        else:
+            sys.exit('SIMGRID_DIR is not set, you must set this environment variable to the installation path of your simgrid')
