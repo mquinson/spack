@@ -121,9 +121,15 @@ class Mumps(Package):
             mf.filter('^OPTL\s*=', 'OPTL = -nofor-main ')
 
         mpi = spec['mpi'].prefix
-        mf.filter('CC\s*=.*', 'CC = mpicc')
-        mf.filter('FC\s*=.*', 'FC = mpif90')
-        mf.filter('FL\s*=.*', 'FL = mpif90')
+        if spec.satisfies("%intel") and 'intelmpi' in self.spec['mpi']:
+            mpicc = "mpiicc"
+            mpif90 = "mpiifort"
+        else:
+            mpicc = "mpicc"
+            mpif90 = "mpif90"
+        mf.filter('CC\s*=.*', 'CC = %s' % mpicc)
+        mf.filter('FC\s*=.*', 'FC = %s' % mpif90)
+        mf.filter('FL\s*=.*', 'FL = %s' % mpif90)
         mf.filter('^INCPAR.*', 'INCPAR = -I%s' % mpi.include)
         mf.filter('^LIBPAR.*', 'LIBPAR = $(SCALAP)')
 

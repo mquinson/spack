@@ -46,8 +46,15 @@ class NetlibBlacs(Package):
         mf.filter('\$\(MPIdir\)/lib/', '')
         mf.filter('INTFACE\s*=.*', 'INTFACE=-DAdd_')
         mf.filter('TRANSCOMM\s*=.*', 'TRANSCOMM=')
-        mf.filter('F77            = g77', 'F77            = mpif77')
-        mf.filter('CC             = gcc', 'CC             = mpicc')
+        mpi = spec['mpi'].prefix
+        if spec.satisfies("%intel") and 'intelmpi' in self.spec['mpi']:
+            mpicc = "mpiicc"
+            mpif77 = "mpiifort"
+        else:
+            mpicc = "mpicc"
+            mpif77 = "mpif77"
+        mf.filter('F77            = g77', 'F77            = %s' % mpif77)
+        mf.filter('CC             = gcc', 'CC             = %s' % mpicc)
 
         sf=FileFilter('SRC/MPI/Makefile')
         sf.filter('\$\(BLACSLIB\) \$\(Fintobj\)', '$(BLACSLIB) $(Fintobj) $(internal)')
@@ -97,7 +104,3 @@ class NetlibBlacs(Package):
                 sys.exit(netlibblacsroot+' directory does not exist.'+' Do you really have openmpi installed in '+netlibblacsroot+' ?')
         else:
             sys.exit('BLACS_DIR is not set, you must set this environment variable to the installation path of your netlib-blacs')
-
-
-
-

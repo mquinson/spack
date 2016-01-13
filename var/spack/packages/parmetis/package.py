@@ -22,12 +22,19 @@ class Parmetis(Package):
     def install(self, spec, prefix):
         cmake_args = ["."]
         cmake_args.extend(std_cmake_args)
+        mpi = spec['mpi'].prefix
+        if spec.satisfies("%intel") and 'intelmpi' in self.spec['mpi']:
+            mpicc = "mpiicc"
+            mpicxx = "mpiicpc"
+        else:
+            mpicc = "mpicc"
+            mpicxx = "mpicxx"
         cmake_args+=[
               '-DGKLIB_PATH=%s/metis/GKlib' % pwd(),
               '-DMETIS_PATH=%s/metis' % pwd(),
               '-DSHARED=1',
-              '-DCMAKE_C_COMPILER=mpicc',
-              '-DCMAKE_CXX_COMPILER=mpicxx',
+              '-DCMAKE_C_COMPILER=%s' % mpicc,
+              '-DCMAKE_CXX_COMPILER=%s' % mpicxx,
               '-DSHARED=1']
         cmake(*cmake_args)
 
