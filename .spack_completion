@@ -1,7 +1,6 @@
 _spack()
 {
     local cur prev words cword
-    _init_completion -n = || return
 
     case "$prev" in
 	cd)
@@ -94,7 +93,6 @@ _spack()
 	    ;;
     esac
 
-    _filedir
 	local cur
 
 	COMPREPLY=()
