@@ -1,0 +1,19 @@
+This patch addresses <https://github.com/open-mpi/ompi/issues/576>.
+--- a/configure
++++ b/configure
+@@ -299476,6 +299476,7 @@
+        # Some compilers place space between "-{L,R}" and the path.
+        # Remove the space.
+        if test $p = "-L" ||
++          test $p = "-l" ||
+           test $p = "-R"; then
+         prev=$p
+         continue
+@@ -301382,6 +301383,7 @@
+        # Some compilers place space between "-{L,R}" and the path.
+        # Remove the space.
+        if test $p = "-L" ||
++          test $p = "-l" ||
+           test $p = "-R"; then
+         prev=$p
+         continue
