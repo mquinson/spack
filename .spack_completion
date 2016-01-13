@@ -1,6 +1,10 @@
 _spack()
 {
     local cur prev words cword
+    if [ -n "$(type -t _init_completion)" ];then
+    	_init_completion -n = || return
+	fi
+
 
     case "$prev" in
 	cd)
@@ -93,10 +97,10 @@ _spack()
 	    ;;
     esac
 
-	local cur
-
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	COMPREPLY=($( compgen -W 'activate  arch bootstrap cd checksum clean compiler compilers config create deactivate dependents diy doc edit  env extensions fetch find graph help info install list load location md5 mirror module package-listpatch pkg providers purge python reindex restage spec stage test test-install uninstall unload unuse url-parse urls use versions ' -- $cur ))
+
+
 }
 complete -F _spack spack
