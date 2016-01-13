@@ -5,6 +5,7 @@ class HmatOss(Package):
     """A H-Matrix C/C++ library"""
     homepage = "https://github.com/jeromerobert/hmat-oss/"
 
+    version('nd',     git='hades:/home/falco/Airbus/hmat-oss.git', branch='af/BinaryNestedDissection')
     version('master', git='https://github.com/jeromerobert/hmat-oss.git', branch='master')
     version('hmat-oss-1.1', git='https://github.com/jeromerobert/hmat-oss.git', branch='hmat-oss-1.1')
     version('git-1.1.2', git='https://github.com/jeromerobert/hmat-oss.git', tag='1.1.2')
