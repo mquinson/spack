@@ -78,12 +78,13 @@ class Scotch(Package):
         module.scotchlibname+=otherlibs
 
     def compiler_specifics(self, makefile_inc, defines):
+        mpicc = "mpicc"
         if self.compiler.name == 'gcc':
             defines.append('-Drestrict=__restrict')
-            mpicc = "mpicc"
         elif self.compiler.name == 'intel':
             defines.append('-restrict')
-            mpicc = "mpiicc"
+            if 'intelmpi' in self.spec['mpi']:
+                mpicc = "mpiicc"
 
         makefile_inc.append('CCS       = $(CC)')
 
