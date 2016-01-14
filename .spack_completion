@@ -7,7 +7,9 @@ _spack()
 	COMPREPLY=()
 	cur="${COMP_WORDS[COMP_CWORD]}"
 	prev="${COMP_WORDS[COMP_CWORD-1]}"
-	preprev="${COMP_WORDS[COMP_CWORD-2]}"
+	if [ "$COMP_CWORD" -gt 1 ]; then
+		preprev="${COMP_WORDS[COMP_CWORD-2]}"
+	fi
 
 
     case "$prev" in
