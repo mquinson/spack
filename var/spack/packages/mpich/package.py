@@ -33,6 +33,8 @@ class Mpich(Package):
     list_url   = "http://www.mpich.org/static/downloads/"
     list_depth = 2
 
+    version('3.2', 'f414cfa77099cd1fa1a5ae4e22db508a',
+            url="http://www.mpich.org/static/downloads/3.2/mpich-3.2.tar.gz")
     version('3.1.4', '2ab544607986486562e076b83937bba2',
             url="http://www.mpich.org/static/downloads/3.1.4/mpich-3.1.4.tar.gz")
     version('3.1.3', '93cb17f91ac758cbf9174ecb03563778',

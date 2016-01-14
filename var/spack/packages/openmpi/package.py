@@ -30,6 +30,8 @@ class Openmpi(Package):
 
     patch('ad_lustre_rwcontig_open_source.patch', when="@1.6.5")
     patch('llnl-platforms.patch', when="@1.6.5")
+    patch('configure.patch_16', when="@1.6.5")
+    patch('configure.patch_18', when="@1.8.8")
     patch('configure.patch', when="@1.10.0:")
 
     provides('mpi@:2.2', when='@1.6.5')    # Open MPI 1.6.5 supports MPI-2.2
