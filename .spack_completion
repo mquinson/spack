@@ -4,6 +4,10 @@ _spack()
     if [ -n "$(type -t _init_completion)" ];then
     	_init_completion -n = || return
 	fi
+	COMPREPLY=()
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+	preprev="${COMP_WORDS[COMP_CWORD-2]}"
 
 
     case "$prev" in
@@ -20,11 +24,20 @@ _spack()
 	    return
 	    ;;
 	config)
-	    COMPREPLY=( $( compgen -W 'get edit' -- "$cur" ) )
+		COMPREPLY=( $( compgen -W 'get edit' -- "$cur" ) )
 	    return
 	    ;;
 	create)
-	    COMPREPLY=( $( compgen -W '-h --keep-stage -n -f' -- "$cur" ) )
+		case "$preprev" in
+		mirror)
+			COMPREPLY=( $( compgen -W '-h -d -D -f -o $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+			return
+			;;
+		*)
+			COMPREPLY=( $( compgen -W '-h --keep-stage -n -f' -- "$cur" ) )
+			return
+			;;
+		esac
 	    return
 	    ;;
 	deactivate)
@@ -32,7 +45,15 @@ _spack()
 	    return
 	    ;;
 	edit)
-	    COMPREPLY=( $( compgen -W '-h -f -c $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+		case "$preprev" in
+		config)
+			return
+			;;
+		*)
+			COMPREPLY=( $( compgen -W '-h -f -c $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+			return
+			;;
+		esac
 	    return
 	    ;;
 	extensions)
@@ -44,13 +65,25 @@ _spack()
 	    return
 	    ;;
 	find)
-	    COMPREPLY=( $( compgen -W '-h -p -d -l -L -u -m -M' -- "$cur" ) )
+		case "$preprev" in
+		module)
+			COMPREPLY=( $( compgen -W '-h tcl dotkit' -- "$cur" ) )
+			return
+			;;
+		*)
+			COMPREPLY=( $( compgen -W '-h -p -d -l -L -u -m -M $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+			return
+			;;
+		esac
 	    return
 	    ;;
 	graph)
 	    COMPREPLY=( $( compgen -W '-h --ascii --dot --concretize' -- "$cur" ) )
 	    return
 	    ;;
+   help|-h)
+   		return
+   		;;
 	info)
 	    COMPREPLY=( $( compgen -W '$(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
 	    return
@@ -60,7 +93,7 @@ _spack()
 	    return
 	    ;;
 	list)
-	    COMPREPLY=( $( compgen -W '-h -i' -- "$cur" ) )
+	    COMPREPLY=( $( compgen -W '-h -i $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
 	    return
 	    ;;
 	location)
@@ -76,7 +109,7 @@ _spack()
 	    return
 	    ;;
 	patch)
-	    COMPREPLY=( $( compgen -W '-h -n' -- "$cur" ) )
+	    COMPREPLY=( $( compgen -W '-h -n $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
 	    return
 	    ;;
 	spec)
@@ -87,20 +120,27 @@ _spack()
 	    COMPREPLY=( $( compgen -W '-h -n $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
 	    return
 	    ;;
+    tcl|dotkit)
+	    COMPREPLY=( $( compgen -W 'spec' -- "$cur" ) )
+    	return
+    	;;
 	uninstall)
-	    COMPREPLY=( $( compgen -W ' -h --help -f --force -a --all' -- "$cur" ) )
+	    COMPREPLY=( $( compgen -W ' -h --help -f --force -a --all $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
 	    return
 	    ;;
 	versions)
 	    COMPREPLY=( $( compgen -W ' -h $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
 	    return
 	    ;;
+	-*)
+	    COMPREPLY=($( compgen -W '$(\ls $SPACK_ROOT/var/spack/packages) ' -- "$cur" ) )
+		;;
+    *)
+	    COMPREPLY=($( compgen -W 'activate arch bootstrap cd checksum clean compiler compilers config create deactivate dependents diy doc edit env extensions fetch find graph help info install list load location md5 mirror module package-list patch pkg 
+	    providers purge python reindex restage spec stage test test-install uninstall unload unuse url-parse urls use versions ' -- $cur ))
+	    return
+	    ;;
     esac
-
-	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
-	COMPREPLY=($( compgen -W 'activate  arch bootstrap cd checksum clean compiler compilers config create deactivate dependents diy doc edit  env extensions fetch find graph help info install list load location md5 mirror module package-listpatch pkg providers purge python reindex restage spec stage test test-install uninstall unload unuse url-parse urls use versions ' -- $cur ))
-
 
 }
 complete -F _spack spack
