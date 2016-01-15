@@ -20,10 +20,12 @@ class Eztrace(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('mpi', default=False, description='Enable MPI')
+    variant('cuda', default=False, description='Enable CUDA')
     variant('papi', default=False, description='Enable papi, a hardware counter software')
     variant('starpu', default=False, description='Enable StarPU')
 
     depends_on("mpi", when='+mpi')
+    depends_on("cuda", when='+cuda')
     depends_on("papi", when='+papi')
     depends_on("starpu", when='+starpu')
 
@@ -36,6 +38,9 @@ class Eztrace(Package):
 
         if '+mpi' in spec:
             config_args.append("--with-mpi=%s" % spec['mpi'].prefix)
+
+        if '+cuda' in spec:
+            config_args.append("--with-cuda=%s" % spec['cuda'].prefix)
 
         if '+papi' in spec:
             config_args.append("--with-papi=%s" % spec['papi'].prefix)
