@@ -45,8 +45,11 @@ class EigenBlas(Package):
             cmake_args.extend(["-DEIGEN_TEST_NOQT=ON"])
             cmake_args.extend(["-DEIGEN_TEST_NO_OPENGL=ON"])
 
+            # Option for invoking the assembler on OSX (for sse/avx intrinsics)
+            opt_ass=" -Wa,-q" if platform.system() == "Darwin" else ""
+
             if spec.satisfies('@3.3:') or spec.satisfies('@hg-default'):
-                cmake_args.extend(["-DCMAKE_CXX_FLAGS=-march=native"])
+               cmake_args.extend(["-DCMAKE_CXX_FLAGS=-march=native"+opt_ass])
 
             cmake(*cmake_args)
             make('blas')
