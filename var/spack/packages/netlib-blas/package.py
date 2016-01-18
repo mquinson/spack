@@ -11,6 +11,8 @@ class NetlibBlas(Package):
             url="http://www.netlib.org/lapack/lapack-3.6.0.tgz")
     version('3.5.0', 'b1d3e3e425b2e44a06760ff173104bdf',
             url="http://www.netlib.org/lapack/lapack-3.5.0.tgz")
+    version('3.4.2', '61bf1a8a4469d4bdb7604f5897179478',
+            url="http://www.netlib.org/lapack/lapack-3.4.2.tgz")
 
     pkg_dir = spack.db.dirname_for_package_name("netlib-blas")
     # fake tarball because we consider it is already installed

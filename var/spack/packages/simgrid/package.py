@@ -20,13 +20,24 @@ class Simgrid(Package):
         version('master', git='https://scm.gforge.inria.fr/anonscm/git/simgrid/simgrid.git')
         version('starpumpi', git='https://scm.gforge.inria.fr/anonscm/git/simgrid/simgrid.git', branch='starpumpi')
 
+
     pkg_dir = spack.db.dirname_for_package_name("simgrid")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('doc', default=False, description='Enable building documentation')
+    variant('smpi', default=True, description='Enable smpi')
     depends_on('cmake')
+
+    provides('mpi@simu', when='^smpi')
+
+    def setup_dependent_environment(self, module, spec, dep_spec):
+        bin = self.prefix.bin
+        module.binmpicc  = os.path.join(bin, 'smpicc')
+        module.binmpicxx = os.path.join(bin, 'smpicxx')
+        module.binmpif77 = os.path.join(bin, 'smpiff')
+        module.binmpif90 = os.path.join(bin, 'smpif90')
 
     def install(self, spec, prefix):
         cmake_args = ["."]

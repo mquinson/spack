@@ -25,6 +25,10 @@
 from spack import *
 import os
 import spack
+import glob
+import platform
+import sys
+
 
 class Mpich(Package):
     """MPICH is a high performance and widely portable implementation of
@@ -64,6 +68,11 @@ class Mpich(Package):
         os.environ['MPICH_CXX'] = 'c++'
         os.environ['MPICH_F77'] = 'f77'
         os.environ['MPICH_F90'] = 'f90'
+        bin = self.prefix.bin
+        module.binmpicc  = os.path.join(bin, 'mpicc')
+        module.binmpicxx = os.path.join(bin, 'mpicxx')
+        module.binmpif77 = os.path.join(bin, 'mpif77')
+        module.binmpif90 = os.path.join(bin, 'mpif90')
 
 
     def install(self, spec, prefix):

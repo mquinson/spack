@@ -51,6 +51,11 @@ class Openmpi(Package):
         os.environ['OMPI_CXX'] = 'c++'
         os.environ['OMPI_FC'] = 'f90'
         os.environ['OMPI_F77'] = 'f77'
+        bin = self.prefix.bin
+        module.binmpicc  = os.path.join(bin, 'mpicc')
+        module.binmpicxx = os.path.join(bin, 'mpicxx')
+        module.binmpif77 = os.path.join(bin, 'mpif77')
+        module.binmpif90 = os.path.join(bin, 'mpif90')
 
 
     def install(self, spec, prefix):

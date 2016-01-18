@@ -27,8 +27,8 @@ class Parmetis(Package):
             mpicc = "mpiicc"
             mpicxx = "mpiicpc"
         else:
-            mpicc = "mpicc"
-            mpicxx = "mpicxx"
+            mpicc  = binmpicc
+            mpicxx = binmpicxx
         cmake_args+=[
               '-DGKLIB_PATH=%s/metis/GKlib' % pwd(),
               '-DMETIS_PATH=%s/metis' % pwd(),

@@ -140,6 +140,14 @@ class Mvapich2(Package):
 
         configure_args.extend(network_options)
 
+    def setup_dependent_environment(self, module, spec, dep_spec):
+        bin = self.prefix.bin
+        module.binmpicc  = os.path.join(bin, 'mpicc')
+        module.binmpicxx = os.path.join(bin, 'mpicxx')
+        module.binmpif77 = os.path.join(bin, 'mpif77')
+        module.binmpif90 = os.path.join(bin, 'mpif90')
+
+
     def install(self, spec, prefix):
         # we'll set different configure flags depending on our environment
         configure_args = [
@@ -189,6 +197,10 @@ class Mvapich2(Package):
         filter_file('CXX="%s"'% spack_cxx, 'CXX="%s"' % self.compiler.cxx, mpicxx, **kwargs)
         filter_file('F77="%s"'% spack_f77, 'F77="%s"' % self.compiler.f77, mpif77, **kwargs)
         filter_file('FC="%s"' % spack_fc , 'FC="%s"'  % self.compiler.fc,  mpif90, **kwargs)
+        module.mpicc = mpicc
+        module.mpicxx = mpicxx
+        module.mpif77 = mpif77
+        module.mpif90 = mpif90
 
     # to use the existing version available in the environment: MPI_DIR environment variable must be set
     @when('@exist')

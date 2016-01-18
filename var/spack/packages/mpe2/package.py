@@ -22,7 +22,7 @@ class Mpe2(Package):
                   "--disable-f77",
                   "--enable-viewers=no",
                   "--enable-slog2=no",
-                  "--with-mpicc=mpicc")
+                  "--with-mpicc=" + binmpicc)
 
         make()
         make("install")

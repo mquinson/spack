@@ -44,13 +44,13 @@ class Maphys(Package):
 
         mpi = spec['mpi'].prefix
         if spec.satisfies("%intel") and 'intelmpi' in self.spec['mpi']:
-            mpicc = "mpiicc"
+            mpicc  = "mpiicc"
             mpif90 = "mpiifort"
             mpif77 = "mpiifort"
         else:
-            mpicc = "mpicc"
-            mpif90 = "mpif90"
-            mpif77 = "mpif77"
+            mpicc  = binmpicc 
+            mpif90 = binmpif90
+            mpif77 = binmpif77
         if spec.satisfies("%intel"):
             mpif90_add_flags = ""
         else:
