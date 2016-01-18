@@ -11,7 +11,6 @@ class NetlibBlacs(Package):
 
     # tarball has no version, but on the date below, this MD5 was correct.
     version('1997-05-05', '28ae5b91b3193402fe1ae8d06adcf500', url='http://www.netlib.org/blacs/mpiblacs.tgz')
-    version('lib','82687f1e07fd98e0b9f78b71911459fe', url='http://www.netlib.org/blacs/archives/blacs_MPI-LINUX-0.tgz')
 
     pkg_dir = spack.db.dirname_for_package_name("netlib-blacs")
     # fake tarball because we consider it is already installed
