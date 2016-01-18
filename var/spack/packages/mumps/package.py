@@ -2,6 +2,7 @@ from spack import *
 import os
 import platform
 import spack
+import sys
 
 class Mumps(Package):
     """a MUltifrontal Massively Parallel sparse direct Solver."""

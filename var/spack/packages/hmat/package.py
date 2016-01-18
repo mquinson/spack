@@ -28,7 +28,7 @@ class Hmat(Package):
     depends_on("cblas")
     depends_on("blas")
     depends_on("lapack")
-    depends_on("scotch@6.0.3")
+    depends_on("scotch", when="@nd")
 
     def patch(self):
         # get hmat-oss
@@ -48,8 +48,7 @@ class Hmat(Package):
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
-                "-DSCOTCH_INCLUDE_DIRS="+ scotch.include,
-                "-DSCOTCH_LIBRARY_DIRS="+ scotch.lib,
+                "-DSCOTCH_DIR="+ scotch,
                 ]
 
             if spec.satisfies('+examples'):

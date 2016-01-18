@@ -13,25 +13,29 @@ class HmatOss(Package):
 
     variant('examples', default=True, description='Build examples at installation')
 
+    depends_on("blas")
     depends_on("cblas")
     depends_on("lapack")
+    depends_on("scotch", when="@nd")
 
     def install(self, spec, prefix):
         with working_dir('build', create=True):
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
             cmake_args+= [
-                "-DCMAKE_INSTALL_PREFIX=../install",
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
 
+            if spec.satisfies('+scotch'):
+                cmake_args.extend(["-DSCOTCH_DIR="+ spec['scotch'].prefix])
+                
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DBUILD_EXAMPLES:BOOL=ON"])
 
             cmake_args.extend(["-DMKL_DETECT=OFF"])
 
-            if '^mkl-cblas' in spec or '^mkl-lapack' in spec:
+            if '^mkl-blas' in spec or '^mkl-lapack' in spec:
                 cmake_args.extend(["-DMKL_FOUND=ON"])
                 mklblas = spec['mkl-blas'].prefix
                 cmake_args.extend(["-DMKL_LIBRARY_DIRS=%s" % mklblas.lib])
