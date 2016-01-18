@@ -78,7 +78,8 @@ class Scotch(Package):
         module.scotchlibname+=otherlibs
 
     def compiler_specifics(self, makefile_inc, defines):
-        mpicc = binmpicc
+        if '+mpi' in self.spec:
+            mpicc = binmpicc   
         if self.compiler.name == 'gcc':
             defines.append('-Drestrict=__restrict')
         elif self.compiler.name == 'intel':
