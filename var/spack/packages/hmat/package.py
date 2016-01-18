@@ -28,7 +28,7 @@ class Hmat(Package):
     depends_on("cblas")
     depends_on("blas")
     depends_on("lapack")
-    depends_on("scotch@6.0.3")
+    depends_on("scotch@6.0.3", when='@nd')
 
     def patch(self):
         # get hmat-oss
