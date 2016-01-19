@@ -125,7 +125,9 @@ class Mumps(Package):
         if spec.satisfies("%intel") and 'intelmpi' in self.spec['mpi']:
             mpicc = "mpiicc"
             mpif90 = "mpiifort"
-
+        else:
+            mpicc = binmpicc
+            mpif90 = binmpif90
         mf.filter('CC\s*=.*', 'CC = %s' % mpicc)
         mf.filter('FC\s*=.*', 'FC = %s' % mpif90)
         mf.filter('FL\s*=.*', 'FL = %s' % mpif90)
