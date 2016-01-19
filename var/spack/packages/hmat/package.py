@@ -40,17 +40,21 @@ class Hmat(Package):
     def install(self, spec, prefix):
 
         with working_dir('build', create=True):
-            scotch = spec['scotch'].prefix
 
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
             cmake_args+=[
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
-                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
-                "-DSCOTCH_DIR="+ scotch,
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"
                 ]
 
+            if '^scotch' in spec:
+                scotch = spec['scotch'].prefix
+                cmake_args+=[
+                    "-DSCOTCH_DIR="+ scotch
+                    ]
+    
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DBUILD_EXAMPLES:BOOL=ON"])
 
