@@ -2,6 +2,7 @@ from spack import *
 import glob
 import os
 from subprocess import call
+import subprocess
 import sys
 import spack
 import platform
@@ -92,6 +93,19 @@ class Scotch(Package):
         if '+mpi' in self.spec:
             makefile_inc.extend([
                     'CCP       = %s' % os.path.join(self.spec['mpi'].prefix.bin, '%s' % mpicc),
+                    ])
+
+            if self.spec.satisfies("^simgrid"):
+                makefile_inc.extend([
+                    'CCD       = cc -I'+self.spec['simgrid'].prefix+'/include/smpi'
+                    ])
+                filter_file('static MPI_Datatype         dgraphstattypetab\[2\] = \{ GNUM_MPI, MPI_DOUBLE \};', '', 'src/libscotch/library_dgraph_stat.c')
+                # Beware: dirty code
+                filter_file('velolocdlt = 0.0L;', 'velolocdlt = 0.0L;MPI_Datatype         dgraphstattypetab[2] = { GNUM_MPI, MPI_DOUBLE };', 'src/libscotch/library_dgraph_stat.c')
+
+
+            else:
+                makefile_inc.extend([
                     'CCD       = $(CCP)'
                     ])
         else:

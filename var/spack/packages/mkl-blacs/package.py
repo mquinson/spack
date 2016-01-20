@@ -39,10 +39,10 @@ class MklBlacs(Package):
                 module.blacslibname=[mkllibdir+'/libmkl_blacs_openmpi_lp64.a']
 
     def install(self, spec, prefix):
-        if spec.satisfies('+shared') and not '^intelmpi' in spec and not '^mpich' in spec:
-            sys.exit('Intel MKL does not provide dynamic blacs without intelmpi or mpich. Please use intelmpi or mpich or use ~shared to link with a static blacs library.')
-        if spec.satisfies('~shared') and not '^intelmpi' in spec and not '^mpich' in spec and not '^openmpi' in spec:
-            sys.exit('Intel MKL does not provide blacs if mpi vendor is not in the list: intelmpi, mpich, openmpi. Please use one mpi in the list.')
+        # if spec.satisfies('+shared') and not '^intelmpi' in spec and not '^mpich' in spec:
+            # sys.exit('Intel MKL does not provide dynamic blacs without intelmpi or mpich. Please use intelmpi or mpich or use ~shared to link with a static blacs library.')
+        # if spec.satisfies('~shared') and not '^intelmpi' in spec and not '^mpich' in spec and not '^openmpi' in spec:
+            # sys.exit('Intel MKL does not provide blacs if mpi vendor is not in the list: intelmpi, mpich, openmpi. Please use one mpi in the list.')
         if os.getenv('MKLROOT'):
             mklroot=os.environ['MKLROOT']
             if os.path.isdir(mklroot):

@@ -125,12 +125,15 @@ class Mumps(Package):
         if spec.satisfies("%intel") and 'intelmpi' in self.spec['mpi']:
             mpicc = "mpiicc"
             mpif90 = "mpiifort"
-        else:
+        elif spec.satisfies('~seq'):
             mpicc = binmpicc
             mpif90 = binmpif90
-        mf.filter('CC\s*=.*', 'CC = %s' % mpicc)
-        mf.filter('FC\s*=.*', 'FC = %s' % mpif90)
-        mf.filter('FL\s*=.*', 'FL = %s' % mpif90)
+        else:
+            mpicc = "mpicc"
+            mpif90 = "mpif90"
+        mf.filter('CC\s*=.*', 'CC = %s  -g -fpic' % mpicc)
+        mf.filter('FC\s*=.*', 'FC = %s  -g -fpic' % mpif90)
+        mf.filter('FL\s*=.*', 'FL = %s  -g -fpic' % mpif90)
         mf.filter('^INCPAR.*', 'INCPAR = -I%s' % mpi.include)
         mf.filter('^LIBPAR.*', 'LIBPAR = $(SCALAP)')
 
@@ -170,7 +173,7 @@ class Mumps(Package):
             else:
                 install('libseq/libmpiseq.so', prefix.lib)
         if spec.satisfies('+examples'):
-            install_tree('examples', '%s/lib/mumps/examples' % prefix)
+            install_tree('examples', '%s/examples' % prefix)
 
     # to use the existing version available in the environment: MUMPS_DIR environment variable must be set
     @when('@exist')

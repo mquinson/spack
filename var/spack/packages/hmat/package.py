@@ -33,7 +33,7 @@ class Hmat(Package):
     def patch(self):
         # get hmat-oss
         if os.environ.has_key("SPACK_HMATOSS_TAR"):
-            check_call(["tar" , "xvf" , os.environ['SPACK_HMAT_TAR'] ])
+            check_call(["tar" , "xvf" , os.environ['SPACK_HMATOSS_TAR'] ])
         else:
             check_call(["git" , "submodule" , "update", "--init"])
 

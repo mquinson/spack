@@ -81,7 +81,12 @@ class Pastix(Package):
             mf.filter('^#MPCCPROG    = \$\(CCPROG\)', 'MPCCPROG    = $(CCPROG)\nMPCXXPROG   = $(CXXPROG)')
             mf.filter('^#MCFPROG     = \$\(CFPROG\)', 'MCFPROG     = $(CFPROG)')
         else:
-            mf.filter('mpic\+\+', 'mpicxx') # mpic++ does not exist with hpmpi
+            if spec.satisfies('^simgrid'):
+                mf.filter('mpicc', 'smpicc')
+                mf.filter('mpic\+\+', 'smpicxx  -std=c++11')
+                mf.filter('mpif90', 'smpif90')
+            else:
+                mf.filter('mpic\+\+', 'mpicxx') # mpic++ does not exist with hpmpi
 
         if spec.satisfies('+starpu'):
             starpu = spec['starpu'].prefix

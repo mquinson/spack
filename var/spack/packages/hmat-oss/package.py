@@ -1,5 +1,6 @@
 from spack import *
 import os
+import sys
 
 class HmatOss(Package):
     """A H-Matrix C/C++ library"""
@@ -34,6 +35,9 @@ class HmatOss(Package):
                 cmake_args.extend(["-DBUILD_EXAMPLES:BOOL=ON"])
 
             cmake_args.extend(["-DMKL_DETECT=OFF"])
+
+            if '^mkl-cblas' in spec and not '^mkl-blas' in spec:
+                sys.exit('Cannot compile: should have spec ^mkl-blas')
 
             if '^mkl-blas' in spec or '^mkl-lapack' in spec:
                 cmake_args.extend(["-DMKL_FOUND=ON"])
