@@ -122,11 +122,11 @@ class Mpf(Package):
             if spec.satisfies('+metis'):
                 cmake_args.extend(["-DMETIS_LIBRARY_DIRS="+ spec['metis'].prefix.lib])
 
-            mklroot = os.environ['MKLROOT']
-            if mklroot:
+            if os.getenv['MKLROOT']:
+                mklroot = os.environ['MKLROOT']
                 cmake_args.extend(["-DMKL_LIBRARIES=mkl_scalapack_lp64;mkl_intel_lp64;mkl_core;mkl_gnu_thread;mkl_blacs_lp64;"])
-                
-                # problem with static library blacs... 
+
+                # problem with static library blacs...
                 mf = FileFilter(project_dir + '/as-make/CMake/FindMKL.cmake')
                 mf.filter('set\(MKL_LIBRARIES -Wl,--start-group;\$\{MKL_LIBRARIES\};-Wl,--end-group\)','set(MKL_LIBRARIES -Wl,--start-group,--whole-archive;${MKL_LIBRARIES};-Wl,--end-group,--no-whole-archive )')  
 
