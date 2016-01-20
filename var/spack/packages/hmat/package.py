@@ -74,9 +74,9 @@ class Hmat(Package):
                 cmake_args.extend(["-DMKL_COMPILE_FLAGS="])
             else:
                 cmake_args.extend(["-DMKL_FOUND=OFF"])
-                # To force FindCBLAS to find MY cblas
-                mf = FileFilter('../hmat-oss/CMake/FindCBLAS.cmake')
-                mf.filter('\"cblas\"','"%s"' % ";".join(cblaslibname+blaslibname))
+
+                # To allow compilation with netlib-cblas
+                cmake_args.extend(["-DCBLAS_LIBRARIES=" + " ".join(cblaslibname)])
 
                 cblas = spec['cblas'].prefix
                 cmake_args.extend(["-DCBLAS_INCLUDE_DIRS=" + cblas.include])
