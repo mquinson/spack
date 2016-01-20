@@ -24,7 +24,7 @@ class Pastix(Package):
     variant('metis', default=False, description='Enable Metis')
     variant('starpu', default=False, description='Enable StarPU')
     variant('shared', default=True, description='Build Pastix as a shared library')
-    variant('examples', default=False, description='Enable compilation and installation of example executables')
+    variant('examples', default=True, description='Enable compilation and installation of example executables')
     variant('debug', default=False, description='Enable debug symbols')
     variant('int64', default=False, description='to use 64 bits integers')
 

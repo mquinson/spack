@@ -14,8 +14,8 @@ class Hips(Package):
     variant('complex',  default=False, description='Build complex float version (real by default)')
     variant('simple',   default=False, description='Build simple precision version (double by default)')
     variant('metis',    default=False, description='Use Metis partitioner')
-    variant('shared',   default=False, description='Build Hips as a shared library')
-    variant('examples', default=False, description='Enable compilation and installation of example executables')
+    variant('shared',   default=True, description='Build Hips as a shared library')
+    variant('examples', default=True, description='Enable compilation and installation of example executables')
 
     pkg_dir = spack.db.dirname_for_package_name("hips")
     # fake tarball because we consider it is already installed

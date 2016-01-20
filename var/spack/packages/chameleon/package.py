@@ -33,7 +33,7 @@ class Chameleon(Package):
     variant('simu', default=False, description='Enable simulation mode through StarPU+SimGrid')
     variant('quark', default=False, description='Enable to use Quark runtime instead of StarPU')
     variant('eztrace', default=False, description='Enable EZTrace modules')
-    variant('examples', default=False, description='Enable compilation and installation of example executables')
+    variant('examples', default=True, description='Enable compilation and installation of example executables')
 
     depends_on("cmake")
     depends_on("blas", when='~simu')

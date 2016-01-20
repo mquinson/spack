@@ -25,7 +25,7 @@ class Mumps(Package):
     variant('ptscotch', default=False, description='Enable PT-Scotch')
     variant('metis', default=False, description='Enable Metis')
     variant('shared', default=True, description='Build MUMPS as a shared library')
-    variant('examples', default=False, description='Enable compilation and installation of example executables')
+    variant('examples', default=True, description='Enable compilation and installation of example executables')
 
     depends_on("mpi", when='+mpi')
     depends_on("blas")

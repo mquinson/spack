@@ -23,7 +23,7 @@ class Maphys(Package):
 
     variant('mumps', default=False, description='Enable MUMPS direct solver')
     variant('pastix', default=True, description='Enable PASTIX direct solver')
-    variant('examples', default=False, description='Enable compilation and installation of example executables')
+    variant('examples', default=True, description='Enable compilation and installation of example executables')
 
     depends_on("mpi")
     depends_on("hwloc")
@@ -48,7 +48,7 @@ class Maphys(Package):
             mpif90 = "mpiifort"
             mpif77 = "mpiifort"
         else:
-            mpicc  = binmpicc 
+            mpicc  = binmpicc
             mpif90 = binmpif90
             mpif77 = binmpif77
         if spec.satisfies("%intel"):
