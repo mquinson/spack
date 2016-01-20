@@ -13,11 +13,12 @@ class Hmat(Package):
     homepage = "http://www.google.com"
 
     try:
-        version('nd',     git='hades:/home/falco/Airbus/hmat.git', branch='af/BinaryNestedDissection')
         repo=os.environ['SOFTWAREREPO1']
         version('master', git=repo+'hmat.git', branch='master')
+        version('1.2.1',  git=repo+'hmat.git', branch='v1.2.1')
     except KeyError:
         pass
+    version('nd',     git='hades:/home/falco/Airbus/hmat.git', branch='af/BinaryNestedDissection')
 
     variant('starpu'  , default=True , description='Use StarPU library')
     variant('examples', default=False, description='Build and run examples at installation')
