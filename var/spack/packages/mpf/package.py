@@ -122,7 +122,7 @@ class Mpf(Package):
             if spec.satisfies('+metis'):
                 cmake_args.extend(["-DMETIS_LIBRARY_DIRS="+ spec['metis'].prefix.lib])
 
-            if os.getenv['MKLROOT']:
+            if os.environ.has_key("MKLROOT"):
                 mklroot = os.environ['MKLROOT']
                 cmake_args.extend(["-DMKL_LIBRARIES=mkl_scalapack_lp64;mkl_intel_lp64;mkl_core;mkl_gnu_thread;mkl_blacs_lp64;"])
 
