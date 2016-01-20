@@ -40,7 +40,7 @@ class Hdf5(Package):
 
         configure(
             "--prefix=%s" % prefix,
-            # "--with-zlib=%s" % spec['zlib'].prefix,
+            "--with-zlib=%s" % spec['zlib'].prefix,
             "--enable-shared",
             *extra_args)
         make("lib")
