@@ -23,6 +23,9 @@
 # Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##############################################################################
 from spack import *
+import os
+import sys
+import spack
 
 class Cmake(Package):
     """A cross-platform, open-source build system. CMake is a family of
@@ -31,15 +34,20 @@ class Cmake(Package):
 
     version('2.8.10.2', '097278785da7182ec0aea8769d06860c',
             url = 'http://www.cmake.org/files/v2.8/cmake-2.8.10.2.tar.gz')
- 
+
     version('3.0.2', 'db4c687a31444a929d2fdc36c4dfb95f',
             url = 'http://www.cmake.org/files/v3.0/cmake-3.0.2.tar.gz')
- 
+
     version('3.4.0', 'cd3034e0a44256a0917e254167217fc8',
             url = 'https://cmake.org/files/v3.4/cmake-3.4.0.tar.gz')
 
 #    version('3.0.1', 'e2e05d84cb44a42f1371d9995631dcf5')
 #    version('3.0.0', '21a1c85e1a3b803c4b48e7ff915a863e')
+
+    pkg_dir = spack.db.dirname_for_package_name("cmake")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     def install(self, spec, prefix):
         configure('--prefix='   + prefix,
@@ -47,3 +55,16 @@ class Cmake(Package):
                   '--', '-DCMAKE_USE_OPENSSL=ON')
         make()
         make('install')
+
+    # to use the existing version available in the environment: CMAKE_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('CMAKE_DIR'):
+            cmakeroot=os.environ['CMAKE_DIR']
+            if os.path.isdir(cmakeroot):
+                os.symlink(cmakeroot+"/bin", prefix.bin)
+                os.symlink(cmakeroot+"/share", prefix.share)
+            else:
+                sys.exit(cmakeroot+' directory does not exist.'+' Do you really have openmpi installed in '+cmakeroot+' ?')
+        else:
+            sys.exit('CMAKE_DIR is not set, you must set this environment variable to the installation path of your cmake')
