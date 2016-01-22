@@ -85,6 +85,7 @@ class Pastix(Package):
                 mf.filter('mpicc', 'smpicc')
                 mf.filter('mpic\+\+', 'smpicxx  -std=c++11')
                 mf.filter('mpif90', 'smpif90')
+                mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) -DPASTIX_FUNNELED', 'CCPASTIX   := $(CCPASTIX) -DPASTIX_SINGLE')
             else:
                 mf.filter('mpic\+\+', 'mpicxx') # mpic++ does not exist with hpmpi
 
