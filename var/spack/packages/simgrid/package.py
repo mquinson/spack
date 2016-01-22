@@ -27,17 +27,19 @@ class Simgrid(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('doc', default=False, description='Enable building documentation')
-    variant('smpi', default=True, description='Enable smpi')
+    variant('smpi', default=True, description='SMPI provides MPI')
+    variant('examples', default=False, description='Install examples')
     depends_on('cmake')
 
-    provides('mpi@simu', when='^smpi')
+    provides('mpi@simu', when='+smpi')
 
     def setup_dependent_environment(self, module, spec, dep_spec):
-        bin = self.prefix.bin
-        module.binmpicc  = os.path.join(bin, 'smpicc')
-        module.binmpicxx = os.path.join(bin, 'smpicxx')
-        module.binmpif77 = os.path.join(bin, 'smpiff')
-        module.binmpif90 = os.path.join(bin, 'smpif90')
+        if spec.satisfies('+smpi'):
+            bin = self.prefix.bin
+            module.binmpicc  = os.path.join(bin, 'smpicc')
+            module.binmpicxx = os.path.join(bin, 'smpicxx')
+            module.binmpif77 = os.path.join(bin, 'smpiff')
+            module.binmpif90 = os.path.join(bin, 'smpif90')
 
     def install(self, spec, prefix):
         cmake_args = ["."]
@@ -47,6 +49,8 @@ class Simgrid(Package):
         cmake(*cmake_args)
         make()
         make("install")
+        if spec.satisfies('+examples'):
+            install_tree('examples', '%s/examples' % prefix)
 
     # to use the existing version available in the environment: SIMGRID_DIR environment variable must be set
     @when('@exist')
@@ -57,6 +61,8 @@ class Simgrid(Package):
                 os.symlink(simgridroot+"/bin", prefix.bin)
                 os.symlink(simgridroot+"/include", prefix.include)
                 os.symlink(simgridroot+"/lib", prefix.lib)
+                if spec.satisfies('+examples'):
+                    os.symlink(simgridroot+"/examples", prefix.examples)
             else:
                 sys.exit(simgridroot+' directory does not exist.'+' Do you really have openmpi installed in '+simgridroot+' ?')
         else:
