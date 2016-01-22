@@ -20,14 +20,14 @@ class Mumps(Package):
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
-    variant('seq', default=False, description='Sequential version (no MPI)')
+    variant('mpi', default=True, description='Sequential version (no MPI)')
     variant('scotch', default=False, description='Enable Scotch')
     variant('ptscotch', default=False, description='Enable PT-Scotch')
     variant('metis', default=False, description='Enable Metis')
     variant('shared', default=True, description='Build MUMPS as a shared library')
     variant('examples', default=False, description='Enable compilation and installation of example executables')
 
-    depends_on("mpi", when='~seq')
+    depends_on("mpi", when='+mpi')
     depends_on("blas")
     depends_on("scalapack")
     depends_on("scotch", when='+scotch')
@@ -52,11 +52,11 @@ class Mumps(Package):
 
     def setup(self):
         spec = self.spec
-        if spec.satisfies('~seq@5'):
+        if spec.satisfies('+mpi@5'):
             force_symlink('Make.inc/Makefile.debian.PAR', 'Makefile.inc')
         if spec.satisfies('+seq@5'):
             force_symlink('Make.inc/Makefile.debian.SEQ', 'Makefile.inc')
-        if spec.satisfies('~seq@4'):
+        if spec.satisfies('+mpi@4'):
             force_symlink('Make.inc/Makefile.inc.generic', 'Makefile.inc')
         if spec.satisfies('+seq@4'):
             force_symlink('Make.inc/Makefile.inc.generic.SEQ', 'Makefile.inc')
@@ -125,9 +125,9 @@ class Mumps(Package):
         if spec.satisfies("%intel") and 'intelmpi' in self.spec['mpi']:
             mpicc = "mpiicc"
             mpif90 = "mpiifort"
-        elif spec.satisfies('~seq'):
+        elif spec.satisfies('+mpi'):
             mpicc = binmpicc
-            mpif90 = binmpif90
+            mpif90 = binmpif77
         else:
             mpicc = "mpicc"
             mpif90 = "mpif90"
