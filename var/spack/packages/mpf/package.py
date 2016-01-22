@@ -1,4 +1,5 @@
 from spack import *
+import spack
 import os
 from subprocess import call
 
@@ -7,7 +8,9 @@ class Mpf(Package):
     A Parallel Linear Algebra Library.
     Set the environment variable SOFTWARREEPO1 to get the versions.
     """
-    homepage = "http://www.google.com"
+    pkg_dir = spack.db.dirname_for_package_name("mpf")
+    homepage = pkg_dir
+    url      = pkg_dir
 
     try:
         version('nd',     git='hades:/home/falco/Airbus/mpf.git', branch='master')
@@ -18,10 +21,10 @@ class Mpf(Package):
     except KeyError:
         pass
 
+    version('dev', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     variant('shared', default=True , description='Build MPF as a shared library')
     variant('metis' , default=False, description='Use Metis')
-    version('devel', git="/Users/sylvand/local/mpf", branch='gs/file_spido2')
-
+    version('devel', git="hades:/home/falco/Airbus/mpf.git", branch='gs/file_spido2')
     variant('python', default=False, description='Build MPF python interface')
 
     depends_on("py-mpi4py", when='+python')
@@ -35,8 +38,14 @@ class Mpf(Package):
 
     def install(self, spec, prefix):
         project_dir = os.getcwd()
+        if '@dev' in self.spec:
+            if not os.getenv('LOCAL_PATH'):
+                sys.exit('Fix LOCAL_PATH variable to directory containing MPF repository')
+            project_dir = os.environ['LOCAL_PATH'] + "/mpf"
+            if not os.path.isdir(project_dir):
+                sys.exit('Problem with LOCAL_PATH variable')
 
-        with working_dir('build', create=True):
+        with working_dir(project_dir+'/build', create=True):
             scotch = spec['scotch'].prefix
             mumps = spec['mumps'].prefix
 

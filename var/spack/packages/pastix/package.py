@@ -2,6 +2,7 @@ from spack import *
 import os
 import platform
 import spack
+import sys
 
 class Pastix(Package):
     """a high performance parallel solver for very large sparse linear systems based on direct methods"""
