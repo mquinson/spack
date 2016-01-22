@@ -35,10 +35,12 @@ class QrMumps(Package):
 
         mf.filter('TOPDIR=/path/to/here', 'TOPDIR=%s/qrm_starpu_2d/' % self.stage.path)
 
+        mf.filter('CC      = gcc', 'CC      = cc')
+        mf.filter('FC      = gfortran', 'FC      = f90')
+
         includelist='-I%s' %  metis.include
         includelist+=' -I%s' %  suitesparse.include
-        includelist+=' -I%s' %  hwloc.include
-        os.environ["PKG_CONFIG_PATH"] = "%s/pkgconfig:$PKG_CONFIG_PATH" % starpu.lib
+        includelist+=' `pkg-config --cflags hwloc`'
         includelist+=' `pkg-config --cflags libstarpu`'
         mf.filter('CINCLUDES= \$\(IMETIS\) \$\(ICOLAMD\) \$\(ISTARPU\) \$\(IHWLOC\)', 'CINCLUDES= %s' % includelist)
         mf.filter('FINCLUDES= \$\(ISCOTCH\)', 'FINCLUDES= -I%s' % scotch.include)
