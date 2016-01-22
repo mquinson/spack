@@ -69,6 +69,7 @@ class Starpu(Package):
     variant('mpi', default=False, description='Enable MPI support')
     variant('cuda', default=False, description='Enable CUDA support')
     variant('opencl', default=False, description='Enable OpenCL support')
+    variant('openmp', default=False, description='Enable OpenMP support')
     variant('simu', default=False, description='Enable SimGrid support')
     variant('examples', default=True, description='Enable Examples')
     variant('blas', default=False, description='Enable BLAS related features')
@@ -118,6 +119,11 @@ class Starpu(Package):
 
         if not spec.satisfies('+opencl'):
             config_args.append("--disable-opencl")
+
+        if spec.satisfies('+openmp'):
+            config_args.append("--enable-openmp=yes")
+        else:
+            config_args.append("--enable-openmp=no")
 
         configure(*config_args)
 
