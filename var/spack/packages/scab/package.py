@@ -1,14 +1,17 @@
 from spack import *
+import spack
 import os
-from subprocess import call
 import platform
+from subprocess import call
 
 class Scab(Package):
     """
     A Finite Element Library.
     Set the environment variable SOFTWARREEPO1 to get the versions.
     """
-    homepage = "http://www.google.com"
+    pkg_dir = spack.db.dirname_for_package_name("mpf")
+    homepage = pkg_dir
+    url      = pkg_dir
 
     try:
         version('nd',     git='hades:/home/falco/Airbus/scab.git', branch='master')
@@ -19,23 +22,33 @@ class Scab(Package):
     except KeyError:
         pass
 
+    version('dev', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('devel', git="/Users/sylvand/local/scab", branch='gs/optim_pwfmm')
     variant('shared', default=True, description='Build SCAB as a shared library')
     variant('hdf5',  default=False, description='Build SCAB with hdf5')
 
     depends_on("mpf")
+    depends_on("mpf@dev", when="@dev")
     depends_on("cblas")
     depends_on("lapacke")
     depends_on("med-fichier", when="+hdf5")
 
     def install(self, spec, prefix):
-        with working_dir('build', create=True):
+        project_dir = os.getcwd()
+        if '@dev' in self.spec:
+            if not os.getenv('LOCAL_PATH'):
+                sys.exit('Fix LOCAL_PATH variable to directory containing MPF repository')
+            project_dir = os.environ['LOCAL_PATH'] + "/scab"
+            if not os.path.isdir(project_dir):
+                sys.exit('Problem with LOCAL_PATH variable')
+
+        with working_dir(project_dir+'/build', create=True):
 
             cmake_args = []
             cmake_args.extend(std_cmake_args)
 
             cmake_args.extend([
-                "..",
+                project_dir,
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
