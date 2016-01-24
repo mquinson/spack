@@ -23,6 +23,7 @@ class Scalfmm(Package):
     variant('mpi', default=False, description='Enable MPI')
     variant('starpu', default=False, description='Enable StarPU')
     variant('debug', default=False, description='Enable debug symbols')
+    variant('examples', default=True, description='Enable compilation and installation of example and test executables (Tests repository)')
 
     depends_on("cmake")
     # Does not compile without blas!
@@ -41,8 +42,17 @@ class Scalfmm(Package):
             cmake_args.extend(std_cmake_args)
             cmake_args+=["-DBUILD_SHARED_LIBS=ON"]
 
+            if spec.satisfies('+examples'):
+                cmake_args.extend(["-DSCALFMM_BUILD_EXAMPLES=ON"])
+                cmake_args.extend(["-DSCALFMM_BUILD_TESTS=ON"])
+                cmake_args.extend(["-DSCALFMM_INSTALL_DATA=ON"])
+            else:
+                cmake_args.extend(["-DSCALFMM_BUILD_EXAMPLES=OFF"])
+                cmake_args.extend(["-DSCALFMM_BUILD_TESTS=OFF"])
+                cmake_args.extend(["-DSCALFMM_INSTALL_DATA=OFF"])
+
             if spec.satisfies('+debug'):
-                cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
+                cmake_args.extend(["-DSCALFMM_BUILD_DEBUG=ON"])
 
             if spec.satisfies('~sse'):
                 # Disable SSE  here.
@@ -58,7 +68,9 @@ class Scalfmm(Package):
 
             if spec.satisfies('+fftw'):
                 # Enable FFTW here.
+                fftw = spec['fftw'].prefix
                 cmake_args.extend(["-DSCALFMM_USE_FFT=ON"])
+                cmake_args.extend(["-DFFTW_DIR=%s" % fftw])
             else:
                 # Disable FFTW here.
                 cmake_args.extend(["-DSCALFMM_USE_FFT=OFF"])
@@ -86,6 +98,12 @@ class Scalfmm(Package):
 
             cmake(*cmake_args)
             make()
+            # No install provided for test drivers
+            if spec.satisfies('+examples'):
+                if spec.satisfies('+debug'):
+                    install_tree('Tests/Debug', prefix.bin)
+                else:
+                    install_tree('Tests/Release', prefix.bin)
             make("install")
 
     # to use the existing version available in the environment: SCALFMM_DIR environment variable must be set
