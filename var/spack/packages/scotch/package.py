@@ -6,6 +6,19 @@ import subprocess
 import sys
 import spack
 import platform
+import gzip
+
+
+def gunzip(file_name):
+    inF = gzip.GzipFile(file_name, 'rb')
+    s = inF.read()
+    inF.close()
+
+    print file_name[:-3]
+    outF = file(file_name[:-3], 'wb')
+    outF.write(s)
+    outF.close()
+
 
 class Scotch(Package):
     """Scotch is a software package for graph and mesh/hypergraph
@@ -32,6 +45,7 @@ class Scotch(Package):
     variant('esmumps', default=False, description='Activate the compilation of the lib esmumps needed by mumps')
     variant('shared', default=True, description='Build shared libraries')
     variant('int64', default=False, description='to use 64 bits integers')
+    variant('grf', default=False, description='Install grf examples files')
 
     depends_on('mpi', when='+mpi')
     depends_on('zlib', when='+compression')
@@ -218,6 +232,12 @@ class Scotch(Package):
         install_tree('lib', prefix.lib)
         install_tree('include', prefix.include)
         install_tree('man/man1', prefix.share_man1)
+        if spec.satisfies('+grf'):
+            with working_dir('grf'):
+                for f in os.listdir('.'):
+                    gunzip(f)
+            install_tree('grf', prefix + '/grf')
+
 
     # to use the existing version available in the environment: SCOTCH_DIR environment variable must be set
     @when('@exist')
