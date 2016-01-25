@@ -91,14 +91,39 @@ class Fftw(Package):
                    '--enable-threads',
                    '--enable-openmp']
         self.check_fortran_availability(options)
-        self.set_floating_point_precision(spec, options)
+
+        # why this limitation, some templated C++ libraries could want to link with several precision variants of fftw
+        #self.set_floating_point_precision(spec, options)
 
         if '+mpi' in spec:
             options.append('--enable-mpi')
 
-        configure(*options)
+        options_double = options
+        options_float  = options
+        options_long   = options
+        options_quad   = options
+        # build and install the float precision version
+        configure(*options_double)
         make()
         make("install")
+        if spec.satisfies("+float"):
+            # build and install the float precision version
+            options_float.append("--enable-float")
+            configure(*options_float)
+            make()
+            make("install")
+        if spec.satisfies("+long_double"):
+            # build and install the long double precision version
+            options_long.append("--enable-long-double")
+            configure(*options_long)
+            make()
+            make("install")
+        if spec.satisfies("+quad"):
+            # build and install the quad precision version
+            options_quad.append("--enable-quad-precision")
+            configure(*options_quad)
+            make()
+            make("install")
 
     # to use the existing version available in the environment: FFTW_DIR environment variable must be set
     @when('@exist')
