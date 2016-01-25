@@ -30,7 +30,7 @@ class Scalfmm(Package):
     #depends_on("blas", when='+blas')
     depends_on("blas")
     depends_on("lapack")
-    depends_on("fftw", when='+fftw')
+    depends_on("fftw+float", when='+fftw')
     depends_on("starpu", when='+starpu')
     depends_on("mpi", when='+mpi')
 
