@@ -221,12 +221,13 @@ class Scotch(Package):
 
         if '+esmumps' in self.spec:
             targets.append('esmumps')
-            if '+mpi' in self.spec:
+            # No 'make ptesmumps' in scotch_5.1.11_esmumps.tar.gz
+            if spec.satisfies('@6:') and '+mpi' in self.spec:
                 targets.append('ptesmumps')
 
         with working_dir('src'):
             for app in targets:
-                make(app, parallel=(not app=='ptesmumps'))
+                make(app, parallel=0)
 
         install_tree('bin', prefix.bin)
         install_tree('lib', prefix.lib)
