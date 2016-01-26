@@ -22,9 +22,9 @@ class Hmat(Package):
         version('1.2.1',  git=repo+'hmat.git', branch='v1.2.1')
     except KeyError:
         pass
+    version('src', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('0',    git='hades:/home/falco/Airbus/hmat.git', branch='af/BinaryNestedDissection')
     version('nd',     git='hades:/home/falco/Airbus/hmat.git', branch='af/BinaryNestedDissection')
-    if os.environ.has_key("HMAT_DIR"):
-        version('src', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('starpu'  , default=True , description='Use StarPU library')
     variant('examples', default=False, description='Build and run examples at installation')
@@ -47,13 +47,7 @@ class Hmat(Package):
             check_call(["git" , "submodule" , "update", "--init"])
 
     def install(self, spec, prefix):
-        project_dir = os.getcwd()
-        if '@src' in self.spec:
-            if not os.getenv('HMAT_DIR'):
-                sys.exit('Fix HMAT_DIR variable to directory containing hmat repository')
-            project_dir = os.environ['HMAT_DIR']
-            if not os.path.isdir(project_dir):
-                sys.exit('Problem with HMAT_DIR variable')
+        project_dir = self.install_dir("HMAT_DIR")
 
         with working_dir(project_dir+'build', create=True):
 

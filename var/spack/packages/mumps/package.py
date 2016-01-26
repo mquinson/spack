@@ -17,11 +17,10 @@ class Mumps(Package):
 
     pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
-    if os.getenv('MUMPS_DIR'):
-        version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
-            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
-        version('src', '7b878b76545ef9ddb6f2b61d4c4be833',
-            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+        url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('src', '7b878b76545ef9ddb6f2b61d4c4be833',
+        url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('mpi', default=True, description='Sequential version (no MPI)')
     variant('scotch', default=False, description='Enable Scotch')
@@ -176,7 +175,7 @@ class Mumps(Package):
             else:
                 install('libseq/libmpiseq.so', prefix.lib)
         if spec.satisfies('+examples'):
-            install_tree('examples', '%s/examples' % prefix)
+            install_tree('examples', prefix + '/examples')
 
     # to use the existing version available in the environment: MUMPS_DIR environment variable must be set
     @when('@exist')

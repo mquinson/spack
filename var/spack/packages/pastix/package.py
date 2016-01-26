@@ -157,7 +157,8 @@ class Pastix(Package):
             make("install")
             # examples are not installed by default
             if spec.satisfies('+examples'):
-                install_tree('example/bin', '%s/lib/pastix/examples' % prefix)
+                install_tree('example/bin', prefix + '/examples')
+                install_tree('matrix', prefix + '/matrix')
 
     # to use the existing version available in the environment: PASTIX_DIR environment variable must be set
     @when('@exist')

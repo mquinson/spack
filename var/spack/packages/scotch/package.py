@@ -24,7 +24,7 @@ class Scotch(Package):
     """Scotch is a software package for graph and mesh/hypergraph
        partitioning, graph clustering, and sparse matrix ordering."""
     homepage = "http://www.labri.fr/perso/pelegrin/scotch/"
-    url      = "http://gforge.inria.fr/frs/download.php/file/34099/scotch_6.0.3.tar.gz"
+    # url      = "http://gforge.inria.fr/frs/download.php/file/34099/scotch_6.0.3.tar.gz"
     list_url = "http://gforge.inria.fr/frs/?group_id=248"
 
     version('6.0.3', '10b0cc0f184de2de99859eafaca83cfc',
@@ -36,11 +36,10 @@ class Scotch(Package):
 
     pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
-    if os.getenv('SCOTCH_DIR'):
-        version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
-            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
-        version('src', '7b878b76545ef9ddb6f2b61d4c4be833',
-            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+        url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('src', '7b878b76545ef9ddb6f2b61d4c4be833',
+        url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('mpi', default=False, description='Activate the compilation of PT-Scotch')
     variant('pthread', default=True, description='Enable multithread with pthread')
