@@ -22,22 +22,22 @@ class Scab(Package):
     except KeyError:
         pass
 
-    version('dev', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('src', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('devel', git="/Users/sylvand/local/scab", branch='gs/optim_pwfmm')
     variant('shared', default=True, description='Build SCAB as a shared library')
     variant('hdf5',  default=False, description='Build SCAB with hdf5')
 
     depends_on("mpf")
-    depends_on("mpf@dev", when="@dev")
+    depends_on("mpf@src", when="@src")
     depends_on("cblas")
     depends_on("lapacke")
     depends_on("med-fichier", when="+hdf5")
 
     def install(self, spec, prefix):
         project_dir = os.getcwd()
-        if '@dev' in self.spec:
+        if '@src' in self.spec:
             if not os.getenv('LOCAL_PATH'):
-                sys.exit('Fix LOCAL_PATH variable to directory containing MPF repository')
+                sys.exit('Fix LOCAL_PATH variable to directory containing scab repository')
             project_dir = os.environ['LOCAL_PATH'] + "/scab"
             if not os.path.isdir(project_dir):
                 sys.exit('Problem with LOCAL_PATH variable')
