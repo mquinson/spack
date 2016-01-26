@@ -22,19 +22,19 @@ class Actipole(Package):
     except KeyError:
         pass
 
-    version('dev', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('src', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('devel', git="/Users/sylvand/local/actipole", branch='master')
 
     variant('shared', default=True, description='Build ACTIPOLE as a shared library')
 
     depends_on("scab")
-    depends_on("scab@dev", when="@dev")
+    depends_on("scab@src", when="@src")
 
     def install(self, spec, prefix):
         project_dir = os.getcwd()
-        if '@dev' in self.spec:
+        if '@src' in self.spec:
             if not os.getenv('LOCAL_PATH'):
-                sys.exit('Fix LOCAL_PATH variable to directory containing MPF repository')
+                sys.exit('Fix LOCAL_PATH variable to directory containing actipole repository')
             project_dir = os.environ['LOCAL_PATH'] + "/actipole"
             if not os.path.isdir(project_dir):
                 sys.exit('Problem with LOCAL_PATH variable')
