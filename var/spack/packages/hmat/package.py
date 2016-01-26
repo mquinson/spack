@@ -4,6 +4,7 @@ import sys
 from subprocess import call
 from subprocess import check_call
 import platform
+import spack
 
 class Hmat(Package):
     """
