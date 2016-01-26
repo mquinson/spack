@@ -51,6 +51,8 @@ class NetlibCblas(Package):
         mf.filter('^FC =.*', 'FC = f90')
         mf.filter('^CFLAGS =', 'CFLAGS = -fPIC ')
         mf.filter('^FFLAGS =', 'FFLAGS = -fPIC ')
+        # Rename the generated lib file to libcblas
+        mf.filter('^CBLIB =.*', 'CBLIB = ../lib/libcblas.a')
 
         if spec.satisfies('+shared'):
             mf.filter('^ARCH\s*=.*', 'ARCH=$(CC) $(BLLIB)')
@@ -58,7 +60,7 @@ class NetlibCblas(Package):
             mf.filter('^RANLIB\s*=.*', 'RANLIB=echo')
             mf.filter('^CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
             mf.filter('^FFLAGS\s*=', 'FFLAGS = -fPIC ')
-            mf.filter('\.a', '.so')
+            mf.filter('\.a', ".dylib" if platform.system() == 'Darwin' else ".so")
 
     def install(self, spec, prefix):
 
@@ -67,14 +69,12 @@ class NetlibCblas(Package):
         mkdirp(prefix.lib)
         mkdirp(prefix.include)
 
-        # Rename the generated lib file to libcblas
         if spec.satisfies('+shared'):
-            if platform.system() == 'Darwin':
-                install('./lib/cblas_LINUX.so', '%s/libcblas.dylib' % prefix.lib)
-            else:
-                install('./lib/cblas_LINUX.so', '%s/libcblas.so' % prefix.lib)
+            libext=".dylib" if platform.system() == 'Darwin' else ".so"
         else:
-            install('./lib/cblas_LINUX.a', '%s/libcblas.a' % prefix.lib)
+            libext=".a"
+
+        install('./lib/libcblas%s' % libext, '%s' % prefix.lib)
         install('./include/cblas.h','%s' % prefix.include)
         install('./include/cblas_f77.h','%s' % prefix.include)
 
