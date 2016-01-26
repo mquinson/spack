@@ -19,7 +19,7 @@ class Hmat(Package):
     try:
         repo=os.environ['SOFTWAREREPO1']
         version('master', git=repo+'hmat.git', branch='master')
-        version('1.2.1',  git=repo+'hmat.git', branch='v1.2.1')
+        version('1.2.1',  git=repo+'hmat.git', tag='v1.2.1')
     except KeyError:
         pass
     version('src', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
