@@ -1,4 +1,5 @@
 from spack import *
+import spack
 import os
 import sys
 from subprocess import call
@@ -11,8 +12,9 @@ class Hmat(Package):
     A Parallel H-Matrix C/C++ Library.
     Set the environment variable SOFTWARREEPO1 to get the versions.
     """
-    homepage = "http://www.google.com"
-    pkg_dir = spack.db.dirname_for_package_name("mpf")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
+    homepage = pkg_dir
+    url      = pkg_dir
 
     try:
         repo=os.environ['SOFTWAREREPO1']
@@ -21,8 +23,9 @@ class Hmat(Package):
     except KeyError:
         pass
     version('nd',     git='hades:/home/falco/Airbus/hmat.git', branch='af/BinaryNestedDissection')
+    if os.environ.has_key("HMAT_DIR"):
+        version('src', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
-    version('src', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     variant('starpu'  , default=True , description='Use StarPU library')
     variant('examples', default=False, description='Build and run examples at installation')
     variant('shared',   default=True , description='Build HMAT as a shared library')
@@ -36,6 +39,8 @@ class Hmat(Package):
 
     def patch(self):
         # get hmat-oss
+        if '@src' in self.spec:
+            return
         if os.environ.has_key("SPACK_HMATOSS_TAR"):
             check_call(["tar" , "xvf" , os.environ['SPACK_HMATOSS_TAR'] ])
         else:

@@ -34,9 +34,12 @@ class Scotch(Package):
     version('5.1.11', 'c00a886895b3895529814303afe0d74e',
             url='https://gforge.inria.fr/frs/download.php/28044/scotch_5.1.11_esmumps.tar.gz')
 
-    pkg_dir = spack.db.dirname_for_package_name("scotch")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
-    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+    if os.getenv('SCOTCH_DIR'):
+        version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+        version('src', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('mpi', default=False, description='Activate the compilation of PT-Scotch')
@@ -243,7 +246,7 @@ class Scotch(Package):
     # to use the existing version available in the environment: SCOTCH_DIR environment variable must be set
     @when('@exist')
     def install(self, spec, prefix):
-        if os.getenv('SCOTCH_DIR'):
+        if os.getenv('SCOTCH_DIR'): #maybe this is not necessary anymore, as exist version is visible only when this variable is set
             scotchroot=os.environ['SCOTCH_DIR']
             if os.path.isdir(scotchroot):
                 os.symlink(scotchroot+"/bin", prefix.bin)

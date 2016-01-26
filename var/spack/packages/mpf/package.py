@@ -21,10 +21,12 @@ class Mpf(Package):
     except KeyError:
         pass
 
-    version('src', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('devel', git="/Users/sylvand/local/mpf", branch='gs/file_spido2')
+    if os.getenv('LOCAL_PATH'):
+        version('src', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+        
     variant('shared', default=True , description='Build MPF as a shared library')
     variant('metis' , default=False, description='Use Metis')
-    version('devel', git="/Users/sylvand/local/mpf", branch='gs/file_spido2')
     variant('python', default=False, description='Build MPF python interface')
 
     depends_on("py-mpi4py", when='+python')
@@ -47,7 +49,6 @@ class Mpf(Package):
 
         with working_dir(project_dir+'/build', create=True):
             scotch = spec['scotch'].prefix
-            mumps = spec['mumps'].prefix
 
             cmake_args = [
                 project_dir,
@@ -86,20 +87,20 @@ class Mpf(Package):
 
             try:
                 blacs = spec['blacs'].prefix
-                cmake_args.extend(["-DBLACS_LIBRARY_DIRS=%s/" % blacs.lib])
+                cmake_args.extend(["-DBLACS_LIBRARY_DIRS=" + blacs.lib])
             except KeyError:
                 filter_file('BLACS REQUIRED', 'BLACS', '../CMakeLists.txt')
             
             pastix = spec['pastix'].prefix
-            cmake_args.extend(["-DPASTIX_LIBRARY_DIRS=%s" % pastix.lib])
-            cmake_args.extend(["-DPASTIX_INCLUDE_DIRS=%s" % pastix.include])
+            cmake_args.extend(["-DPASTIX_LIBRARY_DIRS=" + pastix.lib])
+            cmake_args.extend(["-DPASTIX_INCLUDE_DIRS=" + pastix.include])
             cmake_args.extend(["-DENABLE_PASTIX=ON"])
 
             mumps = spec['mumps'].prefix
             # Workaround for the current bug in the hash calculation of mumps
             mumps = mumpsprefix
-            cmake_args.extend(["-DMUMPS_LIBRARY_DIRS=%s" % mumps.lib])
-            cmake_args.extend(["-DMUMPS_INCLUDE_DIRS=%s" % mumps.include])
+            cmake_args.extend(["-DMUMPS_LIBRARY_DIRS=" + mumps.lib])
+            cmake_args.extend(["-DMUMPS_INCLUDE_DIRS=" + mumps.include])
             cmake_args.extend(["-DENABLE_MUMPS=ON"])
 
             if '^mkl-blas' in spec:

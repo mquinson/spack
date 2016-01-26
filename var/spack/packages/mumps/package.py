@@ -15,9 +15,12 @@ class Mumps(Package):
     version('5.0.1', 'b477573fdcc87babe861f62316833db0',
             url="http://mumps.enseeiht.fr/MUMPS_5.0.1.tar.gz")
 
-    pkg_dir = spack.db.dirname_for_package_name("mumps")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
-    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+    if os.getenv('MUMPS_DIR'):
+        version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+        version('src', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('mpi', default=True, description='Sequential version (no MPI)')

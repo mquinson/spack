@@ -12,6 +12,12 @@ _spack()
 	fi
 
 
+    case "$cur" in
+    ^*)
+        COMPREPLY=( $( compgen -W '$(\ls $SPACK_ROOT/var/spack/packages | while read pack; do echo ^$pack; done)' -- "$cur" ) )
+	    return
+	    ;;
+	esac
     case "$prev" in
 	cd)
 	    COMPREPLY=( $( compgen -W '-h -m -r -i -p -P -s -S -b' -- "$cur" ) )
