@@ -154,7 +154,7 @@ class Mumps(Package):
             mf.filter('-lrt', '');
 
     def install(self, spec, prefix):
-
+        self.chdir_to_source("MUMPS_DIR")
         self.setup()
 
         for app in ('s', 'd', 'c', 'z'):

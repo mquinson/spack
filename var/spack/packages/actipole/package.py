@@ -31,7 +31,8 @@ class Actipole(Package):
     depends_on("scab@src", when="@src")
 
     def install(self, spec, prefix):
-        self.chdir_to_source("HMAT_REPO_DIR")
+        self.chdir_to_source("LOCAL_PATH")
+        os.chdir("actipole")
 
         with working_dir('build', create=True):
 

@@ -34,7 +34,8 @@ class Scab(Package):
     depends_on("med-fichier", when="+hdf5")
 
     def install(self, spec, prefix):
-        self.chdir_to_source("HMAT_REPO_DIR")
+        self.chdir_to_source("LOCAL_PATH")
+        os.chdir("scab")
 
         with working_dir('build', create=True):
 

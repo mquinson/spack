@@ -816,7 +816,15 @@ class Package(object):
     def _build_logger(self, log_path):
         """Create a context manager to log build output."""
 
-
+    def chdir_to_source(self, variable):
+        if '@src' in self.spec:
+            if not os.getenv(variable):
+                sys.exit('Fix '+variable+' variable to directory containing '+self.name+' repository')
+            project_dir = os.environ[variable]
+            if not os.path.isdir(project_dir):
+                sys.exit('Problem with '+variable)
+            os.chdir(project_dir)
+            tty.msg("%s located at %s." % (self.name, project_dir))
 
     def do_install(self,
                    keep_prefix=False,  keep_stage=False, ignore_deps=False,
@@ -872,7 +880,6 @@ class Package(object):
                          "Manually remove this directory to fix:",
                          self.prefix)
 
-
         def real_work():
             try:
                 tty.msg("Building %s." % self.name)
@@ -887,6 +894,7 @@ class Package(object):
                 else:
                     # Do the real install in the source directory.
                     self.stage.chdir_to_source()
+                    self.chdir_to_source(self.name.upper()+"_DIR")
 
                     # This redirects I/O to a build log (and optionally to the terminal)
                     log_path = join_path(os.getcwd(), 'spack-build.out')
@@ -1000,15 +1008,6 @@ class Package(object):
     def install(self, spec, prefix):
         """Package implementations override this with their own build configuration."""
         raise InstallError("Package %s provides no install method!" % self.name)
-
-    def chdir_to_source(self, variable):
-        if '@src' in self.spec:
-            if not os.getenv(variable):
-                sys.exit('Fix '+variable+' variable to directory containing '+self.name+' repository')
-            project_dir = os.environ[variable]
-            if not os.path.isdir(project_dir):
-                sys.exit('Problem with '+variable)
-            os.chdir(project_dir)
 
     def do_uninstall(self, force=False):
         if not self.installed:
