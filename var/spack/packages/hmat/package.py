@@ -47,11 +47,11 @@ class Hmat(Package):
             check_call(["git" , "submodule" , "update", "--init"])
 
     def install(self, spec, prefix):
-        project_dir = self.install_dir("HMAT_DIR")
+        self.chdir_to_source("HMAT_REPO_DIR")
 
-        with working_dir(project_dir+'build', create=True):
+        with working_dir('build', create=True):
 
-            cmake_args = [ project_dir ]
+            cmake_args = [ ".." ]
             cmake_args.extend(std_cmake_args)
             cmake_args+=[
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",

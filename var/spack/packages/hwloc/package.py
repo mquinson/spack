@@ -28,7 +28,7 @@ class Hwloc(Package):
     version('1.9', '1f9f9155682fe8946a97c08896109508',
             url="http://www.open-mpi.org/software/hwloc/v1.9/downloads/hwloc-1.9.tar.gz")
 
-    pkg_dir = spack.db.dirname_for_package_name("hwloc")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))

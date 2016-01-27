@@ -7,7 +7,7 @@ class Cuda(Package):
     """Nvidia CUDA/cuBLAS routines"""
     homepage = "https://developer.nvidia.com/cuda-zone"
 
-    pkg_dir = spack.db.dirname_for_package_name("cuda")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
 
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',

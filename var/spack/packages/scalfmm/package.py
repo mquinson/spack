@@ -12,7 +12,7 @@ class Scalfmm(Package):
             url="https://gforge.inria.fr/frs/download.php/file/34672/SCALFMM-1.3-56.tar.gz")
     version('master', git='https://scm.gforge.inria.fr/anonscm/git/scalfmm-public/scalfmm-public.git')
 
-    pkg_dir = spack.db.dirname_for_package_name("scalfmm")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))

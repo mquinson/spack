@@ -15,7 +15,7 @@ class EigenBlas(Package):
             url = "http://bitbucket.org/eigen/eigen/get/3.2.7.tar.bz2")
     version('hg-default', hg='https://bitbucket.org/eigen/eigen/')
 
-    pkg_dir = spack.db.dirname_for_package_name("eigen-blas")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))

@@ -44,7 +44,7 @@ class Cmake(Package):
 #    version('3.0.1', 'e2e05d84cb44a42f1371d9995631dcf5')
 #    version('3.0.0', '21a1c85e1a3b803c4b48e7ff915a863e')
 
-    pkg_dir = spack.db.dirname_for_package_name("cmake")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))

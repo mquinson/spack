@@ -1001,16 +1001,14 @@ class Package(object):
         """Package implementations override this with their own build configuration."""
         raise InstallError("Package %s provides no install method!" % self.name)
 
-    def install_dir(self, variable):
+    def chdir_to_source(self, variable):
         if '@src' in self.spec:
             if not os.getenv(variable):
                 sys.exit('Fix '+variable+' variable to directory containing '+self.name+' repository')
             project_dir = os.environ[variable]
             if not os.path.isdir(project_dir):
                 sys.exit('Problem with '+variable)
-        else:
-            project_dir = os.getcwd()
-        return project_dir
+            os.chdir(project_dir)
 
     def do_uninstall(self, force=False):
         if not self.installed:

@@ -58,7 +58,7 @@ class Starpu(Package):
     version('svn-1.1', svn='https://scm.gforge.inria.fr/anonscm/svn/starpu/branches/starpu-1.1')
     version('svn-1.2', svn='https://scm.gforge.inria.fr/anonscm/svn/starpu/branches/starpu-1.2')
 
-    pkg_dir = spack.db.dirname_for_package_name("starpu")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))

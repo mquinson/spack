@@ -11,7 +11,7 @@ class Plasma(Package):
     version('2.7.0', '8fcdfaf36832ab98e59b8299263999ca',
             url="http://icl.cs.utk.edu/projectsfiles/plasma/pubs/plasma_2.7.0.tar.gz")
 
-    pkg_dir = spack.db.dirname_for_package_name("plasma")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))

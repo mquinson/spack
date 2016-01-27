@@ -27,7 +27,7 @@ class NetlibLapack(Package):
     version('3.3.1', 'd0d533ec9a5b74933c2a1e84eedc58b4',
             url="http://www.netlib.org/lapack/lapack-3.3.1.tgz")
 
-    pkg_dir = spack.db.dirname_for_package_name("netlib-lapack")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))

@@ -14,7 +14,7 @@ class NetlibCblas(Package):
     version('2015-06-06', '1e8830f622d2112239a4a8a83b84209a',
             url='http://www.netlib.org/blas/blast-forum/cblas.tgz')
 
-    pkg_dir = spack.db.dirname_for_package_name("netlib-cblas")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))

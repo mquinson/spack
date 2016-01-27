@@ -52,7 +52,7 @@ class Mpich(Package):
     version('3.0.4', '9c5d5d4fe1e17dd12153f40bc5b6dbc0',
             url="http://www.mpich.org/static/downloads/3.0.4/mpich-3.0.4.tar.gz")
 
-    pkg_dir = spack.db.dirname_for_package_name("mpich")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))

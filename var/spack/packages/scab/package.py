@@ -9,7 +9,7 @@ class Scab(Package):
     A Finite Element Library.
     Set the environment variable SOFTWARREEPO1 to get the versions.
     """
-    pkg_dir = spack.db.dirname_for_package_name("mpf")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     homepage = pkg_dir
     url      = pkg_dir
 
@@ -34,21 +34,15 @@ class Scab(Package):
     depends_on("med-fichier", when="+hdf5")
 
     def install(self, spec, prefix):
-        project_dir = os.getcwd()
-        if '@src' in self.spec:
-            if not os.getenv('LOCAL_PATH'):
-                sys.exit('Fix LOCAL_PATH variable to directory containing scab repository')
-            project_dir = os.environ['LOCAL_PATH'] + "/scab"
-            if not os.path.isdir(project_dir):
-                sys.exit('Problem with LOCAL_PATH variable')
+        self.chdir_to_source("HMAT_REPO_DIR")
 
-        with working_dir(project_dir+'/build', create=True):
+        with working_dir('build', create=True):
 
             cmake_args = []
             cmake_args.extend(std_cmake_args)
 
             cmake_args.extend([
-                project_dir,
+                "..",
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])

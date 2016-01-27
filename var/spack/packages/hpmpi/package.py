@@ -8,7 +8,7 @@ class Hpmpi(Package):
        the Message Passing Interface (MPI) standard."""
     homepage = "http://www.ibm.com/systems/fr/platformcomputing/products/mpi/index.html"
 
-    pkg_dir = spack.db.dirname_for_package_name("hpmpi")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
 
     # fake tarball because we consider it is already installed
     version('9.1.0', '7b878b76545ef9ddb6f2b61d4c4be833',

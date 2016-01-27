@@ -12,7 +12,7 @@ class Suitesparse(Package):
     version('4.4.5', 'a2926c27f8a5285e4a10265cc68bbc18',
             url = "http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz")
 
-    pkg_dir = spack.db.dirname_for_package_name("suitesparse")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))

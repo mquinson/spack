@@ -8,7 +8,7 @@ class Mpf(Package):
     A Parallel Linear Algebra Library.
     Set the environment variable SOFTWARREEPO1 to get the versions.
     """
-    pkg_dir = spack.db.dirname_for_package_name("mpf")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     homepage = pkg_dir
     url      = pkg_dir
 
@@ -39,19 +39,14 @@ class Mpf(Package):
     depends_on("hmat")
 
     def install(self, spec, prefix):
-        project_dir = os.getcwd()
-        if '@src' in self.spec:
-            if not os.getenv('LOCAL_PATH'):
-                sys.exit('Fix LOCAL_PATH variable to directory containing MPF repository')
-            project_dir = os.environ['LOCAL_PATH'] + "/mpf"
-            if not os.path.isdir(project_dir):
-                sys.exit('Problem with LOCAL_PATH variable')
-
-        with working_dir(project_dir+'/build', create=True):
+        self.chdir_to_source("LOCAL_PATH")
+        os.chdir("mpf")
+        
+        with working_dir('build', create=True):
             scotch = spec['scotch'].prefix
 
             cmake_args = [
-                project_dir,
+                "..",
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
@@ -137,7 +132,7 @@ class Mpf(Package):
                 cmake_args.extend(["-DMKL_LIBRARIES=mkl_scalapack_lp64;mkl_intel_lp64;mkl_core;mkl_gnu_thread;mkl_blacs_lp64;"])
 
                 # problem with static library blacs...
-                mf = FileFilter(project_dir + '/as-make/CMake/FindMKL.cmake')
+                mf = FileFilter('../as-make/CMake/FindMKL.cmake')
                 mf.filter('set\(MKL_LIBRARIES -Wl,--start-group;\$\{MKL_LIBRARIES\};-Wl,--end-group\)','set(MKL_LIBRARIES -Wl,--start-group,--whole-archive;${MKL_LIBRARIES};-Wl,--end-group,--no-whole-archive )')  
 
             cmake_args.extend(std_cmake_args)

@@ -9,7 +9,7 @@ class Quark(Package):
     version('0.9.0', '52066a24b21c390d2f4fb3b57e976d08',
             url="http://icl.cs.utk.edu/projectsfiles/quark/pubs/quark-0.9.0.tgz")
 
-    pkg_dir = spack.db.dirname_for_package_name("quark")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))

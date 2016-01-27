@@ -9,7 +9,7 @@ class Actipole(Package):
     A Finite Element Acoustic Solver.
     Set the environment variable SOFTWARREEPO1 to get the versions.
     """
-    pkg_dir = spack.db.dirname_for_package_name("mpf")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     homepage = pkg_dir
     url      = pkg_dir
 
@@ -31,17 +31,11 @@ class Actipole(Package):
     depends_on("scab@src", when="@src")
 
     def install(self, spec, prefix):
-        project_dir = os.getcwd()
-        if '@src' in self.spec:
-            if not os.getenv('LOCAL_PATH'):
-                sys.exit('Fix LOCAL_PATH variable to directory containing actipole repository')
-            project_dir = os.environ['LOCAL_PATH'] + "/actipole"
-            if not os.path.isdir(project_dir):
-                sys.exit('Problem with LOCAL_PATH variable')
+        self.chdir_to_source("HMAT_REPO_DIR")
 
-        with working_dir(project_dir+'/build', create=True):
+        with working_dir('build', create=True):
 
-            cmake_args = [project_dir]
+            cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
             cmake_args.extend([
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",

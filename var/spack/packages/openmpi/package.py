@@ -23,7 +23,7 @@ class Openmpi(Package):
     version('1.6.5', '03aed2a4aa4d0b27196962a2a65fc475',
             url = "http://www.open-mpi.org/software/ompi/v1.6/downloads/openmpi-1.6.5.tar.bz2")
 
-    pkg_dir = spack.db.dirname_for_package_name("openmpi")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))

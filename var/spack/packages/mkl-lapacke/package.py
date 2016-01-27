@@ -8,7 +8,7 @@ class MklLapacke(Package):
     """Intel MKL Blas and Lapack routines"""
     homepage = "https://software.intel.com/en-us/intel-mkl"
 
-    pkg_dir = spack.db.dirname_for_package_name("mkl-lapacke")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
 
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',

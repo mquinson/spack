@@ -8,7 +8,7 @@ class Intelmpi(Package):
        the Message Passing Interface (MPI) standard."""
     homepage = "https://software.intel.com/en-us/intel-mpi-library"
 
-    pkg_dir = spack.db.dirname_for_package_name("intelmpi")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
 
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',

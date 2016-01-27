@@ -214,7 +214,7 @@ class Scotch(Package):
                 fh.write('\n'.join(makefile_inc))
 
     def install(self, spec, prefix):
-
+        self.chdir_to_source("SCOTCH_DIR")
         self.setup()
 
         targets = ['scotch']

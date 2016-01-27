@@ -15,7 +15,7 @@ class Mvapich2(Package):
     version('1.9', '5dc58ed08fd3142c260b70fe297e127c',
             url="http://mvapich.cse.ohio-state.edu/download/mvapich2/mv2/mvapich2-1.9.tgz")
 
-    pkg_dir = spack.db.dirname_for_package_name("mvapich2")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))

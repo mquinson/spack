@@ -18,7 +18,7 @@ class Papi(Package):
     version('5.3.0', '367961dd0ab426e5ae367c2713924ffb',
             url="http://icl.cs.utk.edu/projects/papi/downloads/papi-5.3.0.tar.gz")
 
-    pkg_dir = spack.db.dirname_for_package_name("papi")
+    pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
