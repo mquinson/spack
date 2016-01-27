@@ -105,7 +105,7 @@ class Hmat(Package):
             cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
 
             if platform.system() == 'Darwin':
-                filter_file('_LINK_HMAT_OSS LINK_PRIVATE.*', '_LINK_HMAT_OSS LINK_PRIVATE -Wl,-force_load,${_HMAT_OSS_PATH}  ${hmat-oss_LIB_DEPENDS})', project_dir+'/CMakeLists.txt')
+                filter_file('_LINK_HMAT_OSS LINK_PRIVATE.*', '_LINK_HMAT_OSS LINK_PRIVATE -Wl,-force_load,${_HMAT_OSS_PATH}  ${hmat-oss_LIB_DEPENDS})', '../CMakeLists.txt')
 
             cmake(*cmake_args)
 
