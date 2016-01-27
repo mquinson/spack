@@ -35,7 +35,6 @@ class Pastix(Package):
     depends_on("mpi", when='+mpi')
     depends_on("blas")
     depends_on("scotch")
-    depends_on("scotch+mpi", when='+mpi')
     depends_on("metis@4.0.3", when='+metis')
     depends_on("starpu@1.1.0:1.1.5", when='+starpu')
 
