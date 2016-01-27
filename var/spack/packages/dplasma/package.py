@@ -1,4 +1,7 @@
 from spack import *
+import os
+import sys
+import spack
 
 class Dplasma(Package):
     """Distributed Parallel Linear Algebra Software for Multicore Architectures"""
@@ -8,6 +11,12 @@ class Dplasma(Package):
     version('1.2.1', '8b899ba331926997ea96fbc381e2b6cd')
     version('1.2.0', 'f40c36139b6a1b526d2505d1e0237748')
     version('1.1.0', '72e1eec916be379ddb9dcd45c7a4b593')
+    pkg_dir = spack.db.dirname_for_package_name("fake")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('src', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('mpi', default=True, description='Enable MPI')
     variant('cuda', default=False, description='Enable CUDA')
@@ -25,3 +34,16 @@ class Dplasma(Package):
 
         make()
         make("install")
+
+    # to use the existing version available in the environment: DPLASMA_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        if os.getenv('DPLASMA_DIR'):
+            dpalsmaroot=os.environ['DPLASMA_DIR']
+            if os.path.isdir(dpalsmaroot):
+                os.symlink(dpalsmaroot+"/include", prefix.include)
+                os.symlink(dpalsmaroot+"/lib", prefix.lib)
+            else:
+                sys.exit(dpalsmaroot+' directory does not exist.'+' Do you really have openmpi installed in '+dpalsmaroot+' ?')
+        else:
+            sys.exit('DPLASMA_DIR is not set, you must set this environment variable to the installation path of your dpalsma')
