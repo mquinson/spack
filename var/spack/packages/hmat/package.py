@@ -48,7 +48,8 @@ class Hmat(Package):
 
     def install(self, spec, prefix):
         self.chdir_to_source("LOCAL_PATH")
-        os.chdir("hmat")
+        if '@src' in self.spec:
+            os.chdir("hmat")
 
         with working_dir('build', create=True):
 

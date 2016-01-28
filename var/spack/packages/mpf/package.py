@@ -40,7 +40,8 @@ class Mpf(Package):
 
     def install(self, spec, prefix):
         self.chdir_to_source("LOCAL_PATH")
-        os.chdir("mpf")
+        if '@src' in self.spec:
+            os.chdir("mpf")
         
         with working_dir('build', create=True):
             scotch = spec['scotch'].prefix

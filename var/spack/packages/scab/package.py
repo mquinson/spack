@@ -35,7 +35,8 @@ class Scab(Package):
 
     def install(self, spec, prefix):
         self.chdir_to_source("LOCAL_PATH")
-        os.chdir("scab")
+        if '@src' in self.spec:
+            os.chdir("scab")
 
         with working_dir('build', create=True):
 
