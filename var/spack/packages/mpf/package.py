@@ -10,7 +10,7 @@ class Mpf(Package):
     """
     pkg_dir = spack.db.dirname_for_package_name("fake")
     homepage = pkg_dir
-    url      = pkg_dir
+    url      = "file:"+join_path(pkg_dir, "empty.tar.gz")
 
     try:
         version('nd',     git='hades:/home/falco/Airbus/mpf.git', branch='master')
@@ -22,8 +22,7 @@ class Mpf(Package):
         pass
 
     version('devel', git="/Users/sylvand/local/mpf", branch='gs/file_spido2')
-    if os.getenv('LOCAL_PATH'):
-        version('src', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('src')
         
     variant('shared', default=True , description='Build MPF as a shared library')
     variant('metis' , default=False, description='Use Metis')
@@ -38,11 +37,10 @@ class Mpf(Package):
     depends_on("pastix+mpi")
     depends_on("hmat")
 
+    if os.getenv("LOCAL_PATH"):
+        project_local_path = os.environ["LOCAL_PATH"] + "/mpf"
+
     def install(self, spec, prefix):
-        self.chdir_to_source("LOCAL_PATH")
-        if '@src' in self.spec:
-            os.chdir("mpf")
-        
         with working_dir('build', create=True):
             scotch = spec['scotch'].prefix
 

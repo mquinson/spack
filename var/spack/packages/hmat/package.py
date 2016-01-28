@@ -12,9 +12,9 @@ class Hmat(Package):
     A Parallel H-Matrix C/C++ Library.
     Set the environment variable SOFTWARREEPO1 to get the versions.
     """
-    pkg_dir = spack.db.dirname_for_package_name("fake")
+    pkg_dir  = spack.db.dirname_for_package_name("fake")
     homepage = pkg_dir
-    url      = pkg_dir
+    url      = "file:"+join_path(pkg_dir, "empty.tar.gz")
 
     try:
         repo=os.environ['SOFTWAREREPO1']
@@ -22,7 +22,7 @@ class Hmat(Package):
         version('1.2.1',  git=repo+'hmat.git', tag='v1.2.1')
     except KeyError:
         pass
-    version('src', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('src')
     version('0',    git='hades:/home/falco/Airbus/hmat.git', branch='af/BinaryNestedDissection')
     version('nd',     git='hades:/home/falco/Airbus/hmat.git', branch='af/BinaryNestedDissection')
 
@@ -37,20 +37,19 @@ class Hmat(Package):
     depends_on("lapack")
     depends_on("scotch", when="@nd")
 
+    if os.getenv("LOCAL_PATH"):
+        project_local_path = os.environ["LOCAL_PATH"] + "/hmat"
+
     def patch(self):
         # get hmat-oss
-        if '@src' in self.spec:
-            return
+        if self.spec.satisfies('@src'):
+            return 0
         if os.environ.has_key("SPACK_HMATOSS_TAR"):
             check_call(["tar" , "xvf" , os.environ['SPACK_HMATOSS_TAR'] ])
         else:
             check_call(["git" , "submodule" , "update", "--init"])
 
     def install(self, spec, prefix):
-        self.chdir_to_source("LOCAL_PATH")
-        if '@src' in self.spec:
-            os.chdir("hmat")
-
         with working_dir('build', create=True):
 
             cmake_args = [ ".." ]

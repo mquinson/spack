@@ -15,12 +15,8 @@ class Pastix(Package):
     version('master', git='https://scm.gforge.inria.fr/anonscm/git/ricar/ricar.git', branch='master')
     version('develop', git='https://scm.gforge.inria.fr/anonscm/git/ricar/ricar.git', branch='develop')
 
-    pkg_dir = spack.db.dirname_for_package_name("fake")
-    # fake tarball because we consider it is already installed
-    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
-            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
-    version('src', '7b878b76545ef9ddb6f2b61d4c4be833',
-            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('exist')
+    version('src')
 
     variant('mpi', default=False, description='Enable MPI')
     variant('cuda', default=False, description='Enable CUDA kernels. Caution: only available if StarPU variant is enabled')
@@ -164,13 +160,9 @@ class Pastix(Package):
     # to use the existing version available in the environment: PASTIX_DIR environment variable must be set
     @when('@exist')
     def install(self, spec, prefix):
-        if os.getenv('PASTIX_DIR'):
-            pastixroot=os.environ['PASTIX_DIR']
-            if os.path.isdir(pastixroot):
-                os.symlink(pastixroot+"/bin", prefix.bin)
-                os.symlink(pastixroot+"/include", prefix.include)
-                os.symlink(pastixroot+"/lib", prefix.lib)
-            else:
-                sys.exit(pastixroot+' directory does not exist.'+' Do you really have openmpi installed in '+pastixroot+' ?')
-        else:
-            sys.exit('PASTIX_DIR is not set, you must set this environment variable to the installation path of your pastix')
+        os.symlink("bin", prefix.bin)
+        install_tree("include", prefix.include)
+        install_tree("lib", prefix.lib)
+        if spec.satisfies('+examples'):
+            install_tree('example/bin', prefix + '/examples')
+            install_tree('matrix', prefix + '/matrix')

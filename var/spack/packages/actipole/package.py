@@ -9,9 +9,9 @@ class Actipole(Package):
     A Finite Element Acoustic Solver.
     Set the environment variable SOFTWARREEPO1 to get the versions.
     """
-    pkg_dir = spack.db.dirname_for_package_name("fake")
+    pkg_dir  = spack.db.dirname_for_package_name("fake")
     homepage = pkg_dir
-    url      = pkg_dir
+    url      = "file:"+join_path(pkg_dir, "empty.tar.gz")
 
     try:
         version('nd',     git='hades:/home/falco/Airbus/actipole.git', branch='master')
@@ -22,7 +22,7 @@ class Actipole(Package):
     except KeyError:
         pass
 
-    version('src', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('src')
     version('devel', git="/Users/sylvand/local/actipole", branch='master')
 
     variant('shared', default=True, description='Build ACTIPOLE as a shared library')
@@ -30,11 +30,10 @@ class Actipole(Package):
     depends_on("scab")
     depends_on("scab@src", when="@src")
 
-    def install(self, spec, prefix):
-        self.chdir_to_source("LOCAL_PATH")
-        if '@src' in self.spec:
-            os.chdir("actipole")
+    if os.getenv("LOCAL_PATH"):
+        project_local_path = os.environ["LOCAL_PATH"] + "/actipole"
 
+    def install(self, spec, prefix):
         with working_dir('build', create=True):
 
             cmake_args = [".."]

@@ -62,6 +62,7 @@ import spack.util.web
 import spack.fetch_strategy as fs
 from spack.version import *
 from spack.stage import Stage
+from spack.stage import DIYStage
 from spack.util.compression import allowed_archive, extension
 from spack.util.executable import ProcessError
 
@@ -447,6 +448,22 @@ class Package(object):
 
             # Build the stage
             self._stage = Stage(self.fetcher, mirror_path=mp, name=stage_name)
+            if self.spec.satisfies('@src'):
+                tty.warn("Be careful with @src versions if you have a config file: it could be overwritten with spack dependencies.")
+            if self.spec.satisfies('@src') or self.spec.satisfies('@exist'):
+                variable = self.name.upper()+"_DIR"
+                if hasattr(self, 'project_local_path'):
+                    project_dir = self.project_local_path
+                else:
+                    if not os.getenv(variable):
+                        if self.spec.satisfies('@src'):
+                            tty.die(variable+' is not set, you must set this environment variable to the directory containing '+self.name)
+                        else:
+                            tty.die(variable+' is not set, you must set this environment variable to the installation path of your '+self.name)
+                    project_dir = os.environ[variable]
+                if not os.path.isdir(project_dir):
+                    tty.die('Error: path ' + project_dir + 'does not exist.')
+                self._stage = DIYStage(project_dir)
 
         return self._stage
 
@@ -816,16 +833,6 @@ class Package(object):
     def _build_logger(self, log_path):
         """Create a context manager to log build output."""
 
-    def chdir_to_source(self, variable):
-        if '@src' in self.spec:
-            if not os.getenv(variable):
-                sys.exit('Fix '+variable+' variable to directory containing '+self.name+' repository')
-            project_dir = os.environ[variable]
-            if not os.path.isdir(project_dir):
-                sys.exit('Problem with '+variable)
-            os.chdir(project_dir)
-            tty.msg("%s located at %s." % (self.name, project_dir))
-
     def do_install(self,
                    keep_prefix=False,  keep_stage=False, ignore_deps=False,
                    skip_patch=False, verbose=False, make_jobs=None, fake=False):
@@ -894,7 +901,6 @@ class Package(object):
                 else:
                     # Do the real install in the source directory.
                     self.stage.chdir_to_source()
-                    self.chdir_to_source(self.name.upper()+"_DIR")
 
                     # This redirects I/O to a build log (and optionally to the terminal)
                     log_path = join_path(os.getcwd(), 'spack-build.out')

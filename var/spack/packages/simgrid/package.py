@@ -20,13 +20,8 @@ class Simgrid(Package):
         version('master', git='https://scm.gforge.inria.fr/anonscm/git/simgrid/simgrid.git')
         version('starpumpi', git='https://scm.gforge.inria.fr/anonscm/git/simgrid/simgrid.git', branch='starpumpi')
 
-
-    pkg_dir = spack.db.dirname_for_package_name("fake")
-    # fake tarball because we consider it is already installed
-    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
-            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
-    version('src', '7b878b76545ef9ddb6f2b61d4c4be833',
-            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('exist')
+    version('src')
 
     variant('doc', default=False, description='Enable building documentation')
     variant('smpi', default=True, description='SMPI provides MPI')
@@ -57,15 +52,8 @@ class Simgrid(Package):
     # to use the existing version available in the environment: SIMGRID_DIR environment variable must be set
     @when('@exist')
     def install(self, spec, prefix):
-        if os.getenv('SIMGRID_DIR'):
-            simgridroot=os.environ['SIMGRID_DIR']
-            if os.path.isdir(simgridroot):
-                os.symlink(simgridroot+"/bin", prefix.bin)
-                os.symlink(simgridroot+"/include", prefix.include)
-                os.symlink(simgridroot+"/lib", prefix.lib)
-                if spec.satisfies('+examples'):
-                    os.symlink(simgridroot+"/examples", prefix.examples)
-            else:
-                sys.exit(simgridroot+' directory does not exist.'+' Do you really have openmpi installed in '+simgridroot+' ?')
-        else:
-            sys.exit('SIMGRID_DIR is not set, you must set this environment variable to the installation path of your simgrid')
+        install_tree("bin", prefix.bin)
+        install_tree("include", prefix.include)
+        install_tree("lib", prefix.lib)
+        if spec.satisfies('+examples'):
+            install_tree("examples", prefix + '/examples')

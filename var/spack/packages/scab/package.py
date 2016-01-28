@@ -9,9 +9,9 @@ class Scab(Package):
     A Finite Element Library.
     Set the environment variable SOFTWARREEPO1 to get the versions.
     """
-    pkg_dir = spack.db.dirname_for_package_name("fake")
+    pkg_dir  = spack.db.dirname_for_package_name("fake")
     homepage = pkg_dir
-    url      = pkg_dir
+    url      = "file:"+join_path(pkg_dir, "empty.tar.gz")
 
     try:
         version('nd',     git='hades:/home/falco/Airbus/scab.git', branch='master')
@@ -22,7 +22,7 @@ class Scab(Package):
     except KeyError:
         pass
 
-    version('src', '7b878b76545ef9ddb6f2b61d4c4be833', url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('src')
     version('devel', git="/Users/sylvand/local/scab", branch='gs/optim_pwfmm')
     variant('shared', default=True, description='Build SCAB as a shared library')
     variant('hdf5',  default=False, description='Build SCAB with hdf5')
@@ -33,11 +33,10 @@ class Scab(Package):
     depends_on("lapacke")
     depends_on("med-fichier", when="+hdf5")
 
-    def install(self, spec, prefix):
-        self.chdir_to_source("LOCAL_PATH")
-        if '@src' in self.spec:
-            os.chdir("scab")
+    if os.getenv("LOCAL_PATH"):
+        project_local_path = os.environ["LOCAL_PATH"] + "/scab"
 
+    def install(self, spec, prefix):
         with working_dir('build', create=True):
 
             cmake_args = []

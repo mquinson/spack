@@ -95,7 +95,7 @@ class Scotch(Package):
         module.scotchlibname+=otherlibs
 
     def compiler_specifics(self, makefile_inc, defines):
-        if '+mpi' in self.spec:
+        if self.spec.satisfies('+mpi'):
             mpicc = binmpicc
         if self.compiler.name == 'gcc':
             defines.append('-Drestrict=__restrict')
@@ -106,7 +106,7 @@ class Scotch(Package):
 
         makefile_inc.append('CCS       = $(CC)')
 
-        if '+mpi' in self.spec:
+        if self.spec.satisfies('+mpi'):
             makefile_inc.extend([
                     'CCP       = %s' % os.path.join(self.spec['mpi'].prefix.bin, '%s' % mpicc),
                     ])
@@ -215,7 +215,6 @@ class Scotch(Package):
                 fh.write('\n'.join(makefile_inc))
 
     def install(self, spec, prefix):
-        self.chdir_to_source("SCOTCH_DIR")
         self.setup()
 
         targets = ['scotch']
@@ -246,13 +245,6 @@ class Scotch(Package):
     # to use the existing version available in the environment: SCOTCH_DIR environment variable must be set
     @when('@exist')
     def install(self, spec, prefix):
-        if os.getenv('SCOTCH_DIR'): #maybe this is not necessary anymore, as exist version is visible only when this variable is set
-            scotchroot=os.environ['SCOTCH_DIR']
-            if os.path.isdir(scotchroot):
-                os.symlink(scotchroot+"/bin", prefix.bin)
-                os.symlink(scotchroot+"/include", prefix.include)
-                os.symlink(scotchroot+"/lib", prefix.lib)
-            else:
-                sys.exit(scotchroot+' directory does not exist.'+' Do you really have openmpi installed in '+scotchroot+' ?')
-        else:
-            sys.exit('SCOTCH_DIR is not set, you must set this environment variable to the installation path of your scotch')
+        install_tree("bin", prefix.bin)
+        install_tree("include", prefix.include)
+        install_tree("lib", prefix.lib)

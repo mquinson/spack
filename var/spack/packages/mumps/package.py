@@ -15,12 +15,8 @@ class Mumps(Package):
     version('5.0.1', 'b477573fdcc87babe861f62316833db0',
             url="http://mumps.enseeiht.fr/MUMPS_5.0.1.tar.gz")
 
-    pkg_dir = spack.db.dirname_for_package_name("fake")
-    # fake tarball because we consider it is already installed
-    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
-        url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
-    version('src', '7b878b76545ef9ddb6f2b61d4c4be833',
-        url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('exist')
+    version('src')
 
     variant('mpi', default=True, description='Sequential version (no MPI)')
     variant('scotch', default=False, description='Enable Scotch')
@@ -154,7 +150,6 @@ class Mumps(Package):
             mf.filter('-lrt', '');
 
     def install(self, spec, prefix):
-        self.chdir_to_source("MUMPS_DIR")
         self.setup()
 
         for app in ('s', 'd', 'c', 'z'):
@@ -180,13 +175,8 @@ class Mumps(Package):
     # to use the existing version available in the environment: MUMPS_DIR environment variable must be set
     @when('@exist')
     def install(self, spec, prefix):
-        if os.getenv('MUMPS_DIR'):
-            mumpsroot=os.environ['MUMPS_DIR']
-            if os.path.isdir(mumpsroot):
-                os.symlink(mumpsroot+"/bin", prefix.bin)
-                os.symlink(mumpsroot+"/include", prefix.include)
-                os.symlink(mumpsroot+"/lib", prefix.lib)
-            else:
-                sys.exit(mumpsroot+' directory does not exist.'+' Do you really have openmpi installed in '+mumpsroot+' ?')
-        else:
-            sys.exit('MUMPS_DIR is not set, you must set this environment variable to the installation path of your mumps')
+        os.symlink("bin", prefix.bin) # bin dir does not exist but still need one for package installation to be complete
+        install_tree("include", prefix.include)
+        install_tree("lib", prefix.lib)
+        if spec.satisfies('+examples'):
+            install_tree('examples', prefix + '/examples')
