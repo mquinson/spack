@@ -96,7 +96,7 @@ class Scotch(Package):
 
     def compiler_specifics(self, makefile_inc, defines):
         if '+mpi' in self.spec:
-            mpicc = binmpicc   
+            mpicc = binmpicc
         if self.compiler.name == 'gcc':
             defines.append('-Drestrict=__restrict')
         elif self.compiler.name == 'intel':
@@ -167,6 +167,7 @@ class Scotch(Package):
             defines.append('-DCOMMON_PTHREAD_BARRIER')
 
         if self.spec.satisfies('+int64'):
+            defines.append('-DINTSIZE64')
             defines.append('-DIDXSIZE64')
 
         if platform.system() == 'Darwin':
