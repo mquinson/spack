@@ -15,7 +15,9 @@ class Pastix(Package):
     version('master', git='https://scm.gforge.inria.fr/anonscm/git/ricar/ricar.git', branch='master')
     version('develop', git='https://scm.gforge.inria.fr/anonscm/git/ricar/ricar.git', branch='develop')
 
-    version('exist')
+    pkg_dir = spack.db.dirname_for_package_name("fake")
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+        url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
     variant('mpi', default=False, description='Enable MPI')
@@ -160,9 +162,7 @@ class Pastix(Package):
     # to use the existing version available in the environment: PASTIX_DIR environment variable must be set
     @when('@exist')
     def install(self, spec, prefix):
+        os.chdir(self.get_env_dir(self.name.upper()+'_DIR'))
         os.symlink("bin", prefix.bin)
-        install_tree("include", prefix.include)
-        install_tree("lib", prefix.lib)
-        if spec.satisfies('+examples'):
-            install_tree('example/bin', prefix + '/examples')
-            install_tree('matrix', prefix + '/matrix')
+        os.symlink("include", prefix.include)
+        os.symlink("lib", prefix.lib)

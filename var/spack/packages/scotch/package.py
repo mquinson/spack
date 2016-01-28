@@ -245,6 +245,7 @@ class Scotch(Package):
     # to use the existing version available in the environment: SCOTCH_DIR environment variable must be set
     @when('@exist')
     def install(self, spec, prefix):
+        os.chdir(self.get_env_dir(self.name.upper()+'_DIR'))
         install_tree("bin", prefix.bin)
         install_tree("include", prefix.include)
         install_tree("lib", prefix.lib)

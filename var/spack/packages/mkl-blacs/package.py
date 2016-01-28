@@ -24,6 +24,9 @@ class MklBlacs(Package):
 
     depends_on("mpi")
 
+    if os.getenv('MKLROOT'):
+        project_local_path = os.environ['MKLROOT']
+
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the libraries names for mkl-blacs."""
         mkllibdir=self.spec.prefix.lib

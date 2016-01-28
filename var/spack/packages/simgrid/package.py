@@ -19,8 +19,10 @@ class Simgrid(Package):
                 url='http://gforge.inria.fr/frs/download.php/file/33124/SimGrid-3.10.tar.gz')
         version('master', git='https://scm.gforge.inria.fr/anonscm/git/simgrid/simgrid.git')
         version('starpumpi', git='https://scm.gforge.inria.fr/anonscm/git/simgrid/simgrid.git', branch='starpumpi')
-
-    version('exist')
+        
+    pkg_dir = spack.db.dirname_for_package_name("fake")
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+        url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
     variant('doc', default=False, description='Enable building documentation')
@@ -52,6 +54,7 @@ class Simgrid(Package):
     # to use the existing version available in the environment: SIMGRID_DIR environment variable must be set
     @when('@exist')
     def install(self, spec, prefix):
+        os.chdir(self.get_env_dir(self.name.upper()+'_DIR'))
         install_tree("bin", prefix.bin)
         install_tree("include", prefix.include)
         install_tree("lib", prefix.lib)

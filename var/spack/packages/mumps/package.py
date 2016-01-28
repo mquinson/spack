@@ -15,7 +15,10 @@ class Mumps(Package):
     version('5.0.1', 'b477573fdcc87babe861f62316833db0',
             url="http://mumps.enseeiht.fr/MUMPS_5.0.1.tar.gz")
 
-    version('exist')
+    pkg_dir = spack.db.dirname_for_package_name("fake")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+        url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
     variant('mpi', default=True, description='Sequential version (no MPI)')
@@ -175,8 +178,9 @@ class Mumps(Package):
     # to use the existing version available in the environment: MUMPS_DIR environment variable must be set
     @when('@exist')
     def install(self, spec, prefix):
+        os.chdir(self.get_env_dir(self.name.upper()+'_DIR'))
         os.symlink("bin", prefix.bin) # bin dir does not exist but still need one for package installation to be complete
-        install_tree("include", prefix.include)
-        install_tree("lib", prefix.lib)
+        os.symlink("include", prefix.include)
+        os.symlink("lib", prefix.lib)
         if spec.satisfies('+examples'):
-            install_tree('examples', prefix + '/examples')
+            os.symlink('examples', prefix + '/examples')

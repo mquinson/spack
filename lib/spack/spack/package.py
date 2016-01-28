@@ -433,6 +433,15 @@ class Package(object):
                                             self.url_version(version))
 
 
+
+    def get_env_dir(self, variable):
+        if not os.getenv(variable):
+            tty.die(variable+' is not set, you must set this environment variable to the path of your '+self.name)
+        get_env_dir = os.environ[variable]
+        if not os.path.isdir(get_env_dir):
+            tty.die('Error: path ' + project_dir + 'does not exist.')
+        return get_env_dir
+
     @property
     def stage(self):
         if not self.spec.concrete:
@@ -450,17 +459,11 @@ class Package(object):
             self._stage = Stage(self.fetcher, mirror_path=mp, name=stage_name)
             if self.spec.satisfies('@src'):
                 tty.warn("Be careful with @src versions if you have a config file: it could be overwritten with spack dependencies.")
-            if self.spec.satisfies('@src') or self.spec.satisfies('@exist'):
                 variable = self.name.upper()+"_DIR"
                 if hasattr(self, 'project_local_path'):
                     project_dir = self.project_local_path
                 else:
-                    if not os.getenv(variable):
-                        if self.spec.satisfies('@src'):
-                            tty.die(variable+' is not set, you must set this environment variable to the directory containing '+self.name)
-                        else:
-                            tty.die(variable+' is not set, you must set this environment variable to the installation path of your '+self.name)
-                    project_dir = os.environ[variable]
+                    project_dir = self.get_env_dir(variable)
                 if not os.path.isdir(project_dir):
                     tty.die('Error: path ' + project_dir + 'does not exist.')
                 self._stage = DIYStage(project_dir)

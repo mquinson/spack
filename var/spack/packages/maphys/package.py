@@ -16,7 +16,9 @@ class Maphys(Package):
     version('svn-maphys-dev',
             svn=svnroot+"branches/maphys-dev")
 
-    version('exist')
+    pkg_dir = spack.db.dirname_for_package_name("fake")
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+        url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
     variant('mumps', default=False, description='Enable MUMPS direct solver')
@@ -157,8 +159,11 @@ class Maphys(Package):
     # to use the existing version available in the environment: MAPHYS_DIR environment variable must be set
     @when('@exist')
     def install(self, spec, prefix):
-        os.symlink("bin", prefix.bin)
-        install_tree("include", prefix.include)
-        install_tree("lib", prefix.lib)
+        os.chdir(self.get_env_dir(self.name.upper()+'_DIR'))
+        os.symlink(maphysroot+"/bin", prefix.bin)
+        os.symlink(maphysroot+"/include", prefix.include)
+        os.symlink(maphysroot+"/lib", prefix.lib)
         if spec.satisfies('+examples'):
-            install_tree('examples', prefix + '/examples')
+            os.symlink(maphysroot+'/examples', prefix + '/examples')
+        
+        
