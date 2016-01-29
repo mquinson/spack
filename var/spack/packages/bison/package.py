@@ -10,7 +10,8 @@ class Bison(Package):
     homepage = "http://www.gnu.org/software/bison/"
     url      = "http://ftp.gnu.org/gnu/bison/bison-3.0.tar.gz"
 
-    version('3.0.4', 'a586e11cd4aff49c3ff6d3b6a4c9ccf8')
+    version('3.0.4', 'a586e11cd4aff49c3ff6d3b6a4c9ccf8',
+            url='http://ftp.gnu.org/gnu/bison/bison-3.0.4.tar.gz')
 
     pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed

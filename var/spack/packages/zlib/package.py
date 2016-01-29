@@ -11,7 +11,8 @@ class Zlib(Package):
     homepage = "http://zlib.net"
     url      = "http://zlib.net/zlib-1.2.8.tar.gz"
 
-    version('1.2.8', '44d667c142d7cda120332623eab69f40')
+    version('1.2.8', '44d667c142d7cda120332623eab69f40',
+            url='http://zlib.net/zlib-1.2.8.tar.gz')
 
     pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
