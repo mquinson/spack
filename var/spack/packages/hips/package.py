@@ -14,8 +14,9 @@ class Hips(Package):
     variant('complex',  default=False, description='Build complex float version (real by default)')
     variant('simple',   default=False, description='Build simple precision version (double by default)')
     variant('metis',    default=False, description='Use Metis partitioner')
-    variant('shared',   default=True, description='Build Hips as a shared library')
-    variant('examples', default=True, description='Enable compilation and installation of example executables')
+    variant('shared',   default=False,  description='Build Hips as a shared library')
+    variant('int64',    default=False, description='To use 64 bits integers')
+    variant('examples', default=True,  description='Enable compilation and installation of example executables')
 
     pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
@@ -69,8 +70,11 @@ class Hips(Package):
             scotch = spec['scotch'].prefix
             scotch_libs = " ".join(scotchlibname)
             mf.filter('^SCOTCH_DIR =.*', 'SCOTCH_DIR = %s' % scotch)
-            mf.filter('^ISCOTCH    =.*', 'ISCOTCH    = %s' % scotch.include)
+            mf.filter('^ISCOTCH    =.*', 'ISCOTCH    = -I%s' % scotch.include)
             mf.filter('^LSCOTCH    =.*', 'LSCOTCH    = %s' % scotch_libs)
+
+        if spec.satisfies('+int64'):
+            mf.filter('^INTSIZE      =.*', 'INTSIZE      = -DINTSIZE64')
 
         if spec.satisfies('+shared'):
             mf.filter('= ar', '= cc')
@@ -86,7 +90,7 @@ class Hips(Package):
         # No install provided
         install_tree('LIB', prefix.lib)
         if spec.satisfies('+examples'):
-            install_tree('TESTS', '%s/lib/hips' % prefix)
+            install_tree('TESTS', '%s/examples' % prefix)
 
     # to use the existing version available in the environment: HIPS_DIR environment variable must be set
     @when('@exist')
@@ -94,8 +98,6 @@ class Hips(Package):
         if os.getenv('HIPS_DIR'):
             hipsroot=os.environ['HIPS_DIR']
             if os.path.isdir(hipsroot):
-                os.symlink(hipsroot+"/bin", prefix.bin)
-                os.symlink(hipsroot+"/include", prefix.include)
                 os.symlink(hipsroot+"/lib", prefix.lib)
             else:
                 sys.exit(hipsroot+' directory does not exist.'+' Do you really have openmpi installed in '+hipsroot+' ?')

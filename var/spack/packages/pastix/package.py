@@ -27,7 +27,7 @@ class Pastix(Package):
     variant('shared', default=True, description='Build Pastix as a shared library')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
     variant('debug', default=False, description='Enable debug symbols')
-    variant('int64', default=False, description='to use 64 bits integers')
+    variant('int64', default=False, description='To use 64 bits integers')
 
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
