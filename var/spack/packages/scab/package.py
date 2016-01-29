@@ -1,6 +1,7 @@
 from spack import *
 import spack
 import os
+import shutil
 import platform
 from subprocess import call
 
@@ -37,6 +38,8 @@ class Scab(Package):
         project_local_path = os.environ["LOCAL_PATH"] + "/scab"
 
     def install(self, spec, prefix):
+        if os.path.exists('build'):
+            shutil.rmtree('build')
         with working_dir('build', create=True):
 
             cmake_args = []

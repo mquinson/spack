@@ -55,11 +55,11 @@ class Mumps(Package):
         spec = self.spec
         if spec.satisfies('+mpi@5'):
             force_symlink('Make.inc/Makefile.debian.PAR', 'Makefile.inc')
-        if spec.satisfies('+seq@5'):
+        if spec.satisfies('~mpi@5'):
             force_symlink('Make.inc/Makefile.debian.SEQ', 'Makefile.inc')
         if spec.satisfies('+mpi@4'):
             force_symlink('Make.inc/Makefile.inc.generic', 'Makefile.inc')
-        if spec.satisfies('+seq@4'):
+        if spec.satisfies('~mpi@4'):
             force_symlink('Make.inc/Makefile.inc.generic.SEQ', 'Makefile.inc')
 
         mf = FileFilter('Makefile.inc')
@@ -165,9 +165,9 @@ class Mumps(Package):
         # No install provided
         install_tree('lib', prefix.lib)
         install_tree('include', prefix.include)
-        if spec.satisfies('+seq~shared'):
+        if spec.satisfies('~mpi~shared'):
             install('libseq/libmpiseq.a', prefix.lib)
-        if spec.satisfies('+seq+shared'):
+        if spec.satisfies('~mpi+shared'):
             if platform.system() == 'Darwin':
                 install('libseq/libmpiseq.dylib', prefix.lib)
             else:

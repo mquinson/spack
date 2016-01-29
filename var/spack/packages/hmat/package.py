@@ -1,6 +1,7 @@
 from spack import *
 import spack
 import os
+import shutil
 import sys
 from subprocess import call
 from subprocess import check_call
@@ -50,6 +51,8 @@ class Hmat(Package):
             check_call(["git" , "submodule" , "update", "--init"])
 
     def install(self, spec, prefix):
+        if os.path.exists('build'):
+            shutil.rmtree('build')
         with working_dir('build', create=True):
 
             cmake_args = [ ".." ]

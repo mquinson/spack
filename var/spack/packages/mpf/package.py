@@ -1,6 +1,7 @@
 from spack import *
 import spack
 import os
+import shutil
 from subprocess import call
 
 class Mpf(Package):
@@ -41,6 +42,8 @@ class Mpf(Package):
         project_local_path = os.environ["LOCAL_PATH"] + "/mpf"
 
     def install(self, spec, prefix):
+        if os.path.exists('build'):
+            shutil.rmtree('build')
         with working_dir('build', create=True):
             scotch = spec['scotch'].prefix
 
