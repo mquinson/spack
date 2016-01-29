@@ -31,8 +31,7 @@ class NetlibLapacke(Package):
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
-    version('src', '7b878b76545ef9ddb6f2b61d4c4be833',
-            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('src')
 
     variant('shared', default=True, description="Build shared library version")
 
