@@ -146,6 +146,7 @@ _spack()
 	    ;;
 	-*)
 	    COMPREPLY=($( compgen -W '$(\ls $SPACK_ROOT/var/spack/packages) ' -- "$cur" ) )
+	    return
 		;;
     spack)
 	    COMPREPLY=($( compgen -W 'activate arch bootstrap cd checksum clean compiler compilers config create deactivate dependents diy doc edit env extensions fetch find graph help info install list load location md5 mirror module package-list patch pkg 
