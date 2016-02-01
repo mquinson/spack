@@ -116,4 +116,4 @@ class Hmat(Package):
             make()
             make("install")
             if spec.satisfies('+examples'):
-                make("test")
+                make("test", "ARGS=-VV")

@@ -65,7 +65,7 @@ class NetlibLapack(Package):
 
         cmake_args = ["."]
         cmake_args += std_cmake_args
-        cmake_args += ["-Wno-dev"]
+        cmake_args += ["-Wno-dev", "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
 
         blas_libs = " ".join(blaslibfortname)
         blas_libs = blas_libs.replace(' ', ';')

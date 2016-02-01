@@ -27,7 +27,7 @@ class Zlib(Package):
         make()
         make("install")
 
-    # to use the existing version available in the environment: MUMPS_DIR environment variable must be set
+    # to use the existing version available in the environment: ZLIB_DIR environment variable must be set
     @when('@exist')
     def install(self, spec, prefix):
         os.chdir(self.get_env_dir(self.name.upper()+'_DIR'))

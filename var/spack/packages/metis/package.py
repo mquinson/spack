@@ -48,6 +48,9 @@ class Metis(Package):
                 cmake_args.extend(['-DSHARED=1'])
             else:
                 cmake_args.extend(['-DSHARED=0'])
+            cmake_args.extend([
+                "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
             cmake(*cmake_args)
             make()
             make("install")

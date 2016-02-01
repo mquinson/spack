@@ -51,6 +51,9 @@ class NetlibScalapack(Package):
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
             cmake_args+=["-DUSE_OPTIMIZED_LAPACK_BLAS=ON"]
+            cmake_args.extend([
+                "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
 
             if spec.satisfies('+shared'):
                 cmake_args.extend(['-DBUILD_SHARED_LIBS=ON'])
