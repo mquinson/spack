@@ -71,7 +71,7 @@ class Starpu(Package):
     variant('cuda', default=False, description='Enable CUDA support')
     variant('opencl', default=False, description='Enable OpenCL support')
     variant('openmp', default=False, description='Enable OpenMP support')
-    variant('simu', default=False, description='Enable SimGrid support')
+    variant('simgrid', default=False, description='Enable SimGrid support')
     variant('examples', default=True, description='Enable Examples')
     variant('blas', default=False, description='Enable BLAS related features')
 
@@ -79,7 +79,7 @@ class Starpu(Package):
     depends_on("mpi", when='+mpi')
     depends_on("cuda", when='+cuda')
     depends_on("fxt", when='+fxt')
-    depends_on("simgrid", when='+simu')
+    depends_on("simgrid", when='+simgrid')
     depends_on("blas", when='+blas')
 
     def install(self, spec, prefix):
@@ -105,7 +105,7 @@ class Starpu(Package):
             if spec.satisfies('@1.2:') or spec.satisfies('@svn-1.2') or spec.satisfies('@svn-trunk'):
                 config_args.append("--enable-paje-codelet-details")
 
-        if spec.satisfies('+simu'):
+        if spec.satisfies('+simgrid'):
             simgrid = spec['simgrid'].prefix
             config_args.append("--enable-simgrid")
             config_args.append("--with-simgrid-dir=%s" % simgrid)
