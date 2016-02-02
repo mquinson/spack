@@ -19,6 +19,10 @@ _spack()
 	    ;;
 	esac
     case "$prev" in
+	build)
+	    COMPREPLY=( $( compgen -W '-h -a -j -v $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    return
+	    ;;    
 	cd)
 	    COMPREPLY=( $( compgen -W '-h -m -r -i -p -P -s -S -b' -- "$cur" ) )
 	    return
@@ -149,7 +153,7 @@ _spack()
 	    return
 		;;
     spack)
-	    COMPREPLY=($( compgen -W 'activate arch bootstrap cd checksum clean compiler compilers config create deactivate dependents diy doc edit env extensions fetch find graph help info install list load location md5 mirror module package-list patch pkg 
+	    COMPREPLY=($( compgen -W 'activate arch bootstrap build cd checksum clean compiler compilers config create deactivate dependents diy doc edit env extensions fetch find graph help info install list load location md5 mirror module package-list patch pkg 
 	    providers purge python reindex restage spec stage test test-install uninstall unload unuse url-parse urls use versions ' -- $cur ))
 	    return
 	    ;;
