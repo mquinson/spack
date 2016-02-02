@@ -42,9 +42,10 @@ class Mpf(Package):
         project_local_path = os.environ["LOCAL_PATH"] + "/mpf"
 
     def install(self, spec, prefix):
-        if os.path.exists('build'):
-            shutil.rmtree('build')
-        with working_dir('build', create=True):
+        if self.spec.satisfies('@src') and os.path.exists('spack-build'):
+            shutil.rmtree('spack-build')
+
+        with working_dir('spack-build', create=True):
             scotch = spec['scotch'].prefix
 
             cmake_args = [

@@ -51,10 +51,10 @@ class Hmat(Package):
             check_call(["git" , "submodule" , "update", "--init"])
 
     def install(self, spec, prefix):
-        if os.path.exists('build'):
-            shutil.rmtree('build')
-        with working_dir('build', create=True):
+        if self.spec.satisfies('@src') and os.path.exists('spack-build'):
+                shutil.rmtree('spack-build')
 
+        with working_dir('spack-build', create=True):
             cmake_args = [ ".." ]
             cmake_args.extend(std_cmake_args)
             cmake_args+=[

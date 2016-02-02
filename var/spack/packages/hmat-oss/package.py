@@ -20,7 +20,7 @@ class HmatOss(Package):
     depends_on("scotch", when="@nd")
 
     def install(self, spec, prefix):
-        with working_dir('build', create=True):
+        with working_dir('spack-build', create=True):
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
             cmake_args+= [
