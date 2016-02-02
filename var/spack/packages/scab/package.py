@@ -37,6 +37,11 @@ class Scab(Package):
     if os.getenv("LOCAL_PATH"):
         project_local_path = os.environ["LOCAL_PATH"] + "/scab"
 
+    def build(self, spec, prefix):
+        with working_dir('spack-build'):
+            make()
+            make("install")
+
     def install(self, spec, prefix):
         if self.spec.satisfies('@src') and os.path.exists('spack-build'):
             shutil.rmtree('spack-build')

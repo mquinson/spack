@@ -50,6 +50,11 @@ class Hmat(Package):
         else:
             check_call(["git" , "submodule" , "update", "--init"])
 
+    def build(self, spec, prefix):
+        with working_dir('spack-build'):
+            make()
+            make("install")
+
     def install(self, spec, prefix):
         if self.spec.satisfies('@src') and os.path.exists('spack-build'):
                 shutil.rmtree('spack-build')
