@@ -5,9 +5,9 @@ import shutil
 import platform
 from subprocess import call
 
-class Actipole(Package):
+class Elfipole(Package):
     """
-    A Finite Element Acoustic Solver.
+    A Finite Element Electromagnetic Solver.
     Set the environment variable SOFTWARREEPO1 to get the versions.
     """
     pkg_dir  = spack.db.dirname_for_package_name("fake")
@@ -15,18 +15,16 @@ class Actipole(Package):
     url      = "file:"+join_path(pkg_dir, "empty.tar.gz")
 
     try:
-        version('nd',     git='hades:/home/falco/Airbus/actipole.git', branch='master')
         repo=os.environ['SOFTWAREREPO1']
-        version('master', git=repo+'actipole.git', branch='master')
-        version('1.21',   git=repo+'actipole.git', branch='v1.21')
-        version('1.21.0', git=repo+'actipole.git', tag='v1.21.0')
+        version('master', git=repo+'elfipole.git', branch='master')
+        version('1.20',   git=repo+'elfipole.git', branch='v1.20')
+        version('1.20.0', git=repo+'elfipole.git', tag='v1.20.0')
     except KeyError:
         pass
 
     version('src')
-    version('devel', git="/Users/sylvand/local/actipole", branch='master')
-
-    variant('shared', default=True, description='Build ACTIPOLE as a shared library')
+    version('devel', git="/Users/sylvand/local/elfipole", branch='master')
+    variant('shared', default=True, description='Build ELFIPOLE as a shared library')
 
     depends_on("scab")
     depends_on("scab@src", when="@src")
@@ -49,7 +47,7 @@ class Actipole(Package):
     depends_on("mkl-scalapack", when="+mkl")
 
     if os.getenv("LOCAL_PATH"):
-        project_local_path = os.environ["LOCAL_PATH"] + "/actipole"
+        project_local_path = os.environ["LOCAL_PATH"] + "/elfipole"
 
     def install(self, spec, prefix):
         if self.spec.satisfies('@src') and os.path.exists('spack-build'):
