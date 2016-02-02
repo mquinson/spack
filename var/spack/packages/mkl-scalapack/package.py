@@ -19,12 +19,12 @@ class MklScalapack(Package):
         mklroot=os.environ['MKLROOT']
         if os.path.isdir(mklroot):
             provides('scalapack')
+            depends_on("blacs")
+            depends_on("blas")
+            depends_on("lapack")
 
     variant('shared', default=True, description="Use shared library version")
 
-    depends_on("blacs")
-    depends_on("blas")
-    depends_on("lapack")
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the libraries names for mkl-scalapack."""

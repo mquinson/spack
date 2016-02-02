@@ -19,10 +19,9 @@ class MklBlacs(Package):
         mklroot=os.environ['MKLROOT']
         if os.path.isdir(mklroot):
             provides('blacs')
+            depends_on("mpi")
 
     variant('shared', default=True, description="Use shared library version")
-
-    depends_on("mpi")
 
     if os.getenv('MKLROOT'):
         project_local_path = os.environ['MKLROOT']
