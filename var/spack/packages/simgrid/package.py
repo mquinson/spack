@@ -51,6 +51,8 @@ class Simgrid(Package):
             cmake_args.extend(["-Denable_documentation=OFF"])
         cmake(*cmake_args)
         self.build(spec,prefix)
+        if spec.satisfies('+examples'):
+            install_tree('examples', prefix + '/examples')
 
     # to use the existing version available in the environment: SIMGRID_DIR environment variable must be set
     @when('@exist')
