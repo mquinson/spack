@@ -35,8 +35,6 @@ class Simgrid(Package):
     def build(self, spec, prefix):
         make()
         make("install")
-        if spec.satisfies('+examples'):
-            install_tree('examples', prefix + '/examples')
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         if spec.satisfies('+smpi'):

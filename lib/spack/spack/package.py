@@ -838,6 +838,7 @@ class Package(object):
 
     def do_build(self, build_deps=False, make_jobs=None, verbose=False):
         start_time = time.time()
+
         if not os.path.exists(self.prefix):
             self.do_install(
                 keep_prefix=False,  keep_stage=False, ignore_deps=False,
