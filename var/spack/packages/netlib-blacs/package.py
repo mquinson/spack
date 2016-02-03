@@ -47,12 +47,8 @@ class NetlibBlacs(Package):
         mf.filter('INTFACE\s*=.*', 'INTFACE=-DAdd_')
         mf.filter('TRANSCOMM\s*=.*', 'TRANSCOMM=')
         mpi = spec['mpi'].prefix
-        if spec.satisfies("%intel") and 'intelmpi' in self.spec['mpi']:
-            mpicc = "mpiicc"
-            mpif77 = "mpiifort"
-        else:
-            mpicc  = binmpicc
-            mpif77 = binmpif77
+        mpicc  = binmpicc
+        mpif77 = binmpif77
         mf.filter('F77            = g77', 'F77            = %s' % mpif77)
         mf.filter('CC             = gcc', 'CC             = %s' % mpicc)
 

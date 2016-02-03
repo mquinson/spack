@@ -20,6 +20,13 @@ class Intelmpi(Package):
         if os.path.isdir(mpiroot):
             provides('mpi')
 
+    def setup_dependent_environment(self, module, spec, dep_spec):
+        bin = self.prefix.bin
+        module.binmpicc  = os.path.join(bin, 'mpiicc')
+        module.binmpicxx = os.path.join(bin, 'mpiicpc')
+        module.binmpif77 = os.path.join(bin, 'mpiifort')
+        module.binmpif90 = os.path.join(bin, 'mpiifort')
+
     def install(self, spec, prefix):
         mpiroot=os.environ['I_MPI_ROOT']
         if os.path.isdir(mpiroot):

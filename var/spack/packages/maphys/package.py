@@ -43,14 +43,9 @@ class Maphys(Package):
         mf.filter('prefix := /usr/local', 'prefix := %s' % spec.prefix)
 
         mpi = spec['mpi'].prefix
-        if spec.satisfies("%intel") and 'intelmpi' in self.spec['mpi']:
-            mpicc  = "mpiicc"
-            mpif90 = "mpiifort"
-            mpif77 = "mpiifort"
-        else:
-            mpicc  = binmpicc
-            mpif90 = binmpif90
-            mpif77 = binmpif77
+        mpicc  = binmpicc
+        mpif90 = binmpif90
+        mpif77 = binmpif77
         if spec.satisfies("%intel"):
             mpif90_add_flags = ""
         else:
@@ -165,5 +160,3 @@ class Maphys(Package):
         os.symlink(maphysroot+"/lib", prefix.lib)
         if spec.satisfies('+examples'):
             os.symlink(maphysroot+'/examples', prefix + '/examples')
-        
-        

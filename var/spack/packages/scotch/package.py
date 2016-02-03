@@ -101,8 +101,6 @@ class Scotch(Package):
             defines.append('-Drestrict=__restrict')
         elif self.compiler.name == 'intel':
             defines.append('-restrict')
-            if 'intelmpi' in self.spec['mpi']:
-                mpicc = "mpiicc"
 
         makefile_inc.append('CCS       = $(CC)')
 

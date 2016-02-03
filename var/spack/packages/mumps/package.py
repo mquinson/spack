@@ -122,11 +122,8 @@ class Mumps(Package):
         if spec.satisfies("%intel"):
             mf.filter('^OPTL\s*=', 'OPTL = -nofor-main ')
 
-        mpi = spec['mpi'].prefix
-        if spec.satisfies("%intel") and 'intelmpi' in self.spec['mpi']:
-            mpicc = "mpiicc"
-            mpif90 = "mpiifort"
-        elif spec.satisfies('+mpi'):
+        if spec.satisfies('+mpi'):
+            mpi = spec['mpi'].prefix
             mpicc = binmpicc
             mpif90 = binmpif77
         else:
