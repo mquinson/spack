@@ -218,13 +218,13 @@ class Scotch(Package):
         self.setup()
 
         targets = ['scotch']
-        if '+mpi' in self.spec:
+        if self.spec.satisfies('+mpi'):
             targets.append('ptscotch')
 
-        if '+esmumps' in self.spec:
+        if self.spec.satisfies('+esmumps') and spec.satisfies('@6:'):
+            # No 'make esmumps ptesmumps' in scotch_5.1.11_esmumps.tar.gz
             targets.append('esmumps')
-            # No 'make ptesmumps' in scotch_5.1.11_esmumps.tar.gz
-            if spec.satisfies('@6:') and '+mpi' in self.spec:
+            if self.spec.satisfies('+mpi'):
                 targets.append('ptesmumps')
 
         with working_dir('src'):

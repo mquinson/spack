@@ -837,6 +837,7 @@ class Package(object):
         """Create a context manager to log build output."""
 
     def do_build(self, build_deps=False, make_jobs=None, verbose=False):
+        start_time = time.time()
         if not os.path.exists(self.prefix):
             self.do_install(
                 keep_prefix=False,  keep_stage=False, ignore_deps=False,
@@ -851,12 +852,9 @@ class Package(object):
                 make_jobs=make_jobs,
                 verbose=verbose)
 
-        if not self.spec.satisfies('@src'):
-            if os.path.exists(self.prefix):
-                tty.msg("%s is already installed in %s." % (self.name, self.prefix))
-                return
-            self.do_patch()
-            self.do_stage()
+        if not self.spec.satisfies('@src') and os.path.exists(self.prefix):
+            tty.msg("%s is already installed in %s." % (self.name, self.prefix))
+            return
 
         def real_work():
             self.stage.chdir_to_source()
@@ -868,6 +866,9 @@ class Package(object):
                 self.build(self.spec, self.prefix)
 
         spack.build_environment.fork(self, real_work)
+
+        tty.msg("Successfully built %s." % self.name,
+            "Total: %s." % _hms(time.time() - start_time))
 
     def do_build_dependencies(self, **kwargs):
         for dep in self.spec.dependencies.values():

@@ -32,6 +32,12 @@ class Simgrid(Package):
 
     provides('mpi@simu', when='+smpi')
 
+    def build(self, spec, prefix):
+        make()
+        make("install")
+        if spec.satisfies('+examples'):
+            install_tree('examples', prefix + '/examples')
+
     def setup_dependent_environment(self, module, spec, dep_spec):
         if spec.satisfies('+smpi'):
             bin = self.prefix.bin
@@ -46,10 +52,7 @@ class Simgrid(Package):
         if not spec.satisfies('+doc'):
             cmake_args.extend(["-Denable_documentation=OFF"])
         cmake(*cmake_args)
-        make()
-        make("install")
-        if spec.satisfies('+examples'):
-            install_tree('examples', prefix + '/examples')
+        self.build(spec,prefix)
 
     # to use the existing version available in the environment: SIMGRID_DIR environment variable must be set
     @when('@exist')

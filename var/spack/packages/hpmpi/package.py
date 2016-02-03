@@ -30,6 +30,11 @@ class Hpmpi(Package):
         os.environ['MPI_CXX_OPTIONS'] = "-lmtmpi"
         os.environ['MPI_F77_OPTIONS'] = "-lmtmpi"
         os.environ['MPI_F90_OPTIONS'] = "-lmtmpi"
+        bin = self.prefix.bin
+        module.binmpicc  = os.path.join(bin, 'mpicc')
+        module.binmpicxx = os.path.join(bin, 'mpicxx')
+        module.binmpif77 = os.path.join(bin, 'mpif77')
+        module.binmpif90 = os.path.join(bin, 'mpif90')
 
     def install(self, spec, prefix):
         mpiroot='/opt/hpmpi/'
