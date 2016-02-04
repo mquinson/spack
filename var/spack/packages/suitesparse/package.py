@@ -32,7 +32,7 @@ class Suitesparse(Package):
             mf.filter('^INSTALL_INCLUDE =.*', 'INSTALL_INCLUDE = %s' % spec.prefix.include)
 
             if platform.system() == 'Darwin':
-                mf.filter('LIB = -lm -lrt', 'LIB = -lm')
+                mf.filter('-lrt', '')
 
             blas_libs = " ".join(blaslibfortname)
             mf.filter('  BLAS = -lopenblas', '#  BLAS = -lopenblas')
