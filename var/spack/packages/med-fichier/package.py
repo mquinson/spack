@@ -15,7 +15,7 @@ class MedFichier(Package):
     variant('shared', default=True, description="Build shared library version")
 
     def install(self, spec, prefix):
-        os.environ['LIBS']="-lm"
+        os.environ['LIBS']="-lm -lz"
 
         if platform.system() == "Darwin":
             call ("chmod 644 include/med_outils.h src/ci/MEDunvCr.c".split(' '))
