@@ -64,28 +64,27 @@ class Metis(Package):
                     mf.filter('^AR\s*=.*', 'AR = $(CC) -shared -o ')
                 mf.filter('^RANLIB\s*=.*', 'RANLIB = echo')
 
+                make()
 
-            make()
+                # No install provided
+                mkdirp('%s/Lib' % prefix)
+                mkdirp(prefix.include)
+                with working_dir('Lib'):
+                    for file in os.listdir("%s" % self.stage.path + "/metis-%s/Lib" % spec.version):
+                        if file.endswith(".h"):
+                            install(file, '%s/Lib' % prefix)
+                            install(file, prefix.include)
 
-            # No install provided
-            mkdirp('%s/Lib' % prefix)
-            mkdirp(prefix.include)
-            with working_dir('Lib'):
-                for file in os.listdir("%s" % self.stage.path + "/metis-%s/Lib" % spec.version):
-                    if file.endswith(".h"):
-                        install(file, '%s/Lib' % prefix)
-                        install(file, prefix.include)
-
-            mkdirp(prefix.lib)
-            if spec.satisfies('+shared'):
-                if platform.system() == 'Darwin':
-                    call(['mv', 'libmetis.a', 'libmetis.dylib'])
-                    install('libmetis.dylib', prefix.lib)
+                mkdirp(prefix.lib)
+                if spec.satisfies('+shared'):
+                    if platform.system() == 'Darwin':
+                        call(['mv', 'libmetis.a', 'libmetis.dylib'])
+                        install('libmetis.dylib', prefix.lib)
+                    else:
+                        call(['mv', 'libmetis.a', 'libmetis.so'])
+                        install('libmetis.so', prefix.lib)
                 else:
-                    call(['mv', 'libmetis.a', 'libmetis.so'])
-                    install('libmetis.so', prefix.lib)
-            else:
-                install('libmetis.a', prefix.lib)
+                    install('libmetis.a', prefix.lib)
 
     # to use the existing version available in the environment: METIS_DIR environment variable must be set
     @when('@exist')
