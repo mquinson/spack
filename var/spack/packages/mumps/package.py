@@ -30,7 +30,7 @@ class Mumps(Package):
 
     depends_on("mpi", when='+mpi')
     depends_on("blas")
-    depends_on("scalapack")
+    depends_on("scalapack", when='+mpi')
     depends_on("scotch+esmumps", when='+scotch')
     depends_on("scotch+esmumps+mpi", when='+ptscotch')
     depends_on("metis@5:", when='@5:+metis')
@@ -104,12 +104,19 @@ class Mumps(Package):
             mf.filter('^LMETIS\s*=.*', '#LMETIS    =')
 
         blas_libs = " ".join(blaslibname)
-        lapack_libs = " ".join(lapacklibname)
+        try:
+            lapack_libs = " ".join(lapacklibname)
+        except NameError:
+            lapack_libs = ''
         try:
             blacs_libs = " ".join(blacslibname)
         except NameError:
             blacs_libs = ''
-        scalapack_libs = " ".join(scalapacklibname)
+        try:
+            scalapack_libs = " ".join(scalapacklibname)
+        except NameError:
+            scalapack_libs = ''
+
         mf.filter('^SCALAP  =.*', 'SCALAP  = '+scalapack_libs+' '+blacs_libs+' '+lapack_libs+' '+blas_libs)
         mf.filter('^LIBBLAS =.*', 'LIBBLAS = %s' % blas_libs)
 
@@ -126,14 +133,15 @@ class Mumps(Package):
             mpi = spec['mpi'].prefix
             mpicc = binmpicc
             mpif90 = binmpif77
+            mf.filter('CC\s*=.*', 'CC = %s  -g -fpic' % mpicc)
+            mf.filter('FC\s*=.*', 'FC = %s  -g -fpic' % mpif90)
+            mf.filter('FL\s*=.*', 'FL = %s  -g -fpic' % mpif90)
+            mf.filter('^INCPAR.*', 'INCPAR = -I%s' % mpi.include)
+            mf.filter('^LIBPAR.*', 'LIBPAR = $(SCALAP)')
         else:
-            mpicc = "mpicc"
-            mpif90 = "mpif90"
-        mf.filter('CC\s*=.*', 'CC = %s  -g -fpic' % mpicc)
-        mf.filter('FC\s*=.*', 'FC = %s  -g -fpic' % mpif90)
-        mf.filter('FL\s*=.*', 'FL = %s  -g -fpic' % mpif90)
-        mf.filter('^INCPAR.*', 'INCPAR = -I%s' % mpi.include)
-        mf.filter('^LIBPAR.*', 'LIBPAR = $(SCALAP)')
+            mf.filter('CC\s*=.*', 'CC = cc  -g -fpic')
+            mf.filter('FC\s*=.*', 'FC = fc  -g -fpic')
+            mf.filter('FL\s*=.*', 'FL = fc  -g -fpic')
 
         mf.filter('^LIBOTHERS =.*', 'LIBOTHERS = -lz -lm -lrt -lpthread')
 
