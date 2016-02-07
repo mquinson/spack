@@ -35,19 +35,17 @@ class Openblas(Package):
     def install(self, spec, prefix):
 
         # configure
-        nolapack=1
-        nocblas=1
-        thread=1
-        openmp=0
-
-        if not spec.satisfies('+mt'):
+        if spec.satisfies('+mt'):
+            thread=1
+        else:
             thread=0
-
         if spec.satisfies('+openmp'):
             openmp=1
+        else:
+            openmp=0
 
         # build
-        make('NO_LAPACK=%s'%nolapack, 'NO_CBLAS=%s'%nocblas, 'USE_THREAD=%s'%thread, 'USE_OPENMP=%s'%openmp)
+        make('NO_PARALLEL_MAKE=1', 'NO_LAPACK=1', 'NO_CBLAS=1', 'USE_THREAD=%s'%thread, 'USE_OPENMP=%s'%openmp, parallel=False)
 
         # install
         make('install', 'PREFIX=%s' % prefix)
