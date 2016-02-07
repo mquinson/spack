@@ -103,8 +103,8 @@ class Pastix(Package):
             metis_libs = " ".join(metislibname)
             mf.filter('^#VERSIONORD  = _metis', 'VERSIONORD  = _metis')
             mf.filter('^#METIS_HOME  =.*', 'METIS_HOME  = %s' % metis)
-            mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) -DMETIS -I\$\(METIS_HOME\)/Lib', 'CCPASTIX   := $(CCPASTIX) -DMETIS -I$(METIS_HOME)/Lib')
-            mf.filter('^#EXTRALIB   := \$\(EXTRALIB\) -L\$\(METIS_HOME\) -lmetis', 'EXTRALIB   := $(EXTRALIB) -L$(METIS_HOME) -lmetis')
+            mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) -DMETIS -I\$\(METIS_HOME\)/Lib', 'CCPASTIX   := $(CCPASTIX) -DMETIS -I$(METIS_HOME)/include')
+            mf.filter('^#EXTRALIB   := \$\(EXTRALIB\) -L\$\(METIS_HOME\) -lmetis', 'EXTRALIB   := $(EXTRALIB) -L$(METIS_HOME)/lib -lmetis')
 
         scotch = spec['scotch'].prefix
         scotch_libs = " ".join(scotchlibname)
