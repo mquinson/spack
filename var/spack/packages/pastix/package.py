@@ -44,9 +44,9 @@ class Pastix(Package):
         spec = self.spec
 
         mf.filter('CCPROG      = gcc', 'CCPROG      = cc')
-        mf.filter('CXXPROG     = g\+\+', 'CXXPROG     = c++')
+        mf.filter('CXXPROG     = g\+\+', 'CXXPROG     = cxx')
         mf.filter('CFPROG      = gfortran', 'CFPROG      = f77')
-        mf.filter('CF90PROG    = gfortran', 'CF90PROG    = f90')
+        mf.filter('CF90PROG    = gfortran', 'CF90PROG    = fc')
 
         mf.filter('^# ROOT          =.*', 'ROOT          = %s' % spec.prefix)
         mf.filter('^# INCLUDEDIR    =.*', 'INCLUDEDIR    = ${ROOT}/include')
