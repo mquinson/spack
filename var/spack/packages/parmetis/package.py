@@ -24,8 +24,14 @@ class Parmetis(Package):
         cmake_args = ["."]
         cmake_args.extend(std_cmake_args)
         mpi = spec['mpi'].prefix
-        mpicc  = binmpicc
-        mpicxx = binmpicxx
+        try:
+            mpicc = binmpicc
+        except NameError:
+            mpicc = 'mpicc'
+        try:
+            mpicxx = binmpicxx
+        except NameError:
+            mpicxx = 'mpic++'
         cmake_args+=[
               '-DGKLIB_PATH=%s/metis/GKlib' % pwd(),
               '-DMETIS_PATH=%s/metis' % pwd(),

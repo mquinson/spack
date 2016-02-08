@@ -19,7 +19,7 @@ class Simgrid(Package):
                 url='http://gforge.inria.fr/frs/download.php/file/33124/SimGrid-3.10.tar.gz')
         version('master', git='https://scm.gforge.inria.fr/anonscm/git/simgrid/simgrid.git')
         version('starpumpi', git='https://scm.gforge.inria.fr/anonscm/git/simgrid/simgrid.git', branch='starpumpi')
-        
+
     pkg_dir = spack.db.dirname_for_package_name("fake")
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
         url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
@@ -42,7 +42,7 @@ class Simgrid(Package):
         if spec.satisfies('+smpi'):
             bin = self.prefix.bin
             module.binmpicc  = os.path.join(bin, 'smpicc')
-            module.binmpicxx = os.path.join(bin, 'smpicxx')
+            module.binmpicxx = os.path.join(bin, 'smpicxx -std=c++11')
             module.binmpif77 = os.path.join(bin, 'smpiff')
             module.binmpif90 = os.path.join(bin, 'smpif90')
 

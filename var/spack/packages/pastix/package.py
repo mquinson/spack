@@ -43,8 +43,11 @@ class Pastix(Package):
         mf = FileFilter('config.in')
         spec = self.spec
 
-        mf.filter('CCPROG      = gcc', 'CCPROG      = cc')
-        mf.filter('CXXPROG     = g\+\+', 'CXXPROG     = cxx')
+        # it seems we set CXXPROG twice but it is because in some
+        # versions the line exists, and we can filter it, and in some
+        # versions it does not
+        mf.filter('CCPROG      = gcc', 'CCPROG      = cc -Wall\nCXXPROG     = c++')
+        mf.filter('CXXPROG     = g\+\+', 'CXXPROG     = c++')
         mf.filter('CFPROG      = gfortran', 'CFPROG      = f77')
         mf.filter('CF90PROG    = gfortran', 'CF90PROG    = fc')
 
@@ -75,19 +78,29 @@ class Pastix(Package):
             mf.filter('#VERSIONINT  = _int32', 'VERSIONINT  = _int32')
             mf.filter('#CCTYPES     = -DINTSIZE32', 'CCTYPES     = -DINTSSIZE32')
 
-        if not spec.satisfies('+mpi'):
+        if spec.satisfies('+mpi'):
+            mpi = spec['mpi'].prefix
+            try:
+                mpicc = binmpicc
+            except NameError:
+                mpicc = 'mpicc'
+            try:
+                mpicxx = binmpicxx
+            except NameError:
+                mpicxx = 'mpic++'
+            # it seems we set CXXPROG twice but it is because in some
+            # versions the line exists, and we can filter it, and in
+            # some versions it does not
+            mf.filter('^MPCCPROG    =.*', 'MPCCPROG    = %s\nMPCXXPROG   = %s'%(binmpicc, binmpicxx))
+            mf.filter('^MPCXXPROG   =.*', 'MPCXXPROG   = %s' % binmpicxx)
+            if spec.satisfies('^simgrid'):
+                mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) -DPASTIX_FUNNELED', 'CCPASTIX   := $(CCPASTIX) -DPASTIX_SINGLE')
+        else:
             mf.filter('^#VERSIONMPI  = _nompi', 'VERSIONMPI  = _nompi')
             mf.filter('^#CCTYPES    := \$\(CCTYPES\) -DFORCE_NOMPI', 'CCTYPES    := $(CCTYPES) -DFORCE_NOMPI')
-            mf.filter('^#MPCCPROG    = \$\(CCPROG\)', 'MPCCPROG    = $(CCPROG)\nMPCXXPROG   = $(CXXPROG)')
-            mf.filter('^#MCFPROG     = \$\(CFPROG\)', 'MCFPROG     = $(CFPROG)')
-        else:
-            if spec.satisfies('^simgrid'):
-                mf.filter('mpicc', 'smpicc')
-                mf.filter('mpic\+\+', 'smpicxx  -std=c++11')
-                mf.filter('mpif90', 'smpif90')
-                mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) -DPASTIX_FUNNELED', 'CCPASTIX   := $(CCPASTIX) -DPASTIX_SINGLE')
-            else:
-                mf.filter('mpic\+\+', 'mpicxx') # mpic++ does not exist with hpmpi
+            mf.filter('MPCCPROG    =.*', 'MPCCPROG    = $(CCPROG)\nMPCXXPROG   = $(CXXPROG)')
+            mf.filter('MPCXXPROG   =.*', 'MPCXXPROG   = $(CXXPROG)')
+            mf.filter('MCFPROG     =.*', 'MCFPROG     = $(CFPROG)')
 
         if spec.satisfies('+starpu'):
             starpu = spec['starpu'].prefix

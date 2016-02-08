@@ -131,8 +131,14 @@ class Mumps(Package):
 
         if spec.satisfies('+mpi'):
             mpi = spec['mpi'].prefix
-            mpicc = binmpicc
-            mpif90 = binmpif77
+            try:
+                mpicc = binmpicc
+            except NameError:
+                mpicc = 'mpicc'
+            try:
+                mpif90 = binmpif90
+            except NameError:
+                mpif90 = 'mpif90'
             mf.filter('CC\s*=.*', 'CC = %s  -g -fpic' % mpicc)
             mf.filter('FC\s*=.*', 'FC = %s  -g -fpic' % mpif90)
             mf.filter('FL\s*=.*', 'FL = %s  -g -fpic' % mpif90)

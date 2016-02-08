@@ -96,7 +96,10 @@ class Scotch(Package):
 
     def compiler_specifics(self, makefile_inc, defines):
         if self.spec.satisfies('+mpi'):
-            mpicc = binmpicc
+            try:
+                mpicc = binmpicc
+            except NameError:
+                mpicc = 'mpicc'
         if self.compiler.name == 'gcc':
             defines.append('-Drestrict=__restrict')
         elif self.compiler.name == 'intel':

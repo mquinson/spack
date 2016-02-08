@@ -43,9 +43,19 @@ class Maphys(Package):
         mf.filter('prefix := /usr/local', 'prefix := %s' % spec.prefix)
 
         mpi = spec['mpi'].prefix
-        mpicc  = binmpicc
-        mpif90 = binmpif90
-        mpif77 = binmpif77
+        try:
+            mpicc = binmpicc
+        except NameError:
+            mpicc = 'mpicc'
+        try:
+            mpif90 = binmpif90
+        except NameError:
+            mpif90 = 'mpif90'
+        try:
+            mpif77 = binmpif77
+        except NameError:
+            mpif77 = 'mpif77'
+
         if spec.satisfies("%intel"):
             mpif90_add_flags = ""
         else:
