@@ -31,10 +31,8 @@ class Magma(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
-    variant('mkl', default=False, description='Use BLAS/LAPACK from the Intel MKL library')
-
-    depends_on("cblas", when='~mkl')
-    depends_on("lapack", when='~mkl')
+    depends_on("cblas")
+    depends_on("lapack")
     depends_on("cuda")
 
     def install(self, spec, prefix):
