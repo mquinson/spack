@@ -42,6 +42,7 @@ class Openmpi(Package):
     provides('mpi', when='@exist')         # We cannot guess
 
     variant('debug', default=False, description='Enable debug symbols')
+    variant('tm', default=True, description='Enable thread multiple support')
 
     depends_on('hwloc')
 
@@ -78,6 +79,8 @@ class Openmpi(Package):
         # compiler configuration.
         if not self.compiler.f77 and not self.compiler.fc:
             config_args.append("--enable-mpi-fortran=no")
+
+        config_args.append("--enable-mpi-thread-multiple")
 
         configure(*config_args)
         make()
