@@ -3,6 +3,7 @@ import os
 import platform
 import spack
 import sys
+from shutil import copyfile
 
 class Pastix(Package):
     """a high performance parallel solver for very large sparse linear systems based on direct methods"""
@@ -38,7 +39,7 @@ class Pastix(Package):
 
     def setup(self):
 
-        force_symlink('config/LINUX-GNU.in', 'config.in')
+        copyfile('config/LINUX-GNU.in', 'config.in')
 
         mf = FileFilter('config.in')
         spec = self.spec

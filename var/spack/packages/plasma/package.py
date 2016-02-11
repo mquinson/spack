@@ -1,6 +1,7 @@
 from spack import *
 import os
 import spack
+from shutil import copyfile
 
 class Plasma(Package):
     """Parallel Linear Algebra for Scalable Multi-core Architectures."""
@@ -26,7 +27,7 @@ class Plasma(Package):
     depends_on("netlib-lapacke+tmg")
 
     def setup(self):
-        force_symlink('make.inc.example', 'make.inc')
+        copyfile('make.inc.example', 'make.inc')
         mf = FileFilter('make.inc')
         spec = self.spec
 

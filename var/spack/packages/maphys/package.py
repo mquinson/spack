@@ -4,6 +4,7 @@ import subprocess
 import platform
 import sys
 import spack
+from shutil import copyfile
 
 class Maphys(Package):
     """a Massively Parallel Hybrid Solver."""
@@ -37,7 +38,7 @@ class Maphys(Package):
     def setup(self):
         spec = self.spec
 
-        force_symlink('Makefile.inc.example', 'Makefile.inc')
+        copyfile('Makefile.inc.example', 'Makefile.inc')
         mf = FileFilter('Makefile.inc')
 
         mf.filter('prefix := /usr/local', 'prefix := %s' % spec.prefix)

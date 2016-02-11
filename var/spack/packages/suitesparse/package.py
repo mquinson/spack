@@ -2,6 +2,7 @@ from spack import *
 from subprocess import call
 import platform
 import spack
+from shutil import copyfile
 
 class Suitesparse(Package):
     """a suite of sparse matrix algorithms."""
@@ -27,7 +28,7 @@ class Suitesparse(Package):
         with working_dir('SuiteSparse_config'):
             mf = FileFilter('SuiteSparse_config.mk')
             if platform.system() == 'Darwin':
-                force_symlink('SuiteSparse_config_Mac.mk', 'SuiteSparse_config.mk')
+                copyfile('SuiteSparse_config_Mac.mk', 'SuiteSparse_config.mk')
                 mf = FileFilter('SuiteSparse_config_Mac.mk')
             mf.filter('^INSTALL_LIB =.*', 'INSTALL_LIB = %s' % spec.prefix.lib)
             mf.filter('^INSTALL_INCLUDE =.*', 'INSTALL_INCLUDE = %s' % spec.prefix.include)

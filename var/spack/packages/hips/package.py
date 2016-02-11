@@ -3,6 +3,7 @@ import os
 import platform
 import sys
 import spack
+from shutil import copyfile
 
 class Hips(Package):
     """Hierarchical Iterative Parallel Solver."""
@@ -30,7 +31,7 @@ class Hips(Package):
     depends_on("blas")
 
     def setup(self):
-        force_symlink('Makefile_Inc_Examples/makefile.inc.gnu', 'makefile.inc')
+        copyfile('Makefile_Inc_Examples/makefile.inc.gnu', 'makefile.inc')
 
         mf = FileFilter('makefile.inc')
         spec = self.spec

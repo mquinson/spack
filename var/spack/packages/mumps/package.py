@@ -3,6 +3,7 @@ import os
 import platform
 import spack
 import sys
+from shutil import copyfile
 
 class Mumps(Package):
     """a MUltifrontal Massively Parallel sparse direct Solver."""
@@ -54,13 +55,13 @@ class Mumps(Package):
     def setup(self):
         spec = self.spec
         if spec.satisfies('+mpi@5'):
-            force_symlink('Make.inc/Makefile.debian.PAR', 'Makefile.inc')
+            copyfile('Make.inc/Makefile.debian.PAR', 'Makefile.inc')
         if spec.satisfies('~mpi@5'):
-            force_symlink('Make.inc/Makefile.debian.SEQ', 'Makefile.inc')
+            copyfile('Make.inc/Makefile.debian.SEQ', 'Makefile.inc')
         if spec.satisfies('+mpi@4'):
-            force_symlink('Make.inc/Makefile.inc.generic', 'Makefile.inc')
+            copyfile('Make.inc/Makefile.inc.generic', 'Makefile.inc')
         if spec.satisfies('~mpi@4'):
-            force_symlink('Make.inc/Makefile.inc.generic.SEQ', 'Makefile.inc')
+            copyfile('Make.inc/Makefile.inc.generic.SEQ', 'Makefile.inc')
 
         mf = FileFilter('Makefile.inc')
 

@@ -1,6 +1,7 @@
 from spack import *
 import os
 import spack
+from shutil import copyfile
 
 class QrMumps(Package):
     """a software package for the solution of sparse, linear systems on multicore computers based on the QR factorization of the input matrix."""
@@ -31,7 +32,7 @@ class QrMumps(Package):
         scotch = spec['scotch'].prefix
         suitesparse = spec['suitesparse'].prefix
 
-        force_symlink('makeincs/Make.inc.gnu', 'Make.inc')
+        copyfile('makeincs/Make.inc.gnu', 'Make.inc')
         mf = FileFilter('Make.inc')
 
         mf.filter('TOPDIR=/path/to/here', 'TOPDIR=%s/qrm_starpu_2d/' % self.stage.path)
