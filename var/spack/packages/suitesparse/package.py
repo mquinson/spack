@@ -26,10 +26,9 @@ class Suitesparse(Package):
     def setup(self):
         spec = self.spec
         with working_dir('SuiteSparse_config'):
-            mf = FileFilter('SuiteSparse_config.mk')
             if platform.system() == 'Darwin':
                 copyfile('SuiteSparse_config_Mac.mk', 'SuiteSparse_config.mk')
-                mf = FileFilter('SuiteSparse_config_Mac.mk')
+            mf = FileFilter('SuiteSparse_config.mk')
             mf.filter('^INSTALL_LIB =.*', 'INSTALL_LIB = %s' % spec.prefix.lib)
             mf.filter('^INSTALL_INCLUDE =.*', 'INSTALL_INCLUDE = %s' % spec.prefix.include)
 
