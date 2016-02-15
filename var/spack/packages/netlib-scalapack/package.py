@@ -37,13 +37,17 @@ class NetlibScalapack(Package):
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for netlib-scalapack."""
+        if os.path.isdir(spec.prefix.lib64):
+            libdir = "lib64"
+        if os.path.isdir(spec.prefix.lib):
+            libdir = "lib"
         if '+shared' in spec:
             if platform.system() == 'Darwin':
-                module.scalapacklibname=[os.path.join(self.spec.prefix.lib, "libscalapack.dylib")]
+                module.scalapacklibname=[os.path.join(self.spec.prefix+"/%s", "libscalapack.dylib") % libdir]
             else:
-                module.scalapacklibname=[os.path.join(self.spec.prefix.lib, "libscalapack.so")]
+                module.scalapacklibname=[os.path.join(self.spec.prefix+"/%s", "libscalapack.so") % libdir]
         else:
-            module.scalapacklibname=[os.path.join(self.spec.prefix.lib, "libscalapack.a")]
+            module.scalapacklibname=[os.path.join(self.spec.prefix+"/%s", "libscalapack.a") % libdir]
 
     def install(self, spec, prefix):
         with working_dir('spack-build', create=True):

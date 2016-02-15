@@ -32,13 +32,17 @@ class NetlibBlas(Package):
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for netlib-blas."""
+        if os.path.isdir(spec.prefix.lib64):
+            libdir = "lib64"
+        if os.path.isdir(spec.prefix.lib):
+            libdir = "lib"
         if spec.satisfies('+shared'):
             if platform.system() == 'Darwin':
-                module.blaslibname=[os.path.join(self.spec.prefix.lib, "libblas.dylib"), "-lm"]
+                module.blaslibname=[os.path.join(self.spec.prefix+"/%s", "libblas.dylib") % libdir, "-lm"]
             else:
-                module.blaslibname=[os.path.join(self.spec.prefix.lib, "libblas.so"), "-lm"]
+                module.blaslibname=[os.path.join(self.spec.prefix+"/%s", "libblas.so") % libdir, "-lm"]
         else:
-            module.blaslibname=[os.path.join(self.spec.prefix.lib, "libblas.a"), "-lm"]
+            module.blaslibname=[os.path.join(self.spec.prefix+"/%s", "libblas.a") % libdir, "-lm"]
         module.blaslibfortname = module.blaslibname
 
     def install(self, spec, prefix):

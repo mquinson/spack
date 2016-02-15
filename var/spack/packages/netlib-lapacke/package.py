@@ -49,13 +49,17 @@ class NetlibLapacke(Package):
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for netlib-lapacke."""
+        if os.path.isdir(spec.prefix.lib64):
+            libdir = "lib64"
+        if os.path.isdir(spec.prefix.lib):
+            libdir = "lib"
         if spec.satisfies('+shared'):
             if platform.system() == 'Darwin':
-                module.lapackelibname=[os.path.join(self.spec.prefix.lib, "liblapacke.dylib")]
+                module.lapackelibname=[os.path.join(self.spec.prefix+"/%s", "liblapacke.dylib") % libdir]
             else:
-                module.lapackelibname=[os.path.join(self.spec.prefix.lib, "liblapacke.so")]
+                module.lapackelibname=[os.path.join(self.spec.prefix+"/%s", "liblapacke.so") % libdir]
         else:
-            module.lapackelibname=[os.path.join(self.spec.prefix.lib, "liblapacke.a")]
+            module.lapackelibname=[os.path.join(self.spec.prefix+"/%s", "liblapacke.a") % libdir]
         module.lapackelibfortname = module.lapackelibname
 
     def install(self, spec, prefix):
