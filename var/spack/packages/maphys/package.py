@@ -99,6 +99,8 @@ class Maphys(Package):
             mumps_libs = " ".join(mumpslibname)
             mf.filter('^MUMPS_prefix  :=.*', 'MUMPS_prefix  := %s' % mumps)
             mf.filter('^MUMPS_LIBS :=.*', 'MUMPS_LIBS := '+mumps_libs+' '+scalapack_libs+' '+blacs_libs+' '+lapack_libs+' '+blas_libs+' '+scotch_libs+' '+metis_libs)
+            if not spec.satisfies('^mumps+scotch'):
+                mf.filter('^MUMPS_FCFLAGS \+= -DLIBMUMPS_USE_LIBSCOTCH', '#MUMPS_FCFLAGS += -DLIBMUMPS_USE_LIBSCOTCH')
         else:
             mf.filter('^MUMPS_prefix  :=.*', '#MUMPS_prefix  := version without mumps')
             mf.filter('^MUMPS_LIBS :=.*', 'MUMPS_LIBS  :=')
@@ -128,6 +130,7 @@ class Maphys(Package):
         scotch = spec['scotch'].prefix
         mf.filter('SCOTCH_prefix := \$\(3rdpartyPREFIX\)/scotch_esmumps/32bits', 'SCOTCH_prefix  := %s' % scotch)
         mf.filter('SCOTCH_LIBS := -L\$\(SCOTCH_prefix\)/lib -lscotch -lscotcherrexit', 'SCOTCH_LIBS := %s' % scotch_libs)
+        mf.filter('SCOTCH_LIBS +=  -lesmumps','')
 
         blas = spec['blas'].prefix
         lapack = spec['lapack'].prefix
