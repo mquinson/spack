@@ -23,9 +23,9 @@ class Mumps(Package):
     version('src')
 
     variant('mpi', default=True, description='Sequential version (no MPI)')
-    variant('scotch', default=False, description='Enable Scotch')
+    variant('scotch', default=True, description='Enable Scotch')
     variant('ptscotch', default=False, description='Enable PT-Scotch')
-    variant('metis', default=False, description='Enable Metis')
+    variant('metis', default=True, description='Enable Metis')
     variant('shared', default=True, description='Build MUMPS as a shared library')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
 
