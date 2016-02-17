@@ -36,8 +36,6 @@ class Bullxmpi(Package):
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
-    provides('mpi')
-
     # virtual dependency
     if os.getenv('MPI_DIR'):
         mpiroot=os.environ['MPI_DIR']
