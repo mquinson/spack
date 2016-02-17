@@ -55,7 +55,7 @@ class Suitesparse(Package):
     def install(self, spec, prefix):
 
         self.setup()
-        make(parallel=False)
+        make('library', parallel=False)
         mkdirp(prefix.include)
         mkdirp(prefix.lib)
         make("install")
