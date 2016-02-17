@@ -60,6 +60,15 @@ class Metis(Package):
                 mf.filter('COPTIONS\s*=', 'COPTIONS = -fPIC ')
                 if platform.system() == 'Darwin':
                     mf.filter('^AR\s*=.*', 'AR = $(CC) -shared -undefined dynamic_lookup -o ')
+                    # replace libmetis.a by libmetis.dylib in Makefiles
+                    mf2 = FileFilter('Lib/Makefile')
+                    mf3 = FileFilter('Programs/Makefile')
+                    mf4 = FileFilter('Test/Makefile')
+                    mf2.filter('\.\./libmetis\.a', 'libmetis.dylib')
+                    mf3.filter('\.\./libmetis\.a', '../Lib/libmetis.dylib')
+                    mf3.filter('\-L\.\.', '-L../Lib')
+                    mf4.filter('\.\./libmetis\.a', '../Lib/libmetis.dylib')
+                    mf4.filter('\-L\.\.', '-L../Lib')
                 else:
                     mf.filter('^AR\s*=.*', 'AR = $(CC) -shared -o ')
                 mf.filter('^RANLIB\s*=.*', 'RANLIB = echo')
@@ -78,8 +87,7 @@ class Metis(Package):
             mkdirp(prefix.lib)
             if spec.satisfies('+shared'):
                 if platform.system() == 'Darwin':
-                    call(['mv', 'libmetis.a', 'libmetis.dylib'])
-                    install('libmetis.dylib', prefix.lib)
+                    install('./Lib/libmetis.dylib', prefix.lib)
                 else:
                     call(['mv', 'libmetis.a', 'libmetis.so'])
                     install('libmetis.so', prefix.lib)
