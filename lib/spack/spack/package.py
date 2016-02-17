@@ -846,6 +846,7 @@ class Package(object):
             return
         if not self.spec.concrete:
             raise ValueError("Can only install concrete packages.")
+
         self.make_jobs = make_jobs
         if build_deps:
             self.do_build_dependencies(
@@ -856,6 +857,8 @@ class Package(object):
         if not self.spec.satisfies('@src') and os.path.exists(self.prefix):
             tty.msg("%s is already installed in %s." % (self.name, self.prefix))
             return
+
+        tty.msg("Building %s" % self.name)
 
         def real_work():
             self.stage.chdir_to_source()
