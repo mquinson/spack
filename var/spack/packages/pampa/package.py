@@ -16,7 +16,7 @@ class Pampa(Package):
     homepage = "http://gforge.inria.fr/projects/pampa-p/"
 
     try:
-        username = os.environ['PAMPA_USERNAME']
+        username = os.environ['GFORGE_USERNAME']
     except KeyError:
         username = getpass.getuser()
 
