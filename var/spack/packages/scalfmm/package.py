@@ -20,7 +20,7 @@ class Scalfmm(Package):
 
     variant('sse', default=True, description='Enable SSE')
     #variant('blas', default=False, description='Enable BLAS')
-    variant('fftw', default=False, description='Enable FFTW')
+    variant('fft', default=False, description='Enable FFT')
     variant('mpi', default=False, description='Enable MPI')
     variant('starpu', default=False, description='Enable StarPU')
     variant('debug', default=False, description='Enable debug symbols')
@@ -31,7 +31,7 @@ class Scalfmm(Package):
     #depends_on("blas", when='+blas')
     depends_on("blas")
     depends_on("lapack")
-    depends_on("fftw+float", when='+fftw')
+    depends_on("fft", when='+fft')
     depends_on("starpu", when='+starpu')
     depends_on("mpi", when='+mpi')
 
@@ -67,11 +67,20 @@ class Scalfmm(Package):
             #     # Disable BLAS here.
             #     cmake_args.extend(["-DSCALFMM_USE_BLAS=OFF"])
 
-            if spec.satisfies('+fftw'):
-                # Enable FFTW here.
-                fftw = spec['fftw'].prefix
+            if spec.satisfies('^mkl-blas') or spec.satisfies('^mkl-lapack') or spec.satisfies('^mkl-fft'):
+                cmake_args.extend(["-DSCALFMM_USE_MKL=ON"])
+
+            if spec.satisfies('^mkl-blas') or spec.satisfies('^mkl-lapack'):
+                cmake_args.extend(["-DSCALFMM_USE_MKL_AS_BLAS=ON"])
+
+            if spec.satisfies('^mkl-fft'):
+                cmake_args.extend(["-DSCALFMM_USE_MKL_AS_FFTW=ON"])
+
+            if spec.satisfies('+fft'):
+                # Enable FFT here.
+                fft = spec['fft'].prefix
                 cmake_args.extend(["-DSCALFMM_USE_FFT=ON"])
-                cmake_args.extend(["-DFFTW_DIR=%s" % fftw])
+                cmake_args.extend(["-DFFTW_DIR=%s" % fft])
             else:
                 # Disable FFTW here.
                 cmake_args.extend(["-DSCALFMM_USE_FFT=OFF"])

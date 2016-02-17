@@ -46,6 +46,8 @@ class Fftw(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
+    provides('fft')
+
     ##########
     # Floating point precision
     FLOAT = 'float'
@@ -56,7 +58,7 @@ class Fftw(Package):
         LONG_DOUBLE: '--enable--long-double',
         QUAD_PRECISION: '--enable-quad-precision'
     }
-    variant(FLOAT, default=False, description='Produces a single precision version of the library')
+    variant(FLOAT, default=True, description='Produces a single precision version of the library')
     variant(LONG_DOUBLE, default=False, description='Produces a long double precision version of the library')
     variant(QUAD_PRECISION, default=False, description='Produces a quad precision version of the library (works only with GCC and libquadmath)')
     ##########
@@ -64,6 +66,19 @@ class Fftw(Package):
     variant('mpi', default=False, description='Activate MPI support')
 
     depends_on('mpi', when='+mpi')
+
+    def setup_dependent_environment(self, module, spec, dep_spec):
+        """Dependencies of this package will get the libraries names for fftw."""
+        libdir=self.spec.prefix.lib
+        module.fftlibname=libdir+" -lfftw3"
+        if spec.satisfies('+float'):
+            module.fftlibname+=" -lfftw3f"
+        elif spec.satisfies('+long_double'):
+            module.fftlibname+=" -lfftw3l"
+        elif spec.satisfies('+quad'):
+            module.fftlibname+=" -lfftw3q -lquadmath"
+        module.fftlibname+=" -lm"
+        module.fftlibfortname=module.fftlibname
 
     @staticmethod
     def enabled(x):
