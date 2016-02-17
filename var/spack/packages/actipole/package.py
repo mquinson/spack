@@ -52,16 +52,7 @@ class Actipole(Package):
         project_local_path = os.environ["LOCAL_PATH"] + "/actipole"
 
     def build(self, spec, prefix):
-        with working_dir('spack-build'):
-            make()
-            make("install")
-
-    def install(self, spec, prefix):
-        if self.spec.satisfies('@src') and os.path.exists('spack-build'):
-            shutil.rmtree('spack-build')
-
         with working_dir('spack-build', create=True):
-
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
             cmake_args.extend([
@@ -90,6 +81,11 @@ class Actipole(Package):
             cmake_args.extend(["-DSCAB_DIR=%s/CMake" % scab.share])
 
             cmake(*cmake_args)
-
             make()
             make("install")
+
+    def install(self, spec, prefix):
+        if self.spec.satisfies('@src') and os.path.exists('spack-build'):
+            shutil.rmtree('spack-build')
+
+        self.build(spec,prefix)
