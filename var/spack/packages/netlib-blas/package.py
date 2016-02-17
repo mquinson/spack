@@ -59,6 +59,8 @@ class NetlibBlas(Package):
         if spec.satisfies('+shared'):
             cmake_args.append('-DBUILD_SHARED_LIBS=ON')
             cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
+            if platform.system() == 'Darwin':
+                cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
 
 
         cmake(*cmake_args)
