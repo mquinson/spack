@@ -67,13 +67,11 @@ class Scalfmm(Package):
             #     # Disable BLAS here.
             #     cmake_args.extend(["-DSCALFMM_USE_BLAS=OFF"])
 
-            if spec.satisfies('^mkl-blas') or spec.satisfies('^mkl-lapack') or spec.satisfies('^mkl-fft'):
+            if '^mkl-blas' in spec or '^mkl-lapack' in spec or '^mkl-fft' in spec:
                 cmake_args.extend(["-DSCALFMM_USE_MKL=ON"])
-
-            if spec.satisfies('^mkl-blas') or spec.satisfies('^mkl-lapack'):
+            if '^mkl-blas' in spec or '^mkl-lapack' in spec:
                 cmake_args.extend(["-DSCALFMM_USE_MKL_AS_BLAS=ON"])
-
-            if spec.satisfies('^mkl-fft'):
+            if '^mkl-fft' in spec:
                 cmake_args.extend(["-DSCALFMM_USE_MKL_AS_FFTW=ON"])
 
             if spec.satisfies('+fft'):
