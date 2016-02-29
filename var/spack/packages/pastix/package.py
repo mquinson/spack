@@ -60,6 +60,7 @@ class Pastix(Package):
 
         if spec.satisfies('%intel'):
             mf.filter('-lgfortran', '-lifcore')
+            mf.filter('^CF90CCPOPT  =.*', 'CF90CCPOPT  = -fpp')
 
         if spec.satisfies('+shared'):
             mf.filter('#SHARED=1', 'SHARED=1')
