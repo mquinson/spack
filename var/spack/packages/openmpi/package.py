@@ -14,6 +14,9 @@ class Openmpi(Package):
 
     homepage = "http://www.open-mpi.org"
 
+
+    version('1.10.2', 'b2f43d9635d2d52826e5ef9feb97fd4c',
+            url = "http://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-1.10.2.tar.bz2")
     version('1.10.1', 'f0fcd77ed345b7eafb431968124ba16e',
             url = "http://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-1.10.1.tar.bz2")
     version('1.10.0', '280cf952de68369cebaca886c5ce0304',
@@ -33,12 +36,10 @@ class Openmpi(Package):
     patch('llnl-platforms.patch', when="@1.6.5")
     patch('configure.patch_16', when="@1.6.5")
     patch('configure.patch_18', when="@1.8.8")
-    patch('configure.patch', when="@1.10.0:")
+    patch('configure.patch', when="@1.10.0:1.10.1")
 
     provides('mpi@:2.2', when='@1.6.5')    # Open MPI 1.6.5 supports MPI-2.2
-    provides('mpi@:3.0', when='@1.8.8')    # Open MPI 1.8.8 supports MPI-3.0
-    provides('mpi@:3.1', when='@1.10.0')   # Open MPI 1.10.0 supports MPI-3.0
-    provides('mpi@:3.2', when='@1.10.1')   # Open MPI 1.10.1 supports MPI-3.0
+    provides('mpi@:3.0', when='@1.8:')    # Open MPI 1.8.8 and above supports MPI-3.0
     provides('mpi', when='@exist')         # We cannot guess
 
     variant('debug', default=False, description='Enable debug symbols')
@@ -52,7 +53,7 @@ class Openmpi(Package):
         os.environ['OMPI_CC']  = 'cc'
         os.environ['OMPI_CXX'] = 'c++'
         os.environ['OMPI_FC'] = 'f90'
-        os.environ['OMPI_F77'] = 'f77'
+        os.environ['OMPI_F77'] = 'f77' # This one is deprecated as of v1.7
         bin = self.prefix.bin
         module.binmpicc  = os.path.join(bin, 'mpicc')
         module.binmpicxx = os.path.join(bin, 'mpicxx')

@@ -20,6 +20,8 @@ class Actipole(Package):
         version('master', git=repo+'actipole.git', branch='master')
         version('1.21',   git=repo+'actipole.git', branch='v1.21')
         version('1.21.0', git=repo+'actipole.git', tag='v1.21.0')
+        version('1.22',   git=repo+'actipole.git', branch='v1.22')
+        version('1.22.0', git=repo+'actipole.git', tag='v1.22.0')
     except KeyError:
         pass
 
@@ -30,6 +32,7 @@ class Actipole(Package):
 
     depends_on("scab")
     depends_on("scab@src", when="@src")
+    depends_on('cmake')
 
     # Global variant NETLIB
     variant('netlib', default=False, description='Use all netlib libraries as dependencies')

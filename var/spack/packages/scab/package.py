@@ -20,6 +20,8 @@ class Scab(Package):
         version('master', git=repo+'scab.git', branch='master')
         version('1.6',    git=repo+'scab.git', branch='v1.6')
         version('1.6.1',  git=repo+'scab.git', tag='v1.6.1')
+        version('1.7',    git=repo+'scab.git', branch='v1.7')
+        version('1.7.0',  git=repo+'scab.git', tag='v1.7.0')
     except KeyError:
         pass
 
@@ -33,6 +35,7 @@ class Scab(Package):
     depends_on("cblas")
     depends_on("lapacke")
     depends_on("med-fichier", when="+hdf5")
+    depends_on('cmake')
 
     if os.getenv("LOCAL_PATH"):
         project_local_path = os.environ["LOCAL_PATH"] + "/scab"

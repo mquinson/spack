@@ -21,6 +21,8 @@ class Hmat(Package):
         repo=os.environ['SOFTWAREREPO1']
         version('master', git=repo+'hmat.git', branch='master')
         version('1.2.1',  git=repo+'hmat.git', tag='v1.2.1')
+        version('1.3',    git=repo+'hmat.git', branch='v1.3')
+        version('1.3.0',  git=repo+'hmat.git', tag='v1.3.0')
     except KeyError:
         pass
     version('src')
@@ -37,6 +39,7 @@ class Hmat(Package):
     depends_on("blas")
     depends_on("lapack")
     depends_on("scotch", when="@nd")
+    depends_on('cmake')
 
     if os.getenv("LOCAL_PATH"):
         project_local_path = os.environ["LOCAL_PATH"] + "/hmat"

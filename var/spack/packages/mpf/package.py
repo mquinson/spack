@@ -19,6 +19,8 @@ class Mpf(Package):
         version('master', git=repo+'mpf.git', branch='master')
         version('1.22',   git=repo+'mpf.git', branch='v1.22')
         version('1.22.0', git=repo+'mpf.git', tag='v1.22.0')
+        version('1.23',   git=repo+'mpf.git', branch='v1.23')
+        version('1.23.0', git=repo+'mpf.git', tag='v1.23.0')
     except KeyError:
         pass
 
@@ -37,6 +39,7 @@ class Mpf(Package):
     depends_on("mumps +scotch")
     depends_on("pastix+mpi")
     depends_on("hmat")
+    depends_on('cmake')
 
     if os.getenv("LOCAL_PATH"):
         project_local_path = os.environ["LOCAL_PATH"] + "/mpf"
