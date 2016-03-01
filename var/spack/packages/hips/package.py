@@ -11,6 +11,7 @@ class Hips(Package):
 
     version('1.2b-rc5', '385f66475eb77e3dce27c6a9a53232e8',
             url='http://hips.gforge.inria.fr/release/hips-1.2b-rc5.tar.gz')
+    version('trunk', svn='https://scm.gforge.inria.fr/anonscm/svn/hips/trunk')
 
     variant('complex',  default=False, description='Build complex float version (real by default)')
     variant('simple',   default=False, description='Build simple precision version (double by default)')
