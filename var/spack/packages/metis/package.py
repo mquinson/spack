@@ -25,7 +25,6 @@ class Metis(Package):
     version('src')
 
     depends_on('cmake')
-    depends_on('mpi', when='@5:')
 
     variant('shared', default=True, description='Build METIS as a shared library')
 
