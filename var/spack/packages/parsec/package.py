@@ -14,10 +14,13 @@ class Parsec(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
+    variant('mpi', default=True, description='Enable MPI support')
+    variant('papi', default=False, description='Enable PAPI support for using PINS')
+
     depends_on("cmake")
     depends_on("hwloc")
-    depends_on("mpi")
-    depends_on("papi")
+    depends_on("mpi", when="+mpi")
+    depends_on("papi", when="+papi")
 
     def install(self, spec, prefix):
         cmake_args = ["-DBUILD_SHARED_LIBS=ON"]
