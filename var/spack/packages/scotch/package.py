@@ -43,7 +43,7 @@ class Scotch(Package):
 
     variant('mpi', default=False, description='Activate the compilation of PT-Scotch')
     variant('pthread', default=True, description='Enable multithread with pthread')
-    variant('compression', default=True, description='Activate the posibility to use compressed files')
+    variant('compression', default=False, description='Activate the possibility to use compressed files')
     variant('esmumps', default=False, description='Activate the compilation of the lib esmumps needed by mumps')
     variant('shared', default=True, description='Build shared libraries')
     variant('int64', default=False, description='to use 64 bits integers')
