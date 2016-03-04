@@ -4,6 +4,7 @@ import platform
 import sys
 import spack
 from shutil import copyfile
+import subprocess
 
 class Hips(Package):
     """Hierarchical Iterative Parallel Solver."""
@@ -16,8 +17,9 @@ class Hips(Package):
     variant('complex',  default=False, description='Build complex float version (real by default)')
     variant('simple',   default=False, description='Build simple precision version (double by default)')
     variant('metis',    default=False, description='Use Metis partitioner')
-    variant('shared',   default=False,  description='Build Hips as a shared library')
+    variant('pastix',   default=False, description='Enable PASTIX direct solver, only available with the trunk version of hips')
     variant('int64',    default=False, description='To use 64 bits integers')
+    variant('shared',   default=False,  description='Build Hips as a shared library')
     variant('examples', default=True,  description='Enable compilation and installation of example executables')
 
     pkg_dir = spack.db.dirname_for_package_name("fake")
@@ -30,6 +32,7 @@ class Hips(Package):
     depends_on("metis@:4", when='+metis')
     depends_on("scotch",   when='~metis')
     depends_on("blas")
+    depends_on("pastix", when='@trunk+pastix')
 
     def setup(self):
         copyfile('Makefile_Inc_Examples/makefile.inc.gnu', 'makefile.inc')
@@ -47,6 +50,7 @@ class Hips(Package):
                 mf.filter('^COEFTYPE     =*.', 'COEFTYPE     = -DTYPE_REAL    -DPREC_SIMPLE')
             else:
                 mf.filter('^COEFTYPE     =.*', 'COEFTYPE     = -DTYPE_REAL    -DPREC_DOUBLE')
+
 
         mf.filter('= gcc', '= cc')
         mf.filter('= gfortran', '= f90')
@@ -75,6 +79,19 @@ class Hips(Package):
             mf.filter('^ISCOTCH    =.*', 'ISCOTCH    = -I%s' % scotch.include)
             mf.filter('^LSCOTCH    =.*', 'LSCOTCH    = %s' % scotch_libs)
 
+        if spec.satisfies('+pastix'):
+            if not spec.satisfies('@trunk'):
+                sys.exit('Only the trunk version of Hips support PaStiX for now, please use hips@trunk.')
+            pastix = spec['pastix'].prefix
+            pastix_libs = subprocess.Popen([pastix+"/bin/pastix-conf", "--libs"], stdout=subprocess.PIPE).communicate()[0]
+            mf.filter('^PASTIX_DIR =.*', 'PASTIX_DIR = %s' % pastix)
+            mf.filter('^IPASTIX =.*', 'IPASTIX = -DWITH_PASTIX -I%s' % pastix.include)
+            mf.filter('^LPASTIX =.*', 'LPASTIX = %s' % pastix_libs)
+        else:
+            mf.filter('^PASTIX_DIR =.*', '#PASTIX_DIR =')
+            mf.filter('^IPASTIX =.*', '#IPASTIX =')
+            mf.filter('^LPASTIX =.*', '#LPASTIX =')
+
         if spec.satisfies('+int64'):
             mf.filter('^INTSIZE      =.*', 'INTSIZE      = -DINTSIZE64')
 
@@ -92,7 +109,13 @@ class Hips(Package):
         # No install provided
         install_tree('LIB', prefix.lib)
         if spec.satisfies('+examples'):
-            install_tree('TESTS', '%s/examples' % prefix)
+            # only the following subdirectories should be copied
+            # because make is not done in others with the "all" target
+            install_tree('TESTS/DBMATRIX',       '%s/TESTS/DBMATRIX' % prefix)
+            install_tree('TESTS/SEQUENTIAL',     '%s/TESTS/SEQUENTIAL' % prefix)
+            install_tree('TESTS/PARALLEL',       '%s/TESTS/PARALLEL' % prefix)
+            install_tree('TESTS/MISC_PARALLEL',  '%s/TESTS/MISC_PARALLEL' % prefix)
+            install_tree('TESTS/MATRICES',       '%s/TESTS/MATRICES' % prefix)
 
     # to use the existing version available in the environment: HIPS_DIR environment variable must be set
     @when('@exist')
