@@ -35,8 +35,8 @@ class Pastix(Package):
     depends_on("blas")
     depends_on("scotch")
     depends_on("metis@4.0.3", when='+metis')
-    depends_on("starpu@1.1.0:1.1.5", when='+starpu')
-
+    depends_on("starpu~mpi", when='+starpu~mpi')
+    depends_on("starpu+mpi", when='+starpu+mpi')
     def setup(self):
 
         copyfile('config/LINUX-GNU.in', 'config.in')
@@ -47,7 +47,10 @@ class Pastix(Package):
         # it seems we set CXXPROG twice but it is because in some
         # versions the line exists, and we can filter it, and in some
         # versions it does not
-        mf.filter('CCPROG      = gcc', 'CCPROG      = cc -Wall\nCXXPROG     = c++')
+        if spec.satisfies('^starpu@1.2:'):
+            mf.filter('CCPROG      = gcc', 'CCPROG      = cc -Wall -DSTRAPU_1_2\nCXXPROG     = c++')
+        else:
+            mf.filter('CCPROG      = gcc', 'CCPROG      = cc -Wall \nCXXPROG     = c++')
         mf.filter('CXXPROG     = g\+\+', 'CXXPROG     = c++')
         mf.filter('CFPROG      = gfortran', 'CFPROG      = f77')
         mf.filter('CF90PROG    = gfortran', 'CF90PROG    = fc')
@@ -93,7 +96,11 @@ class Pastix(Package):
             # it seems we set CXXPROG twice but it is because in some
             # versions the line exists, and we can filter it, and in
             # some versions it does not
-            mf.filter('^MPCCPROG    =.*', 'MPCCPROG    = %s\nMPCXXPROG   = %s'%(binmpicc, binmpicxx))
+            if spec.satisfies('^starpu@1.2:'):
+                mf.filter('^MPCCPROG    =.*', 'MPCCPROG    = %s -DSTARPU_1_2\nMPCXXPROG   = %s'%(binmpicc, binmpicxx))
+            else:
+                mf.filter('^MPCCPROG    =.*', 'MPCCPROG    = %s\nMPCXXPROG   = %s'%(binmpicc, binmpicxx))
+
             mf.filter('^MPCXXPROG   =.*', 'MPCXXPROG   = %s' % binmpicxx)
             if spec.satisfies('^simgrid'):
                 mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) -DPASTIX_FUNNELED', 'CCPASTIX   := $(CCPASTIX) -DPASTIX_SINGLE')
