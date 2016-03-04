@@ -34,9 +34,10 @@ class Pastix(Package):
     depends_on("mpi", when='+mpi')
     depends_on("blas")
     depends_on("scotch")
-    depends_on("metis@4.0.3", when='+metis')
+    depends_on("metis@:4", when='+metis')
     depends_on("starpu~mpi", when='+starpu~mpi')
     depends_on("starpu+mpi", when='+starpu+mpi')
+
     def setup(self):
 
         copyfile('config/LINUX-GNU.in', 'config.in')
