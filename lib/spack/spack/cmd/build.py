@@ -22,19 +22,24 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##############################################################################
+import sys
 import argparse
 
 import llnl.util.tty as tty
 
 import spack
 import spack.cmd
+from spack.cmd.find import display_specs
 
 description = "Build packages already staged"
 
 def setup_parser(subparser):
     subparser.add_argument(
-        '-a', '--build-dependencies', action='store_true', dest='build_deps',
-        help="Build dependencies of requested packages.")
+        '-a', '--all', action='store_true', dest='all',
+        help="Build all matching packages.")
+    subparser.add_argument(
+        '-d', '--build-dependencies', action='store_true', dest='build_deps',
+        help="Also build dependencies of requested packages.")
     subparser.add_argument(
         '-j', '--jobs', action='store', type=int,
         help="Explicitly set number of make jobs.  Default is #cpus.")
@@ -56,11 +61,42 @@ def build(parser, args):
     # TODO: make this an argument, not a global.
     spack.do_checksum = False
 
-    specs = spack.cmd.parse_specs(args.packages, concretize=True)
-    for spec in specs:
-        package = spack.db.get(spec)
-        with spack.installed_db.write_transaction():
-            package.do_build(
+    with spack.installed_db.write_transaction():
+        specs = spack.cmd.parse_specs(args.packages)
+
+        # For each spec provided, make sure it refers to only one package.
+        # Fail and ask user to be unambiguous if it doesn't
+        pkgs = []
+        for spec in specs:
+            matching_specs = spack.installed_db.query(spec)
+            if not args.all and len(matching_specs) > 1:
+                tty.error("%s matches multiple packages:" % spec)
+                print
+                display_specs(matching_specs, long=True)
+                print
+                print "You can either:"
+                print "  a) Use a more specific spec, or"
+                print "  b) use spack build -a to build ALL matching specs."
+                sys.exit(1)
+
+            for s in matching_specs:
+                try:
+                    # should work if package is known to spack
+                    pkgs.append(s.package)
+
+                except spack.packages.UnknownPackageError, e:
+                    # The package.py file has gone away -- but still want to
+                    # uninstall.
+                    spack.Package(s).install(force=True)
+
+        # Sort packages to be built by the number of installed dependents
+        def num_installed_deps(pkg):
+            return len(pkg.installed_dependents)
+        pkgs.sort(key=num_installed_deps)
+
+        # Build packages in order now.
+        for pkg in pkgs:
+            pkg.do_build(
                 build_deps=args.build_deps,
                 make_jobs=args.jobs,
                 verbose=args.verbose)
