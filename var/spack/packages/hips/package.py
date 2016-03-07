@@ -111,11 +111,12 @@ class Hips(Package):
         if spec.satisfies('+examples'):
             # only the following subdirectories should be copied
             # because make is not done in others with the "all" target
-            install_tree('TESTS/DBMATRIX',       '%s/TESTS/DBMATRIX' % prefix)
-            install_tree('TESTS/SEQUENTIAL',     '%s/TESTS/SEQUENTIAL' % prefix)
             install_tree('TESTS/PARALLEL',       '%s/TESTS/PARALLEL' % prefix)
-            install_tree('TESTS/MISC_PARALLEL',  '%s/TESTS/MISC_PARALLEL' % prefix)
             install_tree('TESTS/MATRICES',       '%s/TESTS/MATRICES' % prefix)
+            if spec.satisfies('@trunk'):
+                install_tree('TESTS/DBMATRIX',       '%s/TESTS/DBMATRIX' % prefix)
+                install_tree('TESTS/SEQUENTIAL',     '%s/TESTS/SEQUENTIAL' % prefix)
+                install_tree('TESTS/MISC_PARALLEL',  '%s/TESTS/MISC_PARALLEL' % prefix)
 
     # to use the existing version available in the environment: HIPS_DIR environment variable must be set
     @when('@exist')
