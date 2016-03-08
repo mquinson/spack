@@ -22,6 +22,7 @@ class Pastix(Package):
     version('src')
 
     variant('mpi', default=False, description='Enable MPI')
+    variant('smp', default=True, description='Enable Thread')
     variant('cuda', default=False, description='Enable CUDA kernels. Caution: only available if StarPU variant is enabled')
     variant('metis', default=False, description='Enable Metis')
     variant('starpu', default=False, description='Enable StarPU')
@@ -48,8 +49,8 @@ class Pastix(Package):
         # it seems we set CXXPROG twice but it is because in some
         # versions the line exists, and we can filter it, and in some
         # versions it does not
-        if spec.satisfies('^starpu@1.2:'):
-            mf.filter('CCPROG      = gcc', 'CCPROG      = cc -Wall -DSTRAPU_1_2\nCXXPROG     = c++')
+        if spec.satisfies('^starpu@1.2:') or spec.satisfies('^starpu@svn-trunk'):
+            mf.filter('CCPROG      = gcc', 'CCPROG      = cc -Wall -DSTARPU_1_2\nCXXPROG     = c++')
         else:
             mf.filter('CCPROG      = gcc', 'CCPROG      = cc -Wall \nCXXPROG     = c++')
         mf.filter('CXXPROG     = g\+\+', 'CXXPROG     = c++')
@@ -84,6 +85,11 @@ class Pastix(Package):
             mf.filter('#VERSIONINT  = _int32', 'VERSIONINT  = _int32')
             mf.filter('#CCTYPES     = -DINTSIZE32', 'CCTYPES     = -DINTSSIZE32')
 
+        if spec.satisfies('+smp'):
+            mf.filter('#VERSIONSMP  = _nosmp', 'VERSIONSMP  = _nosmp')
+            mf.filter('#CCTYPES    := \$\(CCTYPES\) -DFORCE_NOSMP', 'CCTYPES    := $(CCTYPES) -DFORCE_NOSMP')
+
+
         if spec.satisfies('+mpi'):
             mpi = spec['mpi'].prefix
             try:
@@ -97,7 +103,7 @@ class Pastix(Package):
             # it seems we set CXXPROG twice but it is because in some
             # versions the line exists, and we can filter it, and in
             # some versions it does not
-            if spec.satisfies('^starpu@1.2:'):
+            if spec.satisfies('^starpu@1.2:') or spec.satisfies('^starpu@svn-trunk'):
                 mf.filter('^MPCCPROG    =.*', 'MPCCPROG    = %s -DSTARPU_1_2\nMPCXXPROG   = %s'%(binmpicc, binmpicxx))
             else:
                 mf.filter('^MPCCPROG    =.*', 'MPCCPROG    = %s\nMPCXXPROG   = %s'%(binmpicc, binmpicxx))
