@@ -63,7 +63,7 @@ class Hips(Package):
             metis = spec['metis'].prefix
             metis_libs = " ".join(metislibname)
             mf.filter('^METIS_DIR  =.*', 'METIS_DIR  = %s' % metis)
-            mf.filter('^IMETIS     =.*', 'IMETIS     = %s' % metis.include)
+            mf.filter('^IMETIS     =.*', 'IMETIS     = -I%s' % metis.include)
             mf.filter('^LMETIS     =.*', 'LMETIS     = %s' % metis_libs)
             mf.filter('^SCOTCH_DIR =.*', '#SCOTCH_DIR =')
             mf.filter('^ISCOTCH    =.*', '#ISCOTCH    =')
