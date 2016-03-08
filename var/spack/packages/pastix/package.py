@@ -85,10 +85,9 @@ class Pastix(Package):
             mf.filter('#VERSIONINT  = _int32', 'VERSIONINT  = _int32')
             mf.filter('#CCTYPES     = -DINTSIZE32', 'CCTYPES     = -DINTSSIZE32')
 
-        if spec.satisfies('+smp'):
+        if spec.satisfies('~smp'):
             mf.filter('#VERSIONSMP  = _nosmp', 'VERSIONSMP  = _nosmp')
             mf.filter('#CCTYPES    := \$\(CCTYPES\) -DFORCE_NOSMP', 'CCTYPES    := $(CCTYPES) -DFORCE_NOSMP')
-
 
         if spec.satisfies('+mpi'):
             mpi = spec['mpi'].prefix
