@@ -46,6 +46,7 @@ class Scalfmm(Package):
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DSCALFMM_BUILD_EXAMPLES=ON"])
                 cmake_args.extend(["-DSCALFMM_BUILD_TESTS=ON"])
+                cmake_args.extend(["-DSCALFMM_BUILD_UTESTS=ON"])
                 cmake_args.extend(["-DSCALFMM_INSTALL_DATA=ON"])
             else:
                 cmake_args.extend(["-DSCALFMM_BUILD_EXAMPLES=OFF"])
