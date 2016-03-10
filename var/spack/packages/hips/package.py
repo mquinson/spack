@@ -51,9 +51,19 @@ class Hips(Package):
             else:
                 mf.filter('^COEFTYPE     =.*', 'COEFTYPE     = -DTYPE_REAL    -DPREC_DOUBLE')
 
-
+        mpi = spec['mpi'].prefix
+        try:
+            mpicc = binmpicc
+        except NameError:
+            mpicc = 'mpicc'
+        try:
+            mpif90 = binmpif90
+        except NameError:
+            mpif90 = 'mpif90'
         mf.filter('= gcc', '= cc')
         mf.filter('= gfortran', '= f90')
+        mf.filter('= mpicc', '= %s' % mpicc)
+        mf.filter('= mpif90', '= %s' % mpif90)
 
         blas = spec['blas'].prefix
         blas_libs = " ".join(blaslibname)
@@ -105,7 +115,7 @@ class Hips(Package):
         self.setup()
         make()
         if spec.satisfies('+examples'):
-            make('all')
+            make('all', '-i')
         # No install provided
         install_tree('LIB', prefix.lib)
         if spec.satisfies('+examples'):
