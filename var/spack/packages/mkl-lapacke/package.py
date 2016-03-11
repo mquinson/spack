@@ -29,10 +29,16 @@ class MklLapacke(Package):
         if spec.satisfies('+shared'):
             if spec.satisfies('%gcc'):
                 module.lapackelibname=[opt_noasneeded+"-L"+mkllibdir+" -lmkl_intel_lp64"]
+                module.lapackelibfortname=[opt_noasneeded+"-L"+mkllibdir+" -lmkl_gf_lp64"]
             else:
                 module.lapackelibname=["-L"+mkllibdir+" -lmkl_intel_lp64"]
+                module.lapackelibfortname=module.lapackelibname
         else:
             module.lapackelibname=[mkllibdir+"/libmkl_intel_lp64.a "]
+            if spec.satisfies('%gcc'):
+                module.lapackelibfortname=[mkllibdir+"/libmkl_gf_lp64.a "]
+            else:
+                module.lapackelibfortname=module.lapackelibname
 
     def install(self, spec, prefix):
         if os.getenv('MKLROOT'):

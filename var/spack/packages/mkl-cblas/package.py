@@ -32,10 +32,16 @@ class MklCblas(Package):
         if spec.satisfies('+shared'):
             if spec.satisfies('%gcc'):
                 module.cblaslibname=[opt_noasneeded+"-L"+mkllibdir+" -lmkl_intel_lp64"]
+                module.cblaslibfortname=[opt_noasneeded+"-L"+mkllibdir+" -lmkl_gf_lp64"]
             else:
                 module.cblaslibname=["-L"+mkllibdir+" -lmkl_intel_lp64"]
+                module.cblaslibfortname=module.cblaslibname
         else:
             module.cblaslibname=[mkllibdir+"/libmkl_intel_lp64.a "]
+            if spec.satisfies('%gcc'):
+                module.cblaslibfortname=[mkllibdir+"/libmkl_gf_lp64.a "]
+            else:
+                module.cblaslibfortname=module.cblaslibname
 
     def install(self, spec, prefix):
         if os.getenv('MKLROOT'):
