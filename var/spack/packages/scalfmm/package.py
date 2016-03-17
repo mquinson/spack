@@ -111,7 +111,7 @@ class Scalfmm(Package):
             cmake(*cmake_args)
             make()
             # No install provided for test drivers
-            if spec.satisfies('+examples'):
+            if spec.satisfies('+tests'):
                 if spec.satisfies('+debug'):
                     install_tree('Tests/Debug', prefix.bin)
                 else:
