@@ -24,7 +24,8 @@ class Scalfmm(Package):
     variant('mpi', default=False, description='Enable MPI')
     variant('starpu', default=False, description='Enable StarPU')
     variant('debug', default=False, description='Enable debug symbols')
-    variant('examples', default=True, description='Enable compilation and installation of example and test executables (Tests repository)')
+    variant('examples', default=True, description='Enable compilation and installation of example executables')
+    variant('tests', default=False, description='Enable compilation and installation of test executables (Tests repository)')
 
     depends_on("cmake")
     # Does not compile without blas!
@@ -45,13 +46,15 @@ class Scalfmm(Package):
 
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DSCALFMM_BUILD_EXAMPLES=ON"])
+                cmake_args.extend(["-DSCALFMM_INSTALL_DATA=ON"])
+            else:
+                cmake_args.extend(["-DSCALFMM_BUILD_EXAMPLES=OFF"])
+            if spec.satisfies('+tests'):
                 cmake_args.extend(["-DSCALFMM_BUILD_TESTS=ON"])
                 cmake_args.extend(["-DSCALFMM_BUILD_UTESTS=ON"])
                 cmake_args.extend(["-DSCALFMM_INSTALL_DATA=ON"])
             else:
-                cmake_args.extend(["-DSCALFMM_BUILD_EXAMPLES=OFF"])
                 cmake_args.extend(["-DSCALFMM_BUILD_TESTS=OFF"])
-                cmake_args.extend(["-DSCALFMM_INSTALL_DATA=OFF"])
 
             if spec.satisfies('+debug'):
                 cmake_args.extend(["-DSCALFMM_BUILD_DEBUG=ON"])
