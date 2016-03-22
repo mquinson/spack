@@ -28,7 +28,9 @@ class Simgrid(Package):
     variant('doc', default=False, description='Enable building documentation')
     variant('smpi', default=True, description='SMPI provides MPI')
     variant('examples', default=False, description='Install examples')
+
     depends_on('cmake')
+    depends_on('boost')
 
     provides('mpi@simu', when='+smpi')
 
