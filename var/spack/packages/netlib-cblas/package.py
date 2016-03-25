@@ -52,6 +52,10 @@ class NetlibCblas(Package):
         mf.filter('^FC =.*', 'FC = f90')
         mf.filter('^CFLAGS =', 'CFLAGS = -fPIC ')
         mf.filter('^FFLAGS =', 'FFLAGS = -fPIC ')
+        if spec.satisfies('%xl'):
+            mf.filter('CFLAGS = -fPIC', 'CFLAGS = -fPIC -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=pwr8')
+            mf.filter('FFLAGS = -fPIC', 'FFLAGS = -fPIC -qsmp -qextname -qhot -qtune=pwr8')
+
         # Rename the generated lib file to libcblas
         mf.filter('^CBLIB =.*', 'CBLIB = ../lib/libcblas.a')
 
