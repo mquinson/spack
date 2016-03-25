@@ -4,7 +4,7 @@ import spack
 import sys
 import platform
 
-class EsslBlas(Package):
+class EsslLapack(Package):
     """IBM ESSL Blas and Lapack routines"""
     homepage = "http://www-03.ibm.com/systems/power/software/essl/"
 
@@ -19,26 +19,26 @@ class EsslBlas(Package):
         esslroot=os.environ['ESSLROOT']
         xlfroot=os.environ['XLFROOT']
         if os.path.isdir(esslroot) and os.path.isdir(xlfroot):
-            provides('blas')
+            provides('lapack')
 
     variant('mt', default=False, description="Use Multithreaded version")
 
     def setup_dependent_environment(self, module, spec, dep_spec):
-        """Dependencies of this package will get the libraries names for essl-blas."""
+        """Dependencies of this package will get the libraries names for essl-lapack."""
         essllibdir=self.spec.prefix.lib
         xlfroot=os.environ['XLFROOT']
         if os.path.isdir(xlfroot):
             if spec.satisfies("+mt"):
                 xlsmproot=os.environ['XLSMPROOT']
                 if os.path.isdir(xlfroot):
-                    module.blaslibname=[os.path.join(essllibdir, "libesslsmp.so -L%s/lib -lxlsmp -L%s/lib -lxlfmath -lxlf90_r") %(xlsmproot,xlfroot)]
+                    module.lapacklibname=[os.path.join(essllibdir, "libesslsmp.so -L%s/lib -lxlsmp -L%s/lib -lxlfmath -lxlf90_r") %(xlsmproot,xlfroot)]
                 else:
-                    sys.exit('XLSMPROOT environment variable does not exist. Please set XLSMPROOT, where lies libxlsmp, to use the ESSL Blas')
+                    sys.exit('XLSMPROOT environment variable does not exist. Please set XLSMPROOT, where lies libxlsmp, to use the ESSL Lapack')
             else:
-                module.blaslibname=[os.path.join(essllibdir, "libessl.so -L%s/lib -lxlfmath -lxlf90_r") % xlfroot]
-            module.blaslibfortname=module.blaslibname
+                module.lapacklibname=[os.path.join(essllibdir, "libessl.so -L%s/lib -lxlfmath -lxlf90_r") % xlfroot]
+            module.lapacklibfortname=module.lapacklibname
         else:
-            sys.exit('XLFROOT environment variable does not exist. Please set XLFROOT, where lies libxlfmath and libxlf90_r, to use the ESSL Blas')
+            sys.exit('XLFROOT environment variable does not exist. Please set XLFROOT, where lies libxlfmath and libxlf90_r, to use the ESSL Lapack')
 
     def install(self, spec, prefix):
         if os.getenv('ESSLROOT'):
@@ -49,4 +49,4 @@ class EsslBlas(Package):
             else:
                 sys.exit(esslroot+' directory does not exist.'+' Do you really have ESSL installed in '+esslroot+' ?')
         else:
-            sys.exit('ESSLROOT environment variable does not exist. Please set ESSLROOT, where lies libessl, to use the ESSL Blas')
+            sys.exit('ESSLROOT environment variable does not exist. Please set ESSLROOT, where lies libessl, to use the ESSL Lapack')
