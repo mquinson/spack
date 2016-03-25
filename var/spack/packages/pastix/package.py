@@ -53,9 +53,16 @@ class Pastix(Package):
             mf.filter('CCPROG      = gcc', 'CCPROG      = cc -Wall -DSTARPU_1_2\nCXXPROG     = c++')
         else:
             mf.filter('CCPROG      = gcc', 'CCPROG      = cc -Wall \nCXXPROG     = c++')
+
         mf.filter('CXXPROG     = g\+\+', 'CXXPROG     = c++')
         mf.filter('CFPROG      = gfortran', 'CFPROG      = f77')
         mf.filter('CF90PROG    = gfortran', 'CF90PROG    = fc')
+
+        if spec.satisfies('%xl'):
+            mf.filter('CCPROG      = cc -Wall', 'CCPROG      = cc -O2 -fPIC -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=pwr8')
+            mf.filter('CXXPROG     = c\+\+', 'CXXPROG     = c++ -O2 -qsmp -fPIC  -qlanglvl=extended -qarch=auto -qhot -qtune=pwr8')
+            mf.filter('CFPROG      = f77', 'CFPROG      = f77 -O2 -fPIC -qsmp -qextname -qhot -qtune=pwr8')
+            mf.filter('CF90PROG    = fc', 'CF90PROG    = fc -O2 -qsmp -qextname -fPIC -qlanglvl=extended -qarch=auto -qhot -qtune=pwr8  -qlanglvl=90std')
 
         mf.filter('^# ROOT          =.*', 'ROOT          = %s' % spec.prefix)
         mf.filter('^# INCLUDEDIR    =.*', 'INCLUDEDIR    = ${ROOT}/include')
@@ -167,6 +174,8 @@ class Pastix(Package):
             mf.filter('BLASLIB  = -lblas', 'BLASLIB  = -L%s -lopenblas' % blas.lib)
         elif '^eigen-blas' in spec:
             mf.filter('BLASLIB  = -lblas', 'BLASLIB  = -L%s -leigen_blas' % blas.lib)
+        elif '^essl-blas' in spec:
+            mf.filter('BLASLIB  = -lblas', 'BLASLIB  = %s' % blas_libs)
 
         mf.filter('LDFLAGS  = $(EXTRALIB) $(BLASLIB)', 'LDFLAGS  = $(BLASLIB) $(EXTRALIB)')
 

@@ -1,6 +1,7 @@
 from spack import *
 import spack
 import os, platform
+from subprocess import call
 
 class Flex(Package):
     """Flex is a tool for generating scanners."""
@@ -18,6 +19,10 @@ class Flex(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('system', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+
+    def patch(self):
+        pkg_dir = spack.db.dirname_for_package_name("flex")
+        call(["cp", pkg_dir+"/config.guess.power8", "config.guess"])
 
     def install(self, spec, prefix):
         configure("--prefix=%s" % prefix)
