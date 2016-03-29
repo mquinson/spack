@@ -30,7 +30,6 @@ class Simgrid(Package):
     variant('examples', default=False, description='Install examples')
 
     depends_on('cmake')
-    depends_on('boost')
 
     provides('mpi@simu', when='+smpi')
 
