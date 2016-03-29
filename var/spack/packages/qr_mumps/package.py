@@ -65,6 +65,8 @@ class QrMumps(Package):
         mf.filter('LSTARPU = -L/path/to/starpu/lib -lstarpu', 'LSTARPU = `pkg-config --libs libstarpu`')
         mf.filter('ISTARPU = -I/path/to/starpu/include', 'ISTARPU = `pkg-config --cflags libstarpu`')
         mf.filter('# LCOLAMD  = -L/path/to/colamd/Lib -lcolamd', 'LCOLAMD  = -L%s -lcolamd -lsuitesparseconfig' % suitesparse.lib)
+        if platform.system() != 'Darwin':
+            mf.filter('-lsuitesparseconfig', '-lsuitesparseconfig -lrt')
         mf.filter('# ICOLAMD  = -I/path/to/colamd/Include -I/path/to/ufconfig', 'ICOLAMD  = -I%s' % suitesparse.include)
         mf.filter('# LMETIS   = -L/path/to/metis -lmetis', 'LMETIS   = -L%s -lmetis' % metis.lib)
         mf.filter('# IMETIS   = -I/path/to/metis/include', 'IMETIS   = -I%s' % metis.include)
