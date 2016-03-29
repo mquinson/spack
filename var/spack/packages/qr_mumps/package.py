@@ -1,5 +1,6 @@
 from spack import *
 import os
+import platform
 import spack
 from shutil import copyfile
 
