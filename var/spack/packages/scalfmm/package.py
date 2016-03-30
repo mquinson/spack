@@ -26,6 +26,7 @@ class Scalfmm(Package):
     variant('debug', default=False, description='Enable debug symbols')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
     variant('tests', default=False, description='Enable compilation and installation of test executables (Tests repository)')
+    variant('shared', default=True, description='Build scalfmm as a shared library')
 
     depends_on("cmake")
     # Does not compile without blas!
@@ -42,7 +43,10 @@ class Scalfmm(Package):
 
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
-            cmake_args+=["-DBUILD_SHARED_LIBS=ON"]
+
+            if spec.satisfies('+shared'):
+                # Enable build shared libs.
+                cmake_args+=["-DBUILD_SHARED_LIBS=ON"]
 
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DSCALFMM_BUILD_EXAMPLES=ON"])
