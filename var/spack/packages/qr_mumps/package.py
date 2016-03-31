@@ -106,18 +106,19 @@ class QrMumps(Package):
                 if file.endswith(".h"):
                     install(file, prefix.include)
 
-        mkdirp('%s/lib/qr_mumps/test' % prefix)
+        mkdirp('%s/examples' % prefix)
         with working_dir('test'):
-            install('dqrm_coverage', '%s/lib/qr_mumps/test' % prefix)
+            install('dqrm_coverage', '%s/examples/' % prefix)
             for file in os.listdir("%s/qrm_starpu_2d/test" % self.stage.path):
                 if file.endswith(".txt"):
-                    install(file, '%s/lib/qr_mumps/test' % prefix)
+                    install(file, '%s/examples/' % prefix)
                 if file.endswith(".mtx"):
-                    install(file, '%s/lib/qr_mumps/test' % prefix)
-
-        mkdirp('%s/lib/qr_mumps/examples' % prefix)
+                    install(file, '%s/examples/' % prefix)
         with working_dir('examples'):
-            install('dqrm_test', '%s/lib/qr_mumps/examples' % prefix)
+            install('dqrm_test', '%s/examples/' % prefix)
+            for file in os.listdir("%s/qrm_starpu_2d/examples" % self.stage.path):
+                if file.endswith(".txt"):
+                    install(file, '%s/examples/' % prefix)
 
     # to use the existing version available in the environment: QR_MUMPS_DIR environment variable must be set
     @when('@exist')
