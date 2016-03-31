@@ -42,8 +42,8 @@ class Magma(Package):
 
     def setup(self):
         spec = self.spec
-        spack_root=os.environ['SPACK_ROOT']
-        call(["cp", spack_root+"/var/spack/packages/magma/make.inc.mkl-gcc", "."])
+        pkg_dir = spack.db.dirname_for_package_name("magma")
+        call(["cp", pkg_dir+"/make.inc.mkl-gcc", "."])
         call(["ln", "-s", "make.inc.mkl-gcc", "make.inc"])
         mf = FileFilter('make.inc')
 
