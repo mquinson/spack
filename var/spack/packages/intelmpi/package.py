@@ -22,10 +22,16 @@ class Intelmpi(Package):
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         bin = self.prefix.bin
-        module.binmpicc  = os.path.join(bin, 'mpiicc')
-        module.binmpicxx = os.path.join(bin, 'mpiicpc')
-        module.binmpif77 = os.path.join(bin, 'mpiifort')
-        module.binmpif90 = os.path.join(bin, 'mpiifort')
+        if spec.satisfies('%intel'):
+            module.binmpicc  = os.path.join(bin, 'mpiicc')
+            module.binmpicxx = os.path.join(bin, 'mpiicpc')
+            module.binmpif77 = os.path.join(bin, 'mpiifort')
+            module.binmpif90 = os.path.join(bin, 'mpiifort')
+        else:
+            module.binmpicc  = os.path.join(bin, 'mpicc')
+            module.binmpicxx = os.path.join(bin, 'mpicxx')
+            module.binmpif77 = os.path.join(bin, 'mpif77')
+            module.binmpif90 = os.path.join(bin, 'mpif90')
 
     def install(self, spec, prefix):
         mpiroot=os.environ['I_MPI_ROOT']
