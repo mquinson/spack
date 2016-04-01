@@ -73,6 +73,8 @@ class Pastix(Package):
         if spec.satisfies('%intel'):
             mf.filter('-lgfortran', '-lifcore')
             mf.filter('^CF90CCPOPT  =.*', 'CF90CCPOPT  = -fpp')
+            mf.filter('-ffree-form', '')
+            mf.filter('-x f95-cpp-input', '')
 
         if spec.satisfies('+shared'):
             mf.filter('#SHARED=1', 'SHARED=1')
@@ -104,17 +106,27 @@ class Pastix(Package):
                 mpicc = 'mpicc'
             try:
                 mpicxx = binmpicxx
+
             except NameError:
                 mpicxx = 'mpic++'
+            try:
+                mpif90 = binmpif90
+            except NameError:
+                mpif90 = 'mpif90'
+            try:
+                mpif77 = binmpif77
+            except NameError:
+                mpif77 = 'mpif77'
+
             # it seems we set CXXPROG twice but it is because in some
             # versions the line exists, and we can filter it, and in
             # some versions it does not
             if spec.satisfies('^starpu@1.2:') or spec.satisfies('^starpu@svn-trunk'):
-                mf.filter('^MPCCPROG    =.*', 'MPCCPROG    = %s -DSTARPU_1_2\nMPCXXPROG   = %s'%(binmpicc, binmpicxx))
+                mf.filter('^MPCCPROG    =.*', 'MPCCPROG    = %s -DSTARPU_1_2\nMPCXXPROG   = %s'%(mpicc, mpicxx))
             else:
-                mf.filter('^MPCCPROG    =.*', 'MPCCPROG    = %s\nMPCXXPROG   = %s'%(binmpicc, binmpicxx))
-
-            mf.filter('^MPCXXPROG   =.*', 'MPCXXPROG   = %s' % binmpicxx)
+                mf.filter('^MPCCPROG    =.*', 'MPCCPROG    = %s\nMPCXXPROG   = %s'%(mpicc, mpicxx))
+            mf.filter('^MCFPROG     =.*', 'MCFPROG     = %s' % mpif90)
+            mf.filter('MPCXXPROG   = mpic\+\+ -Wall', '')
             if spec.satisfies('^simgrid'):
                 mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) -DPASTIX_FUNNELED', 'CCPASTIX   := $(CCPASTIX) -DPASTIX_SINGLE')
         else:
