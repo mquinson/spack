@@ -7,7 +7,7 @@ class Plasma(Package):
     """Parallel Linear Algebra for Scalable Multi-core Architectures."""
     homepage = "http://icl.cs.utk.edu/plasma/"
 
-    version('2.8.0', '9fd03e911bb70fd1b933e35a5126d791',
+    version('2.8.0', 'd2e0c6f00a16efb9d79b54b99d89e1a6',
             url="http://icl.cs.utk.edu/projectsfiles/plasma/pubs/plasma_2.8.0.tar.gz")
     version('2.7.1', 'c3deb85ccf10e6eaac9f0ba663702805',
             url="http://icl.cs.utk.edu/projectsfiles/plasma/pubs/plasma_2.7.1.tar.gz")
