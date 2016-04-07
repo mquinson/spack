@@ -24,6 +24,7 @@ class Maphys(Package):
 
     variant('mumps', default=False, description='Enable MUMPS direct solver')
     variant('pastix', default=True, description='Enable PASTIX direct solver')
+    variant('threads', default=False, description='Enable to use MPI+Threads version of MaPHyS, a multithreaded BLAS library is required (MKL, ESSL, OpenBLAS)')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
 
     depends_on("mpi")
@@ -67,7 +68,7 @@ class Maphys(Package):
         mf.filter('MPICC := mpicc', 'MPICC := %s -I%s' % ( mpicc, mpi.include) )
         mf.filter('MPIF77 := mpif77', 'MPIF77 := %s -I%s' % ( mpif77, mpi.include) )
 
-        if '^mkl-blas' in spec:
+        if spec.satisfies('+threads') in spec:
             mf.filter('# THREAD_FCFLAGS \+= -DMULTITHREAD_VERSION -openmp',
                       'THREAD_FCFLAGS += -DMULTITHREAD_VERSION -fopenmp')
             mf.filter('# THREAD_LDFLAGS := -openmp', 'THREAD_LDFLAGS := -fopenmp')
