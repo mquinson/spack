@@ -68,7 +68,7 @@ class Maphys(Package):
         mf.filter('MPICC := mpicc', 'MPICC := %s -I%s' % ( mpicc, mpi.include) )
         mf.filter('MPIF77 := mpif77', 'MPIF77 := %s -I%s' % ( mpif77, mpi.include) )
 
-        if spec.satisfies('+threads') in spec:
+        if spec.satisfies('+threads'):
             mf.filter('# THREAD_FCFLAGS \+= -DMULTITHREAD_VERSION -openmp',
                       'THREAD_FCFLAGS += -DMULTITHREAD_VERSION -fopenmp')
             mf.filter('# THREAD_LDFLAGS := -openmp', 'THREAD_LDFLAGS := -fopenmp')
