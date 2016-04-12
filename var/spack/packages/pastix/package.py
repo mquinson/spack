@@ -30,6 +30,9 @@ class Pastix(Package):
     variant('examples', default=True, description='Enable compilation and installation of example executables')
     variant('debug', default=False, description='Enable debug symbols')
     variant('int64', default=False, description='To use 64 bits integers')
+    variant('complex', default=False, description='Enable complex support')
+    variant('dynsched', default=False, description='Enable dynamic thread scheduling support')
+    variant('memory', default=True, description='Enable memory usage statistics')
 
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
@@ -97,6 +100,16 @@ class Pastix(Package):
         if spec.satisfies('~smp'):
             mf.filter('#VERSIONSMP  = _nosmp', 'VERSIONSMP  = _nosmp')
             mf.filter('#CCTYPES    := \$\(CCTYPES\) -DFORCE_NOSMP', 'CCTYPES    := $(CCTYPES) -DFORCE_NOSMP')
+
+        if spec.satisfies('+memory'):
+            mf.filter('#CCPASTIX   := \$\(CCPASTIX\) -DMEMORY_USAGE', 'CCPASTIX   := $(CCPASTIX) -DMEMORY_USAGE')
+
+        if spec.satisfies('+dynsched'):
+            mf.filter('#CCPASTIX   := \$\(CCPASTIX\) -DPASTIX_DYNSCHED', 'CCPASTIX   := $(CCPASTIX) -DPASTIX_DYNSCHED')
+
+        if spec.satisfies('+complex'):
+            mf.filter('#VERSIONFLT  = _complex', 'VERSIONFLT  = _complex')
+            mf.filter('#CCTYPESFLT := \$\(CCTYPESFLT\) -DTYPE_COMPLEX', 'CCTYPESFLT := $(CCTYPESFLT) -DTYPE_COMPLEX')
 
         if spec.satisfies('+mpi'):
             mpi = spec['mpi'].prefix
