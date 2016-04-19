@@ -35,7 +35,6 @@ class Maphys(Package):
     depends_on("lapack")
     depends_on("pastix", when='+pastix')
     depends_on("mumps", when='+mumps')
-    depends_on("scalapack", when='+mumps')
 
     def setup(self):
         spec = self.spec
