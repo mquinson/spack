@@ -34,8 +34,9 @@ class Mumps(Package):
     depends_on("scalapack", when='+mpi')
     depends_on("scotch+esmumps", when='+scotch')
     depends_on("scotch+esmumps+mpi", when='+ptscotch')
+    depends_on("metis@5:", when='@src+metis')
     depends_on("metis@5:", when='@5:+metis')
-    depends_on("metis@:4", when='@:4+metis')
+    depends_on("metis@:4", when='@4+metis')
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the libraries names for Mumps."""
@@ -59,14 +60,19 @@ class Mumps(Package):
 
     def setup(self):
         spec = self.spec
-        if spec.satisfies('+mpi@5'):
-            copyfile('Make.inc/Makefile.debian.PAR', 'Makefile.inc')
-        if spec.satisfies('~mpi@5'):
-            copyfile('Make.inc/Makefile.debian.SEQ', 'Makefile.inc')
-        if spec.satisfies('+mpi@4'):
-            copyfile('Make.inc/Makefile.inc.generic', 'Makefile.inc')
-        if spec.satisfies('~mpi@4'):
-            copyfile('Make.inc/Makefile.inc.generic.SEQ', 'Makefile.inc')
+        if spec.satisfies('+mpi'):
+            if spec.satisfies('@4'):
+                copyfile('Make.inc/Makefile.inc.generic', 'Makefile.inc')
+            else:
+                # @5
+                copyfile('Make.inc/Makefile.debian.PAR', 'Makefile.inc')
+        else:
+            # ~mpi
+            if spec.satisfies('@4'):
+                copyfile('Make.inc/Makefile.inc.generic.SEQ', 'Makefile.inc')
+            else:
+                # @5
+                copyfile('Make.inc/Makefile.debian.SEQ', 'Makefile.inc')
 
         mf = FileFilter('Makefile.inc')
 
