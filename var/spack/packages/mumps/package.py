@@ -49,6 +49,11 @@ class Mumps(Package):
         for l in ["smumps", "dmumps", "cmumps", "zmumps", "mumps_common", "pord"]:
             module.mumpslibname  += [os.path.join(libdir, "lib%s%s"%(l, libext))]
 
+        if spec.satisfies('~mpi'):
+            # mumps libmpiseq provides dummy symbols for MPI and ScaLAPACK
+            # be aware that it must come after the actual MPI library during the link phase
+            module.mumpslibname  += [os.path.join(libdir, "libmpiseq%s" % libext)]
+
         # there is a bug with the hash calculation of mumps
         module.mumpsprefix=self.spec.prefix
 
