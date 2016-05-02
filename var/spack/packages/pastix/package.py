@@ -30,7 +30,6 @@ class Pastix(Package):
     variant('examples', default=True, description='Enable compilation and installation of example executables')
     variant('debug', default=False, description='Enable debug symbols')
     variant('int64', default=False, description='To use 64 bits integers')
-    variant('complex', default=False, description='Enable complex support')
     variant('dynsched', default=False, description='Enable dynamic thread scheduling support')
     variant('memory', default=True, description='Enable memory usage statistics')
 
@@ -106,10 +105,6 @@ class Pastix(Package):
 
         if spec.satisfies('+dynsched'):
             mf.filter('#CCPASTIX   := \$\(CCPASTIX\) -DPASTIX_DYNSCHED', 'CCPASTIX   := $(CCPASTIX) -DPASTIX_DYNSCHED')
-
-        if spec.satisfies('+complex'):
-            mf.filter('#VERSIONFLT  = _complex', 'VERSIONFLT  = _complex')
-            mf.filter('#CCTYPESFLT := \$\(CCTYPESFLT\) -DTYPE_COMPLEX', 'CCTYPESFLT := $(CCTYPESFLT) -DTYPE_COMPLEX')
 
         if spec.satisfies('+mpi'):
             mpi = spec['mpi'].prefix
@@ -212,18 +207,92 @@ class Pastix(Package):
 
         with working_dir('src'):
 
-            self.setup()
-            if spec.satisfies('+debug'):
-                make('debug')
+            if spec.satisfies('@develop') or spec.satisfies('@src'):
+
+                with working_dir('spack-build', create=True):
+
+                    cmake_args = [".."]
+                    cmake_args.extend(std_cmake_args)
+
+                    if spec.satisfies('+debug'):
+                        # Enable Debug here.
+                        cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
+                    else:
+                        cmake_args.extend(["-DCMAKE_BUILD_TYPE=Release"])
+                    if spec.satisfies('+shared'):
+                        # Enable build shared libs.
+                        cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
+                    else:
+                        cmake_args.extend(["-DBUILD_SHARED_LIBS=OFF"])
+                    if spec.satisfies('+examples'):
+                        # Enable Examples here.
+                        cmake_args.extend(["-DPASTIX_BUILD_EXAMPLES=ON"])
+                    else:
+                        cmake_args.extend(["-DPASTIX_BUILD_EXAMPLES=OFF"])
+                    if spec.satisfies('+smp'):
+                        cmake_args.extend(["-DPASTIX_WITH_MULTITHREAD=ON"])
+                    else:
+                        cmake_args.extend(["-DPASTIX_WITH_MULTITHREAD=OFF"])
+                    if spec.satisfies('+mpi'):
+                        # Enable MPI here.
+                        cmake_args.extend(["-DPASTIX_WITH_MPI=ON"])
+                    else:
+                        cmake_args.extend(["-DPASTIX_WITH_MPI=OFF"])
+                    if spec.satisfies('+starpu'):
+                        # Enable StarPU here.
+                        cmake_args.extend(["-DPASTIX_WITH_STARPU=ON"])
+                    else:
+                        cmake_args.extend(["-DPASTIX_WITH_STARPU=OFF"])
+                    if spec.satisfies('+starpu') and spec.satisfies('+cuda'):
+                        # Enable CUDA here.
+                        cmake_args.extend(["-DPASTIX_WITH_STARPU_CUDA=ON"])
+                    else:
+                        cmake_args.extend(["-DPASTIX_WITH_STARPU_CUDA=OFF"])
+                    if spec.satisfies('+metis'):
+                        # Enable METIS here.
+                        cmake_args.extend(["-DPASTIX_ORDERING_METIS=ON"])
+                    else:
+                        cmake_args.extend(["-DPASTIX_ORDERING_METIS=OFF"])
+                    if spec.satisfies('+int64'):
+                        # Int of size 64bits.
+                        cmake_args.extend(["-DPASTIX_INT64=ON"])
+                    else:
+                        cmake_args.extend(["-DPASTIX_INT64=OFF"])
+                    if spec.satisfies('+dynsched'):
+                        # Enable dynamic thread scheduling support.
+                        cmake_args.extend(["-DPASTIX_DYNSCHED=ON"])
+                    else:
+                        cmake_args.extend(["-DPASTIX_DYNSCHED=OFF"])
+                    if spec.satisfies('+memory'):
+                        # Enable Memory statistics here.
+                        cmake_args.extend(["-DPASTIX_WITH_MEMORY_USAGE=ON"])
+                    else:
+                        cmake_args.extend(["-DPASTIX_WITH_MEMORY_USAGE=OFF"])
+                    if spec.satisfies('^scotch+mpi'):
+                        # Enable distributed, required with ptscotch
+                        cmake_args.extend(["-DPASTIX_DISTRIBUTED=ON"])
+                    else:
+                        cmake_args.extend(["-DPASTIX_DISTRIBUTED=OFF"])
+
+                    cmake(*cmake_args)
+                    make()
+                    make("install")
+
             else:
-                make()
-            if spec.satisfies('+examples'):
-                make('examples')
-            make("install")
-            # examples are not installed by default
-            if spec.satisfies('+examples'):
-                install_tree('example/bin', prefix + '/examples')
-                install_tree('matrix', prefix + '/matrix')
+
+                self.setup()
+                if spec.satisfies('+debug'):
+                    make('debug')
+                else:
+                    make()
+                    if spec.satisfies('+examples'):
+                        make('examples')
+                make("install")
+                # examples are not installed by default
+                if spec.satisfies('+examples'):
+                    install_tree('example/bin', prefix + '/examples')
+                    install_tree('matrix', prefix + '/matrix')
+
 
     # to use the existing version available in the environment: PASTIX_DIR environment variable must be set
     @when('@exist')
