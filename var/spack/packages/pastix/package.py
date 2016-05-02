@@ -209,6 +209,11 @@ class Pastix(Package):
 
             if spec.satisfies('@develop') or spec.satisfies('@src'):
 
+                # required to get murge sources "make murge_up and make sopalin/src/murge_fortran.c"
+                copyfile('config/LINUX-GNU.in', 'config.in')
+                make('murge_up')
+                make('sopalin/src/murge_fortran.c')
+
                 with working_dir('spack-build', create=True):
 
                     cmake_args = [".."]
