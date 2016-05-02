@@ -108,6 +108,11 @@ class Mpf(Package):
                 cmake_args.extend(["-DMKL_LIBRARY_DIRS=%s" % mklblas.lib])
                 cmake_args.extend(["-DMKL_INCLUDE_DIRS=%s" % mklblas.include])
                 mkl_libs=[]
+                try:
+                    blaslibname = parblaslibname
+                except NameError:
+                    blaslibname = blaslibname
+
                 for l1 in blaslibname:
                     for l2 in l1.split(' '):
                         if l2.startswith('-l'):

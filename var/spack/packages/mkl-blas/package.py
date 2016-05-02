@@ -28,27 +28,27 @@ class MklBlas(Package):
         opt_noasneeded="-Wl,--no-as-needed " if not platform.system() == "Darwin" else ""
         if spec.satisfies('%gcc'):
             if spec.satisfies('+shared'):
-                module.blaslibname=[opt_noasneeded+"-L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -ldl -lgomp -lpthread -lm"]
-                module.blaslibfortname=[opt_noasneeded+"-L"+mkllibdir+" -lmkl_gf_lp64 -lmkl_core -lmkl_gnu_thread -ldl -lgomp -lpthread -lm"]
-                module.seqblaslibname=[opt_noasneeded+"-L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm"]
-                module.seqblaslibfortname=[opt_noasneeded+"-L"+mkllibdir+" -lmkl_gf_lp64 -lmkl_core -lmkl_sequential -lpthread -lm"]
+                module.parblaslibname=[opt_noasneeded+"-L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -ldl -lgomp -lpthread -lm"]
+                module.parblaslibfortname=[opt_noasneeded+"-L"+mkllibdir+" -lmkl_gf_lp64 -lmkl_core -lmkl_gnu_thread -ldl -lgomp -lpthread -lm"]
+                module.blaslibname=[opt_noasneeded+"-L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm"]
+                module.blaslibfortname=[opt_noasneeded+"-L"+mkllibdir+" -lmkl_gf_lp64 -lmkl_core -lmkl_sequential -lpthread -lm"]
             else:
-                module.blaslibname=["-Wl,--start-group "+mkllibdir+"/libmkl_intel_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_gnu_thread.a -Wl,--end-group -ldl -lgomp -lpthread -lm"]
-                module.blaslibfortname=["-Wl,--start-group "+mkllibdir+"/libmkl_gf_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_gnu_thread.a -Wl,--end-group -ldl -lgomp -lpthread -lm"]
-                module.seqblaslibname=["-Wl,--start-group "+mkllibdir+"/libmkl_intel_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_sequential.a -Wl,--end-group -lpthread -lm"]
-                module.seqblaslibfortname=["-Wl,--start-group "+mkllibdir+"/libmkl_gf_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_sequential.a -Wl,--end-group -lpthread -lm"]
+                module.parblaslibname=["-Wl,--start-group "+mkllibdir+"/libmkl_intel_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_gnu_thread.a -Wl,--end-group -ldl -lgomp -lpthread -lm"]
+                module.parblaslibfortname=["-Wl,--start-group "+mkllibdir+"/libmkl_gf_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_gnu_thread.a -Wl,--end-group -ldl -lgomp -lpthread -lm"]
+                module.blaslibname=["-Wl,--start-group "+mkllibdir+"/libmkl_intel_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_sequential.a -Wl,--end-group -lpthread -lm"]
+                module.blaslibfortname=["-Wl,--start-group "+mkllibdir+"/libmkl_gf_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_sequential.a -Wl,--end-group -lpthread -lm"]
         else:
             if spec.satisfies('+shared'):
-                module.blaslibname=["-L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -lpthread -lm"]
-                module.blaslibfortname=["-L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -lpthread -lm"]
-                module.seqblaslibname=["-L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm"]
-                module.seqblaslibfortname=["-L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm"]
+                module.parblaslibname=["-L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -lpthread -lm"]
+                module.parblaslibfortname=["-L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -lpthread -lm"]
+                module.blaslibname=["-L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm"]
+                module.blaslibfortname=["-L"+mkllibdir+" -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm"]
 
             else:
-                module.blaslibname=["-Wl,--start-group "+mkllibdir+"/libmkl_intel_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_intel_thread.a -Wl,--end-group -lpthread -lm"]
-                module.blaslibfortname=["-Wl,--start-group "+mkllibdir+"/libmkl_intel_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_intel_thread.a -Wl,--end-group -lpthread -lm"]
-                module.seqblaslibname=["-Wl,--start-group "+mkllibdir+"/libmkl_intel_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_sequential.a -Wl,--end-group -lpthread -lm"]
-                module.seqblaslibfortname=["-Wl,--start-group "+mkllibdir+"/libmkl_intel_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_sequential.a -Wl,--end-group -lpthread -lm"]
+                module.parblaslibname=["-Wl,--start-group "+mkllibdir+"/libmkl_intel_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_intel_thread.a -Wl,--end-group -lpthread -lm"]
+                module.parblaslibfortname=["-Wl,--start-group "+mkllibdir+"/libmkl_intel_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_intel_thread.a -Wl,--end-group -lpthread -lm"]
+                module.blaslibname=["-Wl,--start-group "+mkllibdir+"/libmkl_intel_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_sequential.a -Wl,--end-group -lpthread -lm"]
+                module.blaslibfortname=["-Wl,--start-group "+mkllibdir+"/libmkl_intel_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_sequential.a -Wl,--end-group -lpthread -lm"]
 
     def install(self, spec, prefix):
         if os.getenv('MKLROOT'):
