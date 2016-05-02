@@ -185,7 +185,7 @@ class Pastix(Package):
         mf.filter('^HWLOC_HOME \?= /opt/hwloc/', 'HWLOC_HOME = %s' % hwloc)
 
         blas = spec['blas'].prefix
-        blas_libs = " ".join(blaslibname)
+        blas_libs = " ".join(seqblaslibname)
         if '^netlib-blas' in spec:
             mf.filter('BLASLIB  = -lblas', 'BLASLIB  = -L%s -lblas -lm' % blas.lib)
         elif '^mkl-blas' in spec:
