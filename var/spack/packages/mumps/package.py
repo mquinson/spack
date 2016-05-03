@@ -22,6 +22,7 @@ class Mumps(Package):
         url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
+    variant('blasmt', default=False, description='Enable Multithreaded Blas/Lapack if providen by the vendor')
     variant('mpi', default=True, description='Sequential version (no MPI)')
     variant('scotch', default=True, description='Enable Scotch')
     variant('ptscotch', default=False, description='Enable PT-Scotch')
@@ -115,11 +116,29 @@ class Mumps(Package):
             mf.filter('^IMETIS\s*=.*', '#IMETIS    =')
             mf.filter('^LMETIS\s*=.*', '#LMETIS    =')
 
-        blas_libs = " ".join(blaslibname)
-        try:
-            lapack_libs = " ".join(lapacklibname)
-        except NameError:
-            lapack_libs = ''
+
+        if spec.satisfies('+blasmt'):
+            if 'parblaslibname' in globals():
+                blas_libs = " ".join(parblaslibname)
+            else:
+                sys.exit('parblaslibname is empty. This Blas/Lapack vendor seems not to provide'
+                ' a list of multithreaded libraries, please disable blasmt or use a'
+                ' multithreaded Blas implementation.')
+            if 'parlapacklibname' in globals():
+                lapack_libs = " ".join(parlapacklibname)
+            else:
+                sys.exit('parlapacklibname is empty. This Blas/Lapack vendor seems not to'
+                ' provide a list of multithreaded libraries, please disable blasmt or'
+                ' use a multithreaded Lapack implementation.')
+        else:
+            try:
+                blas_libs = " ".join(blaslibname)
+            except NameError:
+                blas_libs = ''
+            try:
+                lapack_libs = " ".join(lapacklibname)
+            except NameError:
+                lapack_libs = ''
         try:
             blacs_libs = " ".join(blacslibname)
         except NameError:
