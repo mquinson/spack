@@ -52,8 +52,6 @@ class MklLapack(Package):
                 module.parlapacklibfortname=["-Wl,--start-group "+mkllibdir+"/libmkl_intel_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_intel_thread.a -Wl,--end-group -lpthread -lm"]
                 module.lapacklibname=["-Wl,--start-group "+mkllibdir+"/libmkl_intel_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_sequential.a -Wl,--end-group -lpthread -lm"]
                 module.lapacklibfortname=["-Wl,--start-group "+mkllibdir+"/libmkl_intel_lp64.a "+mkllibdir+"/libmkl_core.a "+mkllibdir+"/libmkl_sequential.a -Wl,--end-group -lpthread -lm"]
-        module.tmglibname = module.lapacklibname
-        module.tmglibfortname = module.lapacklibfortname
 
     def install(self, spec, prefix):
         if os.getenv('MKLROOT'):
