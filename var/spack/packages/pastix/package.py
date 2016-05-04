@@ -23,6 +23,7 @@ class Pastix(Package):
 
     variant('mpi', default=False, description='Enable MPI')
     variant('smp', default=True, description='Enable Thread')
+    variant('blasmt', default=False, description='Enable to use multithreaded Blas library (MKL, ESSL, OpenBLAS)')
     variant('cuda', default=False, description='Enable CUDA kernels. Caution: only available if StarPU variant is enabled')
     variant('metis', default=False, description='Enable Metis')
     variant('starpu', default=False, description='Enable StarPU')
@@ -189,6 +190,18 @@ class Pastix(Package):
         if '^netlib-blas' in spec:
             mf.filter('BLASLIB  = -lblas', 'BLASLIB  = -L%s -lblas -lm' % blas.lib)
         elif '^mkl-blas' in spec:
+            if spec.satisfies('+blasmt'):
+                if 'parblaslibname' in globals():
+                    blas_libs = " ".join(parblaslibname)
+                else:
+                    sys.exit('parblaslibname is empty. This Blas/Lapack vendor seems not to provide'
+                             ' a list of multithreaded libraries, please disable blasmt or use a'
+                             ' multithreaded Blas implementation.')
+            else:
+                try:
+                    blas_libs = " ".join(blaslibname)
+                except NameError:
+                    blas_libs = ''
             mf.filter('BLASLIB  = -lblas', 'BLASLIB  = %s' % blas_libs)
         elif '^openblas' in spec:
             mf.filter('BLASLIB  = -lblas', 'BLASLIB  = -L%s -lopenblas' % blas.lib)
@@ -278,6 +291,11 @@ class Pastix(Package):
                         cmake_args.extend(["-DPASTIX_DISTRIBUTED=ON"])
                     else:
                         cmake_args.extend(["-DPASTIX_DISTRIBUTED=OFF"])
+
+                    if spec.satisfies('^mkl-blas~shared'):
+                        cmake_args.extend(["-DBLA_STATIC=ON"])
+                    if spec.satisfies('+blasmt'):
+                        cmake_args.extend(["-DPASTIX_BLAS_MT=ON"])
 
                     cmake(*cmake_args)
                     make()
