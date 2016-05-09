@@ -32,6 +32,7 @@ class Mumps(Package):
 
     depends_on("mpi", when='+mpi')
     depends_on("blas")
+    depends_on("lapack")
     depends_on("scalapack", when='+mpi')
     depends_on("scotch+esmumps", when='+scotch')
     depends_on("scotch+esmumps+mpi", when='+ptscotch')
