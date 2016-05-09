@@ -22,9 +22,10 @@ class Maphys(Package):
         url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
+    variant('debug', default=False, description='Enable debug symbols')
+    variant('blasmt', default=False, description='Enable to use MPI+Threads version of MaPHyS, a multithreaded Blas/Lapack library is required (MKL, ESSL, OpenBLAS)')
     variant('mumps', default=False, description='Enable MUMPS direct solver')
     variant('pastix', default=True, description='Enable PASTIX direct solver')
-    variant('threads', default=False, description='Enable to use MPI+Threads version of MaPHyS, a multithreaded BLAS library is required (MKL, ESSL, OpenBLAS)')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
 
     depends_on("mpi")
@@ -67,17 +68,37 @@ class Maphys(Package):
         mf.filter('MPICC := mpicc', 'MPICC := %s -I%s' % ( mpicc, mpi.include) )
         mf.filter('MPIF77 := mpif77', 'MPIF77 := %s -I%s' % ( mpif77, mpi.include) )
 
-        if spec.satisfies('+threads'):
+        if spec.satisfies('+blasmt'):
             mf.filter('# THREAD_FCFLAGS \+= -DMULTITHREAD_VERSION -openmp',
                       'THREAD_FCFLAGS += -DMULTITHREAD_VERSION -fopenmp')
-            mf.filter('# THREAD_LDFLAGS := -openmp', 'THREAD_LDFLAGS := -fopenmp')
-
-        blas_libs = " ".join(blaslibname)
+            mf.filter('# THREAD_LDFLAGS := -openmp',
+                      'THREAD_LDFLAGS := -fopenmp')
+            if 'parblaslibname' in globals():
+                blas_libs = " ".join(parblaslibname)
+            else:
+                sys.exit('parblaslibname is empty. This Blas/Lapack vendor seems not to provide'
+                ' a list of multithreaded libraries, please disable blasmt or use a'
+                ' multithreaded Blas implementation.')
+            if 'parlapacklibname' in globals():
+                lapack_libs = " ".join(parlapacklibname)
+            else:
+                sys.exit('parlapacklibname is empty. This Blas/Lapack vendor seems not to'
+                ' provide a list of multithreaded libraries, please disable blasmt or'
+                ' use a multithreaded Lapack implementation.')
+        else:
+            try:
+                blas_libs = " ".join(blaslibname)
+            except NameError:
+                blas_libs = ''
+            try:
+                lapack_libs = " ".join(lapacklibname)
+            except NameError:
+                lapack_libs = ''
         try:
             tmg_libs = " ".join(tmglibname)
         except NameError:
             tmg_libs = ''
-        lapack_libs=tmg_libs+' '+" ".join(lapacklibname)
+        lapack_libs=tmg_libs+' '+lapack_libs
         try:
             scalapack_libs = " ".join(scalapacklibname)
         except NameError:
@@ -98,59 +119,101 @@ class Maphys(Package):
         if spec.satisfies('+mumps'):
             mumps = mumpsprefix
             mumps_libs = " ".join(mumpslibname)
-            mf.filter('^MUMPS_prefix  :=.*', 'MUMPS_prefix  := %s' % mumps)
-            mf.filter('^MUMPS_LIBS :=.*', 'MUMPS_LIBS := '+mumps_libs+' '+scalapack_libs+' '+blacs_libs+' '+lapack_libs+' '+blas_libs+' '+scotch_libs+' '+metis_libs)
+            mf.filter('^MUMPS_prefix  :=.*',
+                      'MUMPS_prefix  := %s' % mumps)
+            mf.filter('^MUMPS_LIBS :=.*',
+                      'MUMPS_LIBS := '+mumps_libs+' '+scalapack_libs+' '+blacs_libs+' '+lapack_libs+' '+blas_libs+' '+scotch_libs+' '+metis_libs)
             if not spec.satisfies('^mumps+scotch'):
-                mf.filter('^MUMPS_FCFLAGS \+= -DLIBMUMPS_USE_LIBSCOTCH', '#MUMPS_FCFLAGS += -DLIBMUMPS_USE_LIBSCOTCH')
+                mf.filter('^MUMPS_FCFLAGS \+= -DLIBMUMPS_USE_LIBSCOTCH',
+                          '#MUMPS_FCFLAGS += -DLIBMUMPS_USE_LIBSCOTCH')
         else:
-            mf.filter('^MUMPS_prefix  :=.*', '#MUMPS_prefix  := version without mumps')
-            mf.filter('^MUMPS_LIBS :=.*', 'MUMPS_LIBS  :=')
-            mf.filter('^MUMPS_FCFLAGS  :=.*', 'MUMPS_FCFLAGS  := ')
-            mf.filter('^MUMPS_FCFLAGS \+=  -I\$\{MUMPS_prefix\}/include', '#MUMPS_FCFLAGS += -I${MUMPS_prefix}/include')
-            mf.filter('^MUMPS_FCFLAGS \+= -DLIBMUMPS_USE_LIBSCOTCH', '#MUMPS_FCFLAGS += -DLIBMUMPS_USE_LIBSCOTCH')
+            mf.filter('^MUMPS_prefix  :=.*',
+                      '#MUMPS_prefix  := version without mumps')
+            mf.filter('^MUMPS_LIBS :=.*',
+                      'MUMPS_LIBS  :=')
+            mf.filter('^MUMPS_FCFLAGS  :=.*',
+                      'MUMPS_FCFLAGS  := ')
+            mf.filter('^MUMPS_FCFLAGS \+=  -I\$\{MUMPS_prefix\}/include',
+                      '#MUMPS_FCFLAGS += -I${MUMPS_prefix}/include')
+            mf.filter('^MUMPS_FCFLAGS \+= -DLIBMUMPS_USE_LIBSCOTCH',
+                      '#MUMPS_FCFLAGS += -DLIBMUMPS_USE_LIBSCOTCH')
 
         if spec.satisfies('+pastix'):
             pastix = spec['pastix'].prefix
-            mf.filter('PASTIX_topdir := \$\(3rdpartyPREFIX\)/pastix/32bits', 'PASTIX_topdir := %s' % pastix)
+            mf.filter('PASTIX_topdir := \$\(3rdpartyPREFIX\)/pastix/32bits',
+                      'PASTIX_topdir := %s' % pastix)
             pastix_libs=subprocess.Popen([pastix+"/bin/pastix-conf", "--libs"], stdout=subprocess.PIPE).communicate()[0]
-            mf.filter('PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I\$\{PASTIX_topdir\}/install', 'PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I${PASTIX_topdir}/include')
-            mf.filter('PASTIX_LIBS := -L\$\{PASTIX_topdir\}/install -lpastix -lrt', 'PASTIX_LIBS := %s ' % pastix_libs)
+            mf.filter('PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I\$\{PASTIX_topdir\}/install',
+                      'PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I${PASTIX_topdir}/include')
+            mf.filter('PASTIX_LIBS := -L\$\{PASTIX_topdir\}/install -lpastix -lrt',
+                      'PASTIX_LIBS := %s ' % pastix_libs)
         else:
-            mf.filter('PASTIX_topdir := \$\(3rdpartyPREFIX\)/pastix/32bits', '#PASTIX_topdir := %s')
-            mf.filter('PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I\$\{PASTIX_topdir\}/install', '#PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I${PASTIX_topdir}/include')
-            mf.filter('PASTIX_LIBS := -L\$\{PASTIX_topdir\}/install -lpastix -lrt', '#PASTIX_LIBS :=')
+            mf.filter('PASTIX_topdir := \$\(3rdpartyPREFIX\)/pastix/32bits',
+                      '#PASTIX_topdir := %s')
+            mf.filter('PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I\$\{PASTIX_topdir\}/install',
+                      '#PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I${PASTIX_topdir}/include')
+            mf.filter('PASTIX_LIBS := -L\$\{PASTIX_topdir\}/install -lpastix -lrt',
+                      '#PASTIX_LIBS :=')
 
         if spec.satisfies('~mumps') and spec.satisfies('~pastix'):
             sys.exit('Maphys depends at least on one direct solver, please enable +mumps or +pastix.')
 
-        mf.filter('METIS_topdir  := \$\(3rdpartyPREFIX\)/metis/32bits', '#METIS_topdir  := version without metis')
-        mf.filter('METIS_CFLAGS := -DHAVE_LIBMETIS -I\$\{METIS_topdir\}/Lib', 'METIS_CFLAGS := ')
-        mf.filter('METIS_FCFLAGS := -DHAVE_LIBMETIS -I\$\{METIS_topdir\}/Lib', 'METIS_FCFLAGS := ')
-        mf.filter('METIS_LIBS := -L\$\{METIS_topdir\} -lmetis', 'METIS_LIBS := ')
+        mf.filter('METIS_topdir  := \$\(3rdpartyPREFIX\)/metis/32bits',
+                  '#METIS_topdir  := version without metis')
+        mf.filter('METIS_CFLAGS := -DHAVE_LIBMETIS -I\$\{METIS_topdir\}/Lib',
+                  'METIS_CFLAGS := ')
+        mf.filter('METIS_FCFLAGS := -DHAVE_LIBMETIS -I\$\{METIS_topdir\}/Lib',
+                  'METIS_FCFLAGS := ')
+        mf.filter('METIS_LIBS := -L\$\{METIS_topdir\} -lmetis',
+                  'METIS_LIBS := ')
 
         scotch = spec['scotch'].prefix
-        mf.filter('SCOTCH_prefix := \$\(3rdpartyPREFIX\)/scotch_esmumps/32bits', 'SCOTCH_prefix  := %s' % scotch)
-        mf.filter('SCOTCH_LIBS := -L\$\(SCOTCH_prefix\)/lib -lscotch -lscotcherrexit', 'SCOTCH_LIBS := %s' % scotch_libs)
+        mf.filter('SCOTCH_prefix := \$\(3rdpartyPREFIX\)/scotch_esmumps/32bits',
+                  'SCOTCH_prefix := %s' % scotch)
+        mf.filter('SCOTCH_LIBS := -L\$\(SCOTCH_prefix\)/lib -lscotch -lscotcherrexit',
+                  'SCOTCH_LIBS := %s' % scotch_libs)
         mf.filter('SCOTCH_LIBS +=  -lesmumps','')
 
         blas = spec['blas'].prefix
         lapack = spec['lapack'].prefix
         if '^mkl-blas' in spec:
-            mf.filter('^LMKLPATH   :=.*', 'LMKLPATH   := %s' % blas.lib)
+            mf.filter('^LMKLPATH   :=.*',
+                      'LMKLPATH   := %s' % blas.lib)
 
-        mf.filter('^DALGEBRA_PARALLEL_LIBS  :=.*', 'DALGEBRA_PARALLEL_LIBS  := '+scalapack_libs+' '+blacs_libs+' '+lapack_libs+' '+blas_libs)
-        mf.filter('^DALGEBRA_SEQUENTIAL_LIBS :=.*', 'DALGEBRA_SEQUENTIAL_LIBS  := '+lapack_libs+' '+blas_libs)
+        mf.filter('^DALGEBRA_PARALLEL_LIBS  :=.*',
+                  'DALGEBRA_PARALLEL_LIBS  := '+scalapack_libs+' '+blacs_libs+' '+lapack_libs+' '+blas_libs)
+        mf.filter('^DALGEBRA_SEQUENTIAL_LIBS :=.*',
+                  'DALGEBRA_SEQUENTIAL_LIBS := '+lapack_libs+' '+blas_libs)
 
+        fflags = ''
+        cflags = ''
+        if spec.satisfies('+debug'):
+            fflags += ' -g -O2'
+            cflags += ' -g -O2'
+        else:
+            fflags += ' -O3'
+            cflags += ' -O3'
         if '^mkl-blas' in spec or '^mkl-lapack' in spec or '^mkl-scalapack' in spec:
-            mf.filter('COMPIL_CFLAGS := -DAdd_', 'COMPIL_CFLAGS := -DAdd_ -m64 -I${MKLROOT}/include')
-            mf.filter('FFLAGS := -g -O0', 'FFLAGS := -g -O0 -m64 -I${MKLROOT}/include')
-            mf.filter('FCFLAGS := -g -O0', 'FCFLAGS := -g -O0 -DALLOW_NON_INIT -m64 -I${MKLROOT}/include')
+            fflags += ' -m64 -I${MKLROOT}/include'
+            cflags += ' -m64 -I${MKLROOT}/include'
+            mf.filter('COMPIL_CFLAGS := -DAdd_',
+                      'COMPIL_CFLAGS := -DAdd_ -m64 -I${MKLROOT}/include')
+
+        mf.filter('^FFLAGS :=.*',
+                  'FFLAGS := %s' % fflags)
+        mf.filter('^FCFLAGS :=.*',
+                  'FCFLAGS := %s' % cflags)
 
         hwloc = spec['hwloc'].prefix
-        mf.filter('HWLOC_prefix := /usr/share', 'HWLOC_prefix := %s' % hwloc)
+        mf.filter('HWLOC_prefix := /usr/share',
+                  'HWLOC_prefix := %s' % hwloc)
 
-        mf.filter('ALL_FCFLAGS  :=  \$\(FCFLAGS\) -I\$\(abstopsrcdir\)/include -I. \$\(ALGO_FCFLAGS\) \$\(CHECK_FLAGS\)', 'ALL_FCFLAGS  :=  $(FCFLAGS) -I$(abstopsrcdir)/include -I. $(ALGO_FCFLAGS) $(CHECK_FLAGS) $(THREAD_FCFLAGS)')
-        mf.filter('THREAD_FCLAGS', 'THREAD_LDFLAGS')
+        mf.filter('ALL_FCFLAGS  :=  \$\(FCFLAGS\) -I\$\(abstopsrcdir\)/include -I. \$\(ALGO_FCFLAGS\) \$\(CHECK_FLAGS\)',
+                  'ALL_FCFLAGS  := $(FCFLAGS) -I$(abstopsrcdir)/include -I. $(ALGO_FCFLAGS) $(CHECK_FLAGS) $(THREAD_FCFLAGS)')
+        mf.filter('THREAD_FCLAGS',
+                  'THREAD_LDFLAGS')
+        mf.filter('^ALL_LDFLAGS  :=.*',
+                  'ALL_LDFLAGS  :=  $(MAPHYS_LIBS) $(THREAD_LDFLAGS) $(DALGEBRA_LIBS) $(PASTIX_LIBS) $(MUMPS_LIBS) $(METIS_LIBS) $(SCOTCH_LIBS) $(HWLOC_LIBS) $(LDFLAGS)')
 
         if platform.system() == 'Darwin':
             mf.filter('-lrt', '');
