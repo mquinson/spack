@@ -25,17 +25,16 @@ class EsslBlas(Package):
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the libraries names for essl-blas."""
-        essllibdir=self.spec.prefix.lib
         xlfroot=os.environ['XLFROOT']
         if os.path.isdir(xlfroot):
             if spec.satisfies("+mt"):
                 xlsmproot=os.environ['XLSMPROOT']
                 if os.path.isdir(xlfroot):
-                    module.blaslibname=[os.path.join(essllibdir, "libesslsmp.so -L%s/lib -lxlsmp -L%s/lib -lxlfmath -lxlf90_r") %(xlsmproot,xlfroot)]
+                    module.blaslibname=["-Wl,-Bdynamic,--export-dynamic -L%s/lib -R%s/lib -lesslsmp -lxlsmp -L%s/lib" %(xlsmproot,xlsmproot,xlfroot)]
                 else:
                     sys.exit('XLSMPROOT environment variable does not exist. Please set XLSMPROOT, where lies libxlsmp, to use the ESSL Blas')
             else:
-                module.blaslibname=[os.path.join(essllibdir, "libessl.so -L%s/lib -lxlfmath -lxlf90_r") % xlfroot]
+                module.blaslibname=["-Wl,-Bdynamic,--export-dynamic -L%s/lib -R%s/lib -lessl" % (xlfroot,xlfroot)]
             module.blaslibfortname=module.blaslibname
         else:
             sys.exit('XLFROOT environment variable does not exist. Please set XLFROOT, where lies libxlfmath and libxlf90_r, to use the ESSL Blas')
