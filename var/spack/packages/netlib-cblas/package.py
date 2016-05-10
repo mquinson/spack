@@ -50,8 +50,8 @@ class NetlibCblas(Package):
         mf.filter('^BLLIB =.*', 'BLLIB = %s' % blas_libs)
         mf.filter('^CC =.*', 'CC = cc')
         mf.filter('^FC =.*', 'FC = f90')
-        mf.filter('^CFLAGS =.*', 'CFLAGS = -fPIC ')
-        mf.filter('^FFLAGS =.*', 'FFLAGS = -fPIC ')
+        mf.filter('^CFLAGS =', 'CFLAGS = -fPIC ')
+        mf.filter('^FFLAGS =', 'FFLAGS = -fPIC ')
         if spec.satisfies('%xl'):
             mf.filter('CFLAGS = -fPIC', 'CFLAGS = -fPIC -O3 -qstrict -DNOCHANGE')
             mf.filter('FFLAGS = -fPIC', 'FFLAGS = -fPIC -qnosave -O3 -qstrict')
