@@ -23,22 +23,25 @@ class EsslLapack(Package):
 
     variant('mt', default=False, description="Use Multithreaded version")
 
+    # blas is a virtual dependency.
+    depends_on('blas')
+
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the libraries names for essl-lapack."""
-        essllibdir=self.spec.prefix.lib
+        esslroot=os.environ['ESSLROOT']
         xlfroot=os.environ['XLFROOT']
-        if os.path.isdir(xlfroot):
+        if os.path.isdir(esslroot):
             if spec.satisfies("+mt"):
                 xlsmproot=os.environ['XLSMPROOT']
                 if os.path.isdir(xlfroot):
-                    module.lapacklibname=[os.path.join(essllibdir, "libesslsmp.so -L%s/lib -lxlsmp -L%s/lib -lxlfmath -lxlf90_r") %(xlsmproot,xlfroot)]
+                    module.lapacklibname=["-L%s/lib -R%s/lib -lesslsmp -L%s/lib -lxlsmp" %(esslroot,esslroot,xlsmproot)]
                 else:
-                    sys.exit('XLSMPROOT environment variable does not exist. Please set XLSMPROOT, where lies libxlsmp, to use the ESSL Lapack')
+                    sys.exit('XLSMPROOT environment variable does not exist. Please set XLSMPROOT, where lies libxlsmp, to use the ESSL LAPACK')
             else:
-                module.lapacklibname=[os.path.join(essllibdir, "libessl.so -L%s/lib -lxlfmath -lxlf90_r") % xlfroot]
+                module.lapacklibname=["-L%s/lib -R%s/lib -lessl" % (esslroot,esslroot)]
             module.lapacklibfortname=module.lapacklibname
         else:
-            sys.exit('XLFROOT environment variable does not exist. Please set XLFROOT, where lies libxlfmath and libxlf90_r, to use the ESSL Lapack')
+            sys.exit('ESSLROOT environment variable does not exist. Please set ESSLROOT, where lies libessl, to use the ESSL LAPACK')
 
     def install(self, spec, prefix):
         if os.getenv('ESSLROOT'):
@@ -49,4 +52,4 @@ class EsslLapack(Package):
             else:
                 sys.exit(esslroot+' directory does not exist.'+' Do you really have ESSL installed in '+esslroot+' ?')
         else:
-            sys.exit('ESSLROOT environment variable does not exist. Please set ESSLROOT, where lies libessl, to use the ESSL Lapack')
+            sys.exit('ESSLROOT environment variable does not exist. Please set ESSLROOT, where lies libessl, to use the ESSL LAPACK')
