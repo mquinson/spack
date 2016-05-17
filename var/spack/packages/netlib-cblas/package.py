@@ -45,22 +45,25 @@ class NetlibCblas(Package):
     def setup(self):
         spec = self.spec
         mf = FileFilter('Makefile.in')
-
         blas_libs = " ".join(blaslibfortname)
-        mf.filter('^BLLIB =.*', 'BLLIB = %s' % blas_libs)
+        if spec.satisfies('+shared') and spec.satisfies('%xl'):
+            mf.filter('^BLLIB =.*', 'BLLIB = -Wl,--unresolved-symbols=ignore-in-shared-libs %s' % blas_libs)
+        else:
+            mf.filter('^BLLIB =.*', 'BLLIB = %s' % blas_libs)
         mf.filter('^CC =.*', 'CC = cc')
         mf.filter('^FC =.*', 'FC = f90')
         mf.filter('^CFLAGS =', 'CFLAGS = -fPIC ')
         mf.filter('^FFLAGS =', 'FFLAGS = -fPIC ')
         if spec.satisfies('%xl'):
-            mf.filter('CFLAGS = -fPIC', 'CFLAGS = -fPIC -O3 -qstrict -DNOCHANGE')
-            mf.filter('FFLAGS = -fPIC', 'FFLAGS = -fPIC -qnosave -O3 -qstrict')
+            mf.filter('^CFLAGS =.*', 'CFLAGS = -fPIC -qhot -O3 -qtune=auto -qarch=auto -qstrict -DNOCHANGE')
+            mf.filter('^FFLAGS =.*', 'FFLAGS = -fPIC -qnosave -qhot -O3 -qtune=auto -qarch=auto -qstrict')
 
         # Rename the generated lib file to libcblas
         mf.filter('^CBLIB =.*', 'CBLIB = ../lib/libcblas.a')
 
         if spec.satisfies('+shared'):
-            mf.filter('^ARCH\s*=.*', 'ARCH=$(CC) $(BLLIB)')
+            #mf.filter('^ARCH\s*=.*', 'ARCH=$(CC) $(BLLIB)')
+            mf.filter('^ARCH\s*=.*', 'ARCH=$(CC)')
             mf.filter('^ARCHFLAGS\s*=.*', 'ARCHFLAGS=-shared -o')
             mf.filter('^RANLIB\s*=.*', 'RANLIB=echo')
             mf.filter('^CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
