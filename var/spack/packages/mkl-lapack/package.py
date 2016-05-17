@@ -20,10 +20,10 @@ class MklLapack(Package):
         if os.path.isdir(mklroot):
             provides('lapack')
 
+    variant('shared', default=True, description="Use shared library version")
+
     # blas is a virtual dependency.
     depends_on('blas')
-
-    variant('shared', default=True, description="Use shared library version")
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the libraries names for mkl-cblas."""
