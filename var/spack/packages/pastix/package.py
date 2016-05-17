@@ -297,6 +297,9 @@ class Pastix(Package):
                     if spec.satisfies('+blasmt'):
                         cmake_args.extend(["-DPASTIX_BLAS_MT=ON"])
 
+                    blas = spec['blas'].prefix
+                    cmake_args.extend(["-DBLAS_DIR=%s" % blas])
+
                     cmake(*cmake_args)
                     make()
                     make("install")
