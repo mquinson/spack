@@ -65,7 +65,17 @@ class NetlibLapack(Package):
         module.lapacklibfortname = module.lapacklibname
         module.tmglibfortname = module.tmglibname
 
+
+    # Null literal string is not permitted with xlf
+    def patch_xlf(self):
+
+        mf = FileFilter('SRC/xerbla_array.f')
+        mf.filter('SRNAME = \'\'', 'SRNAME = \' \'')
+
     def install(self, spec, prefix):
+
+        if spec.satisfies('%xl'):
+            self.patch_xlf()
 
         cmake_args = ["."]
         cmake_args += std_cmake_args
@@ -73,13 +83,16 @@ class NetlibLapack(Package):
 
         blas_libs = " ".join(blaslibfortname)
         blas_libs = blas_libs.replace(' ', ';')
-        print blas_libs
         cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
         if spec.satisfies('+shared'):
             cmake_args.append('-DBUILD_SHARED_LIBS=ON')
             cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
             if platform.system() == 'Darwin':
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
+
+        if spec.satisfies('^essl-blas'):
+            # *rotm symbols are missing in essl-blas
+            cmake_args.append('-DBUILD_TESTING=OFF')
 
         cmake(*cmake_args)
         make()
