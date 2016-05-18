@@ -14,8 +14,8 @@ class Cuda(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     def install(self, spec, prefix):
-        if os.getenv('CUDA_ROOT'):
-            cudaroot=os.environ['CUDA_ROOT']
+        if os.getenv('CUDA_DIR'):
+            cudaroot=os.environ['CUDA_DIR']
             if os.path.isdir(cudaroot):
                 os.symlink(cudaroot+"/bin", prefix.bin)
                 os.symlink(cudaroot+"/include", prefix.include)
@@ -23,4 +23,4 @@ class Cuda(Package):
             else:
                 sys.exit(cudaroot+' directory does not exist.'+' Do you really have Nvidia CUDA installed in '+cudaroot+' ?')
         else:
-            sys.exit('CUDA_ROOT environment variable does not exist. Please set CUDA_ROOT to use Nvidia CUDA')
+            sys.exit('CUDA_DIR environment variable does not exist. Please set CUDA_DIR to use Nvidia CUDA')
