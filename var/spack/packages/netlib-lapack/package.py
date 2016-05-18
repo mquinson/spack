@@ -49,19 +49,15 @@ class NetlibLapack(Package):
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for netlib-lapack."""
         if os.path.isdir(spec.prefix.lib64):
-            libdir = "lib64"
+            libdir = self.spec.prefix+"/lib64"
         if os.path.isdir(spec.prefix.lib):
-            libdir = "lib"
-        if spec.satisfies('+shared'):
-            if platform.system() == 'Darwin':
-                module.lapacklibname=[os.path.join(self.spec.prefix+"/%s", "liblapack.dylib") % libdir]
-                module.tmglibname=[os.path.join(self.spec.prefix+"/%s", "libtmglib.dylib") % libdir]
-            else:
-                module.lapacklibname=[os.path.join(self.spec.prefix+"/%s", "liblapack.so") % libdir]
-                module.tmglibname=[os.path.join(self.spec.prefix+"/%s", "libtmglib.so") % libdir]
-        else:
-            module.lapacklibname=[os.path.join(self.spec.prefix+"/%s", "liblapack.a") % libdir]
-            module.tmglibname=[os.path.join(self.spec.prefix+"/%s", "libtmglib.a") % libdir]
+            libdir = self.spec.prefix+"/lib"
+
+        if spec.satisfies('=linux-ppc64le'):
+            libdir +="/powerpc64le-linux-gnu"
+
+        module.lapacklibname=["-L%s -llapack" % libdir]
+        module.tmglibname=["-L%s -ltmglib" % libdir]
         module.lapacklibfortname = module.lapacklibname
         module.tmglibfortname = module.tmglibname
 
