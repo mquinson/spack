@@ -15,10 +15,9 @@ class EsslBlas(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     # virtual dependency
-    if os.getenv('ESSLROOT') and os.getenv('XLFROOT'):
+    if os.getenv('ESSLROOT'):
         esslroot=os.environ['ESSLROOT']
-        xlfroot=os.environ['XLFROOT']
-        if os.path.isdir(esslroot) and os.path.isdir(xlfroot):
+        if os.path.isdir(esslroot):
             provides('blas')
 
     variant('mt', default=False, description="Use Multithreaded version")
@@ -26,16 +25,15 @@ class EsslBlas(Package):
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the libraries names for essl-blas."""
         esslroot=os.environ['ESSLROOT']
-        xlfroot=os.environ['XLFROOT']
         if os.path.isdir(esslroot):
             if spec.satisfies("+mt"):
                 xlsmproot=os.environ['XLSMPROOT']
                 if os.path.isdir(xlfroot):
-                    module.blaslibname=["-L%s/lib -R%s/lib -lesslsmp -L%s/lib -lxlsmp" %(esslroot,esslroot,xlsmproot)]
+                    module.blaslibname=["-Wl,--unresolved-symbols=ignore-in-shared-libs -L%s/lib -R%s/lib -lesslsmp -L%s/lib -lxlsmp" %(esslroot,esslroot,xlsmproot)]
                 else:
                     sys.exit('XLSMPROOT environment variable does not exist. Please set XLSMPROOT, where lies libxlsmp, to use the ESSL Blas')
             else:
-                module.blaslibname=["-L%s/lib -R%s/lib -lessl" % (esslroot,esslroot)]
+                module.blaslibname=["-Wl,--unresolved-symbols=ignore-in-shared-libs -L%s/lib -R%s/lib -lessl" % (esslroot,esslroot)]
             module.blaslibfortname=module.blaslibname
         else:
             sys.exit('ESSLROOT environment variable does not exist. Please set ESSLROOT, where lies libessl, to use the ESSL Blas')
