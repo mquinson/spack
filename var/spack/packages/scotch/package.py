@@ -51,8 +51,8 @@ class Scotch(Package):
 
     depends_on('mpi', when='+mpi')
     depends_on('zlib', when='+compression')
-    depends_on('flex')
-    depends_on('bison')
+    #depends_on('flex')
+    #depends_on('bison')
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the libraries names for Scotch."""
