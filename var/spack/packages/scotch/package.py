@@ -205,8 +205,8 @@ class Scotch(Package):
             'MV        = mv',
             'CP        = cp',
             'CFLAGS    = -O3 %s' % (' '.join(defines)),
-            'LEX       = %s -Pscotchyy -olex.yy.c' % os.path.join(self.spec['flex'].prefix.bin , 'flex'),
-            'YACC      = %s -pscotchyy -y -b y' %    os.path.join(self.spec['bison'].prefix.bin, 'bison'),
+            #'LEX       = %s -Pscotchyy -olex.yy.c' % os.path.join(self.spec['flex'].prefix.bin , 'flex'),
+            #'YACC      = %s -pscotchyy -y -b y' %    os.path.join(self.spec['bison'].prefix.bin, 'bison'),
             'prefix    = %s' % self.prefix,
             ''
             ])
