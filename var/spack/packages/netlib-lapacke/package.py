@@ -40,6 +40,7 @@ class NetlibLapacke(Package):
     provides('lapacke')
 
     # blas is a virtual dependency.
+    depends_on('blas')
     depends_on('lapack')
 
     depends_on('cmake')
@@ -64,6 +65,12 @@ class NetlibLapacke(Package):
 
     def install(self, spec, prefix):
 
+        # some lapack vendors do not provide geqrt so that we should
+        # try another symbol to find lapack
+        mf = FileFilter('CMakeLists.txt')
+        mf.filter('dgeqrt', 'dgeqrf')
+
+        # cmake configure
         cmake_args = ["."]
         cmake_args += std_cmake_args
         cmake_args += ["-Wno-dev"]
@@ -77,10 +84,12 @@ class NetlibLapacke(Package):
 
         lapack_libs = " ".join(lapacklibfortname)
         lapack_libs = lapack_libs.replace(' ', ';')
-        cmake_args.extend(['-DLAPACK_LIBRARIES=%s' % lapack_libs])
+        cmake_args.extend(['-DLAPACK_LIBRARIES=%s;%s' % (lapack_libs,blas_libs)])
 
         # Enable lapacke here.
         cmake_args.extend(["-DLAPACKE=ON"])
+        # indicate that lapack must not be built but found thanks to find_package
+        cmake_args.extend(["-DUSE_OPTIMIZED_LAPACK=ON"])
         if spec.satisfies('+tmg'):
             cmake_args.extend(["-DLAPACKE_WITH_TMG=ON"])
         else:
