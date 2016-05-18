@@ -93,6 +93,11 @@ class Chameleon(Package):
             if spec.satisfies('+quark'):
                 # Enable Quark here.
                 cmake_args.extend(["-DCHAMELEON_SCHED_QUARK=ON"])
+            else:
+                # Enable StarPU here.
+                starpu = self.spec['starpu']
+                cmake_args.extend(["-DCHAMELEON_SCHED_STARPU=ON"])
+                cmake_args.extend(['-DSTARPU_DIR=%s' % starpu.prefix])
 
             if spec.satisfies('~simu'):
                 blas = self.spec['blas']
