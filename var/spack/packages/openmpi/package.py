@@ -92,8 +92,8 @@ class Openmpi(Package):
     # to use the existing version available in the environment: MPI_DIR environment variable must be set
     @when('@exist')
     def install(self, spec, prefix):
-        if os.getenv('MPI_DIR'):
-            mpiroot=os.environ['MPI_DIR']
+        if os.getenv('OPENMPI_DIR'):
+            mpiroot=os.environ['OPENMPI_DIR']
             if os.path.isdir(mpiroot):
                 os.symlink(mpiroot+"/bin", prefix.bin)
                 os.symlink(mpiroot+"/include", prefix.include)
@@ -101,7 +101,7 @@ class Openmpi(Package):
             else:
                 sys.exit(mpiroot+' directory does not exist.'+' Do you really have openmpi installed in '+mpiroot+' ?')
         else:
-            sys.exit('MPI_DIR is not set, you must set this environment variable to the installation path of your openmpi')
+            sys.exit('OPENMPI_DIR is not set, you must set this environment variable to the installation path of your openmpi')
 
 
     def filter_compilers(self):

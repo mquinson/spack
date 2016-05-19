@@ -127,8 +127,8 @@ class Mpich(Package):
     # to use the existing version available in the environment: MPI_DIR environment variable must be set
     @when('@exist')
     def install(self, spec, prefix):
-        if os.getenv('MPI_DIR'):
-            mpichroot=os.environ['MPI_DIR']
+        if os.getenv('MPICH_DIR'):
+            mpichroot=os.environ['MPICH_DIR']
             if os.path.isdir(mpichroot):
                 os.symlink(mpichroot+"/bin", prefix.bin)
                 os.symlink(mpichroot+"/include", prefix.include)
@@ -136,4 +136,4 @@ class Mpich(Package):
             else:
                 sys.exit(mpichroot+' directory does not exist.'+' Do you really have openmpi installed in '+mpichroot+' ?')
         else:
-            sys.exit('MPI_DIR is not set, you must set this environment variable to the installation path of your mpich')
+            sys.exit('MPICH_DIR is not set, you must set this environment variable to the installation path of your mpich')

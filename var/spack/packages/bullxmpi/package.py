@@ -37,8 +37,8 @@ class Bullxmpi(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     # virtual dependency
-    if os.getenv('MPI_DIR'):
-        mpiroot=os.environ['MPI_DIR']
+    if os.getenv('BULLXMPI_DIR'):
+        mpiroot=os.environ['BULLXMPI_DIR']
         if os.path.isdir(mpiroot):
             provides('mpi')
 
@@ -52,8 +52,8 @@ class Bullxmpi(Package):
     # to use the existing version available in the environment: MPI_DIR environment variable must be set
     @when('@exist')
     def install(self, spec, prefix):
-        if os.getenv('MPI_DIR'):
-            bullxmpiroot=os.environ['MPI_DIR']
+        if os.getenv('BULLXMPI_DIR'):
+            bullxmpiroot=os.environ['BULLXMPI_DIR']
             if os.path.isdir(bullxmpiroot):
                 os.symlink(bullxmpiroot+"/bin", prefix.bin)
                 os.symlink(bullxmpiroot+"/include", prefix.include)
@@ -61,4 +61,4 @@ class Bullxmpi(Package):
             else:
                 sys.exit(bullxmpiroot+' directory does not exist.'+' Do you really have openmpi installed in '+bullxmpiroot+' ?')
         else:
-            sys.exit('MPI_DIR is not set, you must set this environment variable to the installation path of your bullxmpi')
+            sys.exit('BULLXMPI_DIR is not set, you must set this environment variable to the installation path of your bullxmpi')
