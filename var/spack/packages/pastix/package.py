@@ -221,13 +221,14 @@ class Pastix(Package):
 
         with working_dir('src'):
 
-            if spec.satisfies('+murgeup'):
-                # required to get murge sources "make murge_up and make sopalin/src/murge_fortran.c"
-                copyfile('config/LINUX-GNU.in', 'config.in')
-                make('murge_up')
 
             if spec.satisfies('@develop') or spec.satisfies('@src'):
 
+                # some dumb pre-processing due to the dependency to murge (git)
+                copyfile('config/LINUX-GNU.in', 'config.in')
+                if spec.satisfies('+murgeup'):
+                    # required to get murge sources "make murge_up"
+                    make('murge_up')
                 # this file must be generated
                 make('sopalin/src/murge_fortran.c')
 
