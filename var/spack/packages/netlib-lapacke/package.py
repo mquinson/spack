@@ -51,17 +51,11 @@ class NetlibLapacke(Package):
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for netlib-lapacke."""
         if os.path.isdir(spec.prefix.lib64):
-            libdir = "lib64"
+            libdir = self.spec.prefix+"/lib64"
         if os.path.isdir(spec.prefix.lib):
-            libdir = "lib"
-        if spec.satisfies('+shared'):
-            if platform.system() == 'Darwin':
-                module.lapackelibname=[os.path.join(self.spec.prefix+"/%s", "liblapacke.dylib") % libdir]
-            else:
-                module.lapackelibname=[os.path.join(self.spec.prefix+"/%s", "liblapacke.so") % libdir]
-        else:
-            module.lapackelibname=[os.path.join(self.spec.prefix+"/%s", "liblapacke.a") % libdir]
-        module.lapackelibfortname = module.lapackelibname
+            libdir = self.spec.prefix+"/lib"
+        module.lapackelibname=["-L%s -llapacke" % libdir]
+        module.lapackelibfortname = module.lapacklibname
 
     def install(self, spec, prefix):
 
@@ -101,6 +95,11 @@ class NetlibLapacke(Package):
             cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
             if platform.system() == 'Darwin':
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
+        cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
+        if spec.satisfies("%xl"):
+            cmake_args.extend(["-DCMAKE_C_FLAGS=-qarch=auto -qhot -qtune=auto"])
+            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-qfixed -qnosave -qarch=auto -qhot -qtune=auto"])
+
 
         cmake(*cmake_args)
         make()

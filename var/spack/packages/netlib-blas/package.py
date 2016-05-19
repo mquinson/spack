@@ -33,16 +33,11 @@ class NetlibBlas(Package):
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for netlib-blas."""
         if os.path.isdir(spec.prefix.lib64):
-            libdir = "lib64"
+            libdir = self.spec.prefix+"/lib64"
         if os.path.isdir(spec.prefix.lib):
-            libdir = "lib"
-        if spec.satisfies('+shared'):
-            if platform.system() == 'Darwin':
-                module.blaslibname=[os.path.join(self.spec.prefix+"/%s", "libblas.dylib") % libdir, "-lm"]
-            else:
-                module.blaslibname=[os.path.join(self.spec.prefix+"/%s", "libblas.so") % libdir, "-lm"]
-        else:
-            module.blaslibname=[os.path.join(self.spec.prefix+"/%s", "libblas.a") % libdir, "-lm"]
+            libdir = self.spec.prefix+"/lib"
+
+        module.blaslibname=["-L%s -lblas" % libdir]
         module.blaslibfortname = module.blaslibname
 
     def install(self, spec, prefix):
@@ -61,7 +56,7 @@ class NetlibBlas(Package):
             cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
             if platform.system() == 'Darwin':
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
-
+        cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
 
         cmake(*cmake_args)
         make()

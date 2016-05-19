@@ -52,10 +52,6 @@ class NetlibLapack(Package):
             libdir = self.spec.prefix+"/lib64"
         if os.path.isdir(spec.prefix.lib):
             libdir = self.spec.prefix+"/lib"
-
-        if spec.satisfies('=linux-ppc64le'):
-            libdir +="/powerpc64le-linux-gnu"
-
         module.lapacklibname=["-L%s -llapack" % libdir]
         module.tmglibname=["-L%s -ltmglib" % libdir]
         module.lapacklibfortname = module.lapacklibname
@@ -85,10 +81,7 @@ class NetlibLapack(Package):
             cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
             if platform.system() == 'Darwin':
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
-
-        if spec.satisfies('^essl-blas'):
-            # *rotm symbols are missing in essl-blas
-            cmake_args.append('-DBUILD_TESTING=OFF')
+        cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
 
         cmake(*cmake_args)
         make()
