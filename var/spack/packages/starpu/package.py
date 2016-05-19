@@ -89,6 +89,7 @@ class Starpu(Package):
 
         config_args = ["--prefix=" + prefix]
         config_args.append("--disable-build-doc")
+        config_args.append("--disable-starpu-top")
 
         if spec.satisfies('+debug'):
             config_args.append("--enable-debug")
