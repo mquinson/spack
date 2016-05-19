@@ -33,6 +33,7 @@ class Pastix(Package):
     variant('int64', default=False, description='To use 64 bits integers')
     variant('dynsched', default=False, description='Enable dynamic thread scheduling support')
     variant('memory', default=True, description='Enable memory usage statistics')
+    variant('murgeup', default=False, description='Pull git murge source code (internet connection required), useful for the develop branch')
 
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
@@ -220,12 +221,13 @@ class Pastix(Package):
 
         with working_dir('src'):
 
-            if spec.satisfies('@develop') or spec.satisfies('@src'):
-
+            if spec.satisfies('+murgeup'):
                 # required to get murge sources "make murge_up and make sopalin/src/murge_fortran.c"
                 copyfile('config/LINUX-GNU.in', 'config.in')
                 make('murge_up')
                 make('sopalin/src/murge_fortran.c')
+
+            if spec.satisfies('@develop') or spec.satisfies('@src'):
 
                 with working_dir('spack-build', create=True):
 
@@ -292,13 +294,22 @@ class Pastix(Package):
                     else:
                         cmake_args.extend(["-DPASTIX_DISTRIBUTED=OFF"])
 
-                    if spec.satisfies('^mkl-blas~shared'):
+                    if '^mkl-blas~shared' in spec:
                         cmake_args.extend(["-DBLA_STATIC=ON"])
                     if spec.satisfies('+blasmt'):
                         cmake_args.extend(["-DPASTIX_BLAS_MT=ON"])
 
                     blas = spec['blas'].prefix
-                    cmake_args.extend(["-DBLAS_DIR=%s" % blas])
+                    blas_libs = " ".join(blaslibname)
+                    cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
+
+                    cmake_args.extend(["-DCMAKE_VERBOSE_MAKEFILE=ON"])
+
+                    if spec.satisfies("%xl"):
+                        cmake_args.extend(["-DCMAKE_C_FLAGS=-fPIC -qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
+                        cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-fPIC -qstrict -qsmp -qextname -qarch=auto -qhot -qtune=auto"])
+                        cmake_args.extend(["-DCMAKE_CXX_FLAGS=-fPIC -qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
+
 
                     cmake(*cmake_args)
                     make()
