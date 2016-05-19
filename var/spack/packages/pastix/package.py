@@ -306,9 +306,9 @@ class Pastix(Package):
                     cmake_args.extend(["-DCMAKE_VERBOSE_MAKEFILE=ON"])
 
                     if spec.satisfies("%xl"):
-                        cmake_args.extend(["-DCMAKE_C_FLAGS=-fPIC -qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
-                        cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-fPIC -qstrict -qsmp -qextname -qarch=auto -qhot -qtune=auto"])
-                        cmake_args.extend(["-DCMAKE_CXX_FLAGS=-fPIC -qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
+                        cmake_args.extend(["-DCMAKE_C_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
+                        cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-qstrict -qsmp -qextname -qarch=auto -qhot -qtune=auto"])
+                        cmake_args.extend(["-DCMAKE_CXX_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
 
 
                     cmake(*cmake_args)
