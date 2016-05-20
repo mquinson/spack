@@ -29,6 +29,11 @@ class Fxt(Package):
     version('src')
 
     def install(self, spec, prefix):
+
+        if spack.satisfies('=linux-ppc64le'):
+            pkg_dir = spack.db.dirname_for_package_name("fxt")
+            call(["cp", pkg_dir+"/config.guess", "."])
+
         configure("--prefix=%s" % prefix)
 
         # it seems that this patch is required after configure
