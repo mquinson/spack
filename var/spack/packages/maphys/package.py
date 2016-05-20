@@ -87,11 +87,11 @@ class Maphys(Package):
                 ' use a multithreaded Lapack implementation.')
         else:
             try:
-                blas_libs = " ".join(blaslibname)
+                blas_libs = " ".join(blaslibfortname)
             except NameError:
                 blas_libs = ''
             try:
-                lapack_libs = " ".join(lapacklibname)
+                lapack_libs = " ".join(lapacklibfortname)
             except NameError:
                 lapack_libs = ''
         try:
