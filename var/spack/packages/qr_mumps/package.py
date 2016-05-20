@@ -16,14 +16,18 @@ class QrMumps(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
+    variant('fxt', default=False, description='Enable FxT tracing support')
+
     depends_on("blas")
     depends_on("lapack")
     depends_on("hwloc")
-    depends_on("starpu+fxt")
+    depends_on("starpu")
     depends_on("metis@4.0.1:4.0.3")
     depends_on("scotch")
     # for COLAMD
     depends_on("suitesparse")
+    depends_on("fxt", when='+fxt')
+    depends_on("starpu+fxt", when='+fxt')
 
     def setup(self):
         spec = self.spec
@@ -75,6 +79,10 @@ class QrMumps(Package):
         mf.filter('^# ISCOTCH  =.*', 'ISCOTCH  = -I%s' % scotch.include)
         mf.filter('^# LHWLOC =.*', 'LHWLOC = -L%s -lhwloc' % hwloc.lib)
         mf.filter('^# IHWLOC =.*', 'IHWLOC = -I%s' % hwloc.include)
+
+        if not spec.satisfies('+fxt'):
+            mf.filter('-Dhave_fxt', '')
+
 
     def install(self, spec, prefix):
 
