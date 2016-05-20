@@ -64,7 +64,8 @@ class NetlibCblas(Package):
         if spec.satisfies('+shared'):
             #mf.filter('^ARCH\s*=.*', 'ARCH=$(CC) $(BLLIB)')
             mf.filter('^ARCH\s*=.*', 'ARCH=$(CC)')
-            mf.filter('^ARCHFLAGS\s*=.*', 'ARCHFLAGS=-shared -o')
+            archflags = '-shared -undefined dynamic_lookup -o' if platform.system() == 'Darwin' else '-shared -o'
+            mf.filter('^ARCHFLAGS\s*=.*', 'ARCHFLAGS=%s' % archflags)
             mf.filter('^RANLIB\s*=.*', 'RANLIB=echo')
             mf.filter('^CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
             mf.filter('^FFLAGS\s*=', 'FFLAGS = -fPIC ')
