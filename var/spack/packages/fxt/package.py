@@ -1,5 +1,6 @@
 from spack import *
 import os
+from subprocess import call
 import spack
 
 class Fxt(Package):
@@ -30,7 +31,7 @@ class Fxt(Package):
 
     def install(self, spec, prefix):
 
-        if spack.satisfies('=linux-ppc64le'):
+        if spec.satisfies('=linux-ppc64le'):
             pkg_dir = spack.db.dirname_for_package_name("fxt")
             call(["cp", pkg_dir+"/config.guess", "."])
 
