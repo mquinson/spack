@@ -17,41 +17,60 @@ class QrMumps(Package):
     version('src')
 
     variant('debug', default=False, description='Enable debug symbols')
-    variant('fxt', default=False, description='Enable FxT tracing support')
+    variant('colamd', default=True, description='Enable COLAMD ordering')
+    variant('metis', default=True, description='Enable Metis ordering')
+    variant('scotch', default=True, description='Enable Scotch ordering')
+    variant('starpu', default=True, description='Enable StarPU runtime system support')
+    variant('fxt', default=False, description='Enable FxT tracing support to be used through StarPU')
 
+    # dependencies
     depends_on("blas")
     depends_on("lapack")
     depends_on("hwloc")
-    depends_on("starpu")
-    depends_on("metis@4.0.1:4.0.3")
-    depends_on("scotch")
-    # for COLAMD
-    depends_on("suitesparse")
+    # optional dependencies
+    depends_on("metis@4.0.1:4.0.3", when='+metis')
+    depends_on("scotch", when='+scotch')
+    depends_on("suitesparse", when='+colamd') # for COLAMD
+    depends_on("starpu", when='+starpu')
     depends_on("fxt", when='+fxt')
     depends_on("starpu+fxt", when='+fxt')
 
     def setup(self):
         spec = self.spec
-        hwloc = spec['hwloc'].prefix
-        starpu = spec['starpu'].prefix
-        metis = spec['metis'].prefix
-        scotch = spec['scotch'].prefix
-        suitesparse = spec['suitesparse'].prefix
 
         copyfile('makeincs/Make.inc.gnu', 'makeincs/Make.inc.spack')
         mf = FileFilter('makeincs/Make.inc.spack')
 
         mf.filter('topdir=\$\(HOME\)/path/to/here', 'topdir=%s/trunk/' % self.stage.path)
 
-        mf.filter('CC      = gcc', 'CC      = cc')
-        mf.filter('FC      = gfortran', 'FC      = f90')
+        mf.filter('^# CC      =.*', 'CC      = cc')
+        mf.filter('^# FC      =.*', 'FC      = f90')
 
-        includelist='-I%s' %  metis.include
-        includelist+=' -I%s' %  suitesparse.include
-        includelist+=' `pkg-config --cflags hwloc`'
-        includelist+=' `pkg-config --cflags libstarpu`'
+        includelist = ''
+        definitions = ''
+        hwloc = spec['hwloc'].prefix
+        includelist += ' `pkg-config --cflags hwloc`'
+        if spec.satisfies('+colamd'):
+            suitesparse = spec['suitesparse'].prefix
+            includelist += ' -I%s' %  suitesparse.include
+            definitions += ' -Dhave_colamd'
+        if spec.satisfies('+metis'):
+            metis = spec['metis'].prefix
+            includelist += ' -I%s' %  metis.include
+            definitions += ' -Dhave_metis'
+        if spec.satisfies('+scotch'):
+            scotch = spec['scotch'].prefix
+            mf.filter('FINCLUDES=.*', 'FINCLUDES= -I%s' % scotch.include)
+            definitions += ' -Dhave_scotch'
+        if spec.satisfies('+starpu'):
+            starpu = spec['starpu'].prefix
+            includelist += ' `pkg-config --cflags libstarpu`'
+            definitions += ' -Dhave_starpu'
+        if spec.satisfies('+fxt'):
+            definitions += ' -Dhave_fxt'
         mf.filter('CINCLUDES=.*', 'CINCLUDES= %s' % includelist)
-        mf.filter('FINCLUDES=.*', 'FINCLUDES= -I%s' % scotch.include)
+        mf.filter('CDEFS =.*', 'CDEFS = %s' % definitions)
+        mf.filter('FDEFS =.*', 'FDEFS = %s' % definitions)
 
         optf = 'FCFLAGS  = -O3 -fPIC'
         optc = 'CFLAGS   = -O3 -fPIC'
@@ -68,21 +87,24 @@ class QrMumps(Package):
         lapack_libs = " ".join(lapacklibfortname)
         mf.filter('^# LBLAS    =.*', 'LBLAS    = %s' % blas_libs)
         mf.filter('^# LLAPACK  =.*', 'LLAPACK  = %s' % lapack_libs)
-        mf.filter('^# LSTARPU =.*', 'LSTARPU = `pkg-config --libs libstarpu`')
-        mf.filter('^# ISTARPU =.*', 'ISTARPU = `pkg-config --cflags libstarpu`')
-        mf.filter('^# LCOLAMD  =.*', 'LCOLAMD  = -L%s -lcolamd -lsuitesparseconfig' % suitesparse.lib)
-        if platform.system() != 'Darwin':
-            mf.filter('-lsuitesparseconfig', '-lsuitesparseconfig -lrt')
-        mf.filter('^# ICOLAMD  =.*', 'ICOLAMD  = -I%s' % suitesparse.include)
-        mf.filter('^# LMETIS   =.*', 'LMETIS   = -L%s -lmetis' % metis.lib)
-        mf.filter('^# IMETIS   =.*', 'IMETIS   = -I%s' % metis.include)
-        mf.filter('^# LSCOTCH  =.*', 'LSCOTCH  = -L%s -lscotch -lscotcherr -lpthread' % scotch.lib)
-        mf.filter('^# ISCOTCH  =.*', 'ISCOTCH  = -I%s' % scotch.include)
+
         mf.filter('^# LHWLOC =.*', 'LHWLOC = -L%s -lhwloc' % hwloc.lib)
         mf.filter('^# IHWLOC =.*', 'IHWLOC = -I%s' % hwloc.include)
 
-        if not spec.satisfies('+fxt'):
-            mf.filter('-Dhave_fxt', '')
+        if spec.satisfies('+colamd'):
+            mf.filter('^# LCOLAMD  =.*', 'LCOLAMD  = -L%s -lcolamd -lsuitesparseconfig' % suitesparse.lib)
+            if platform.system() != 'Darwin':
+                mf.filter('-lsuitesparseconfig', '-lsuitesparseconfig -lrt')
+            mf.filter('^# ICOLAMD  =.*', 'ICOLAMD  = -I%s' % suitesparse.include)
+        if spec.satisfies('+metis'):
+            mf.filter('^# LMETIS   =.*', 'LMETIS   = -L%s -lmetis' % metis.lib)
+            mf.filter('^# IMETIS   =.*', 'IMETIS   = -I%s' % metis.include)
+        if spec.satisfies('+scotch'):
+            mf.filter('^# LSCOTCH  =.*', 'LSCOTCH  = -L%s -lscotch -lscotcherr -lpthread' % scotch.lib)
+            mf.filter('^# ISCOTCH  =.*', 'ISCOTCH  = -I%s' % scotch.include)
+        if spec.satisfies('+starpu'):
+            mf.filter('^# LSTARPU =.*', 'LSTARPU = `pkg-config --libs libstarpu`')
+            mf.filter('^# ISTARPU =.*', 'ISTARPU = `pkg-config --cflags libstarpu`')
 
 
     def install(self, spec, prefix):
@@ -110,6 +132,10 @@ class QrMumps(Package):
             mkdirp('%s/testing' % prefix)
             for executable in ["dqrm_testing", "sqrm_testing"]:
                 install('testing/'+executable, '%s/testing/' % prefix)
+            pkg_dir = spack.db.dirname_for_package_name("qr_mumps")
+            install(pkg_dir+'/matfile.txt', '%s/testing/' % prefix)
+            install(pkg_dir+'/cage5.mtx', '%s/testing/' % prefix)
+
 
     # to use the existing version available in the environment: QR_MUMPS_DIR environment variable must be set
     @when('@exist')
