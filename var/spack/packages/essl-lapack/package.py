@@ -41,7 +41,7 @@ class EsslLapack(Package):
             # set netlib-lapack lib
             if os.path.isdir(spec.prefix.lib64):
                 libdir = self.spec.prefix+"/lib64"
-            if os.path.isdir(spec.prefix.lib):
+            else:
                 libdir = self.spec.prefix+"/lib"
             netlib_lapack_libs = "-L%s -llapack" % libdir
 

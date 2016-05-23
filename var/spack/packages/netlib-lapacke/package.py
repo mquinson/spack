@@ -52,7 +52,7 @@ class NetlibLapacke(Package):
         """Dependencies of this package will get the library name for netlib-lapacke."""
         if os.path.isdir(spec.prefix.lib64):
             libdir = self.spec.prefix+"/lib64"
-        if os.path.isdir(spec.prefix.lib):
+        else:
             libdir = self.spec.prefix+"/lib"
         module.lapackelibname=["-L%s -llapacke" % libdir]
         module.lapackelibfortname = module.lapacklibname

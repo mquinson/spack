@@ -39,7 +39,7 @@ class NetlibScalapack(Package):
         """Dependencies of this package will get the library name for netlib-scalapack."""
         if os.path.isdir(spec.prefix.lib64):
             libdir = "lib64"
-        if os.path.isdir(spec.prefix.lib):
+        else:
             libdir = "lib"
         if '+shared' in spec:
             if platform.system() == 'Darwin':

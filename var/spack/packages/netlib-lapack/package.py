@@ -50,7 +50,7 @@ class NetlibLapack(Package):
         """Dependencies of this package will get the library name for netlib-lapack."""
         if os.path.isdir(spec.prefix.lib64):
             libdir = self.spec.prefix+"/lib64"
-        if os.path.isdir(spec.prefix.lib):
+        else:
             libdir = self.spec.prefix+"/lib"
         module.lapacklibname=["-L%s -llapack" % libdir]
         module.tmglibname=["-L%s -ltmglib" % libdir]

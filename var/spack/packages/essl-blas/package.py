@@ -36,7 +36,7 @@ class EsslBlas(Package):
             # set netlib-blas lib
             if os.path.isdir(spec.prefix.lib64):
                 libdir = self.spec.prefix+"/lib64"
-            if os.path.isdir(spec.prefix.lib):
+            else:
                 libdir = self.spec.prefix+"/lib"
             netlib_blas_libs = "-L%s -lblas" % libdir
 
