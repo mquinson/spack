@@ -60,7 +60,7 @@ class Pastix(Package):
 
         mf.filter('CXXPROG     = g\+\+', 'CXXPROG     = c++')
         mf.filter('CFPROG      = gfortran', 'CFPROG      = f77')
-        mf.filter('CF90PROG    = gfortran', 'CF90PROG    = fc')
+        mf.filter('CF90PROG    = gfortran', 'CF90PROG    = f90')
 
         if spec.satisfies('%xl'):
             mf.filter('CCPROG      = cc -Wall', 'CCPROG      = cc -O2 -fPIC -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=pwr8')

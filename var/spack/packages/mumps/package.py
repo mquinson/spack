@@ -178,8 +178,8 @@ class Mumps(Package):
             mf.filter('^LIBPAR.*', 'LIBPAR = $(SCALAP)')
         else:
             mf.filter('CC\s*=.*', 'CC = cc  -g -fpic')
-            mf.filter('FC\s*=.*', 'FC = fc  -g -fpic')
-            mf.filter('FL\s*=.*', 'FL = fc  -g -fpic')
+            mf.filter('FC\s*=.*', 'FC = f90  -g -fpic')
+            mf.filter('FL\s*=.*', 'FL = f90  -g -fpic')
 
         mf.filter('^LIBOTHERS =.*', 'LIBOTHERS = -lz -lm -lrt -lpthread')
 

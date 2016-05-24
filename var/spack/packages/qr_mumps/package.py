@@ -44,7 +44,7 @@ class QrMumps(Package):
         mf.filter('topdir=\$\(HOME\)/path/to/here', 'topdir=%s/trunk/' % self.stage.path)
 
         mf.filter('^# CC      =.*', 'CC      = cc')
-        mf.filter('^# FC      =.*', 'FC      = fc')
+        mf.filter('^# FC      =.*', 'FC      = f90')
 
         includelist = ''
         definitions = ''
