@@ -28,7 +28,7 @@ class QrMumps(Package):
     depends_on("lapack")
     depends_on("hwloc")
     # optional dependencies
-    depends_on("metis@4.0.1:4.0.3", when='+metis')
+    depends_on("metis", when='+metis')
     depends_on("scotch", when='+scotch')
     depends_on("suitesparse", when='+colamd') # for COLAMD
     depends_on("starpu", when='+starpu')
