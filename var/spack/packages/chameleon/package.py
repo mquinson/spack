@@ -40,7 +40,7 @@ class Chameleon(Package):
     depends_on("blas", when='~simu')
     depends_on("lapack", when='~simu')
     depends_on("cblas", when='~simu')
-    depends_on("lapacke+tmg", when='~simu')
+    depends_on("lapacke", when='~simu')
     depends_on("starpu", when='~quark')
     depends_on("quark", when='+quark')
     depends_on("mpi", when='+mpi')

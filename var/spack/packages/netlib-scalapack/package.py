@@ -54,6 +54,12 @@ class NetlibScalapack(Package):
 
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
+            cmake_args.extend([
+                "-Wno-dev",
+                "-DBUILD_TESTING:BOOL=OFF",
+                "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
+
             cmake_args+=["-DUSE_OPTIMIZED_LAPACK_BLAS=ON"]
             cmake_args.extend([
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",

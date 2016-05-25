@@ -24,7 +24,7 @@ class Plasma(Package):
     depends_on("cblas")
     depends_on("blas")
     depends_on("lapack")
-    depends_on("netlib-lapacke+tmg")
+    depends_on("netlib-lapacke")
 
     def setup(self):
         copyfile('make.inc.example', 'make.inc')

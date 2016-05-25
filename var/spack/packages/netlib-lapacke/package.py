@@ -2,6 +2,7 @@ from spack import *
 import os
 import platform
 import spack
+import shutil
 
 class NetlibLapacke(Package):
     """
@@ -33,7 +34,6 @@ class NetlibLapacke(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
-    variant('tmg', default=False, description="Build lapacke with tmg")
     variant('shared', default=True, description="Build shared library version")
 
     # virtual dependency
@@ -66,9 +66,10 @@ class NetlibLapacke(Package):
 
         # cmake configure
         cmake_args = ["."]
-        cmake_args += std_cmake_args
-        cmake_args += ["-Wno-dev"]
+        cmake_args.extend(std_cmake_args)
         cmake_args.extend([
+            "-Wno-dev",
+            "-DBUILD_TESTING:BOOL=OFF",
             "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
             "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
 
@@ -82,13 +83,9 @@ class NetlibLapacke(Package):
 
         # Enable lapacke here.
         cmake_args.extend(["-DLAPACKE=ON"])
+        cmake_args.extend(["-DLAPACKE_WITH_TMG=ON"])
         # indicate that lapack must not be built but found thanks to find_package
         cmake_args.extend(["-DUSE_OPTIMIZED_LAPACK=ON"])
-        if spec.satisfies('+tmg'):
-            cmake_args.extend(["-DLAPACKE_WITH_TMG=ON"])
-        else:
-            cmake_args.extend(["-DLAPACKE_WITH_TMG=OFF"])
-        cmake_args.extend(["-DBUILD_TESTING=OFF"])
 
         if spec.satisfies('+shared'):
             cmake_args.append('-DBUILD_SHARED_LIBS=ON')
@@ -102,6 +99,8 @@ class NetlibLapacke(Package):
 
 
         cmake(*cmake_args)
+        # cp LAPACKE/include/lapacke_mangling_with_flags.h LAPACKE/include/lapacke_mangling.h
+        shutil.copy('LAPACKE/include/lapacke_mangling_with_flags.h', 'LAPACKE/include/lapacke_mangling.h')
         make()
         make("install")
 

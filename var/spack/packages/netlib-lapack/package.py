@@ -70,8 +70,12 @@ class NetlibLapack(Package):
             self.patch_xlf()
 
         cmake_args = ["."]
-        cmake_args += std_cmake_args
-        cmake_args += ["-Wno-dev", "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
+        cmake_args.extend(std_cmake_args)
+        cmake_args.extend([
+            "-Wno-dev",
+            "-DBUILD_TESTING:BOOL=ON",
+            "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
+            "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
 
         blas_libs = " ".join(blaslibfortname)
         blas_libs = blas_libs.replace(' ', ';')
