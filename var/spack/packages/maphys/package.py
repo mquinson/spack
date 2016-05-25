@@ -74,13 +74,13 @@ class Maphys(Package):
             mf.filter('# THREAD_LDFLAGS := -openmp',
                       'THREAD_LDFLAGS := -fopenmp')
             if 'parblaslibname' in globals():
-                blas_libs = " ".join(parblaslibname)
+                blas_libs = " ".join(parblaslibfortname)
             else:
                 sys.exit('parblaslibname is empty. This Blas/Lapack vendor seems not to provide'
                 ' a list of multithreaded libraries, please disable blasmt or use a'
                 ' multithreaded Blas implementation.')
             if 'parlapacklibname' in globals():
-                lapack_libs = " ".join(parlapacklibname)
+                lapack_libs = " ".join(parlapacklibfortname)
             else:
                 sys.exit('parlapacklibname is empty. This Blas/Lapack vendor seems not to'
                 ' provide a list of multithreaded libraries, please disable blasmt or'
