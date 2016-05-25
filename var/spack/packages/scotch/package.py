@@ -105,7 +105,7 @@ class Scotch(Package):
         elif self.compiler.name == 'intel':
             defines.append('-restrict')
 
-        makefile_inc.append('CCS       = $(CC)')
+        makefile_inc.append('CCS       = cc')
 
         if self.spec.satisfies('+mpi'):
             makefile_inc.extend([
