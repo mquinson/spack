@@ -40,6 +40,7 @@ class Pastix(Package):
     depends_on("blas")
     depends_on("scotch")
     depends_on("metis@:4", when='+metis')
+    depends_on("starpu", when='+starpu')
     depends_on("starpu+mpi", when='+starpu+mpi')
     depends_on("starpu+cuda", when='+starpu+cuda')
 
