@@ -30,7 +30,7 @@ class QrMumps(Package):
     # optional dependencies
     depends_on("metis", when='+metis')
     depends_on("scotch", when='+scotch')
-    depends_on("suitesparse", when='+colamd') # for COLAMD
+    depends_on("colamd", when='+colamd') # for COLAMD
     depends_on("starpu", when='+starpu')
     depends_on("fxt", when='+fxt')
     depends_on("starpu+fxt", when='+fxt')
@@ -51,8 +51,8 @@ class QrMumps(Package):
         hwloc = spec['hwloc'].prefix
         includelist += ' `pkg-config --cflags hwloc`'
         if spec.satisfies('+colamd'):
-            suitesparse = spec['suitesparse'].prefix
-            includelist += ' -I%s' %  suitesparse.include
+            colamd = spec['colamd'].prefix
+            includelist += ' -I%s' %  colamd.include
             definitions += ' -Dhave_colamd'
         if spec.satisfies('+metis'):
             metis = spec['metis'].prefix
@@ -92,10 +92,12 @@ class QrMumps(Package):
         mf.filter('^# IHWLOC =.*', 'IHWLOC = -I%s' % hwloc.include)
 
         if spec.satisfies('+colamd'):
-            mf.filter('^# LCOLAMD  =.*', 'LCOLAMD  = -L%s -lcolamd -lsuitesparseconfig' % suitesparse.lib)
-            if platform.system() != 'Darwin':
-                mf.filter('-lsuitesparseconfig', '-lsuitesparseconfig -lrt')
-            mf.filter('^# ICOLAMD  =.*', 'ICOLAMD  = -I%s' % suitesparse.include)
+            #colamdlibs = '-L%s -lcolamd -lsuitesparseconfig' % colamd.lib
+            #if platform.system() != 'Darwin':
+                #colamdlibs += ' -lrt'
+            colamd_libs = " ".join(colamdlibname)
+            mf.filter('^# LCOLAMD  =.*', 'LCOLAMD  = %s' % colamd_libs)
+            mf.filter('^# ICOLAMD  =.*', 'ICOLAMD  = -I%s' % colamd.include)
         if spec.satisfies('+metis'):
             mf.filter('^# LMETIS   =.*', 'LMETIS   = -L%s -lmetis' % metis.lib)
             mf.filter('^# IMETIS   =.*', 'IMETIS   = -I%s' % metis.include)
@@ -111,11 +113,14 @@ class QrMumps(Package):
 
         self.setup()
 
-        make('setup', 'BUILD=build', 'PLAT=spack', 'ARITH=d s', parallel=False)
+        make('setup', 'BUILD=build', 'PLAT=spack', parallel=False)
         with working_dir('build'):
-            make('lib', 'BUILD=build', 'PLAT=spack', 'ARITH=d s', parallel=False)
-            make('examples', 'BUILD=build', 'PLAT=spack', 'ARITH=d s', parallel=False)
-            make('testing', 'BUILD=build', 'PLAT=spack', 'ARITH=d s', parallel=False)
+            make('lib', 'BUILD=build', 'PLAT=spack', 'ARITH=s', parallel=False)
+            make('lib', 'BUILD=build', 'PLAT=spack', 'ARITH=d', parallel=False)
+            make('examples', 'BUILD=build', 'PLAT=spack', 'ARITH=s', parallel=False)
+            make('examples', 'BUILD=build', 'PLAT=spack', 'ARITH=d', parallel=False)
+            make('testing', 'BUILD=build', 'PLAT=spack', 'ARITH=s', parallel=False)
+            make('testing', 'BUILD=build', 'PLAT=spack', 'ARITH=d', parallel=False)
 
             ## No install provided
             # install lib
