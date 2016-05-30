@@ -86,6 +86,8 @@ class NetlibLapack(Package):
             if platform.system() == 'Darwin':
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
         cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
+        if spec.satisfies("%xl"):
+            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
 
         cmake(*cmake_args)
         make()
