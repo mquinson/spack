@@ -99,6 +99,7 @@ class Starpu(Package):
 
         if not spec.satisfies('+examples'):
             config_args.append("--disable-build-examples")
+            config_args.append("--disable-build-tests")
 
         if spec.satisfies('+fxt'):
             fxt = spec['fxt'].prefix
