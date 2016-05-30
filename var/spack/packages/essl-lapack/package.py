@@ -48,18 +48,15 @@ class EsslLapack(Package):
         # set essl lib
         esslroot=os.environ['ESSLROOT']
         xlfroot=os.environ['XLFROOT']
-        if os.path.isdir(esslroot) and os.path.isdir(xlfroot):
+        xlsmproot=os.environ['XLSMPROOT']
+        if os.path.isdir(esslroot) and os.path.isdir(xlfroot) and os.path.isdir(xlsmproot):
             if spec.satisfies("+mt"):
-                xlsmproot=os.environ['XLSMPROOT']
-                if os.path.isdir(xlfroot):
-                    module.lapacklibname=["-L%s -R%s -lesslsmp -L%s -lxlsmp -L%s -lxlfmath -lxlf90 -lxlf90_r %s -lesslsmp -lxlsmp -lxlfmath -lxlf90 -lxlf90_r" %(esslroot,esslroot,xlsmproot,xlfroot,netlib_lapack_libs)]
-                else:
-                    sys.exit('XLSMPROOT environment variable does not exist. Please set XLSMPROOT, where lies libxlsmp, to use the ESSL LAPACK')
+                module.lapacklibname=["-L%s -R%s -lesslsmp -L%s -lxlsmp -L%s -lxlfmath -lxlf90 -lxlf90_r %s -lesslsmp -lxlsmp -lxlfmath -lxlf90 -lxlf90_r" %(esslroot,esslroot,xlsmproot,xlfroot,netlib_lapack_libs)]
             else:
-                module.lapacklibname=["-L%s -R%s -lessl -L%s -lxlfmath -lxlf90 -lxlf90_r %s -lxlfmath -lxlf90 -lxlf90_r" % (esslroot,esslroot,xlfroot,netlib_lapack_libs)]
+                module.lapacklibname=["-L%s -R%s -lessl -L%s -lxlsmp -L%s -lxlfmath -lxlf90 -lxlf90_r %s -lxlfmath -lxlf90 -lxlf90_r" % (esslroot,esslroot,xlsmproot,xlfroot,netlib_lapack_libs)]
             module.lapacklibfortname=module.lapacklibname
         else:
-            sys.exit('ESSLROOT or XLFROOT environment variable does not exist. Please set ESSLROOT and XLFROOT, where lies libessl and libxlf90, to use the ESSL Blas')
+            sys.exit('ESSLROOT or XLFROOT or XLSMPROOT environment variable does not exist. Please set ESSLROOT and XLFROOT and XLSMPROOT, where lies libessl and libxlf90 and xlsmp, to use the ESSL')
 
     # Null literal string is not permitted with xlf
     def patch_xlf(self):
@@ -73,17 +70,25 @@ class EsslLapack(Package):
             self.patch_xlf()
 
         cmake_args = ["."]
-        cmake_args += std_cmake_args
-        cmake_args += ["-Wno-dev", "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
+        cmake_args.extend(std_cmake_args)
+        cmake_args.extend([
+            "-Wno-dev",
+            "-DBUILD_TESTING:BOOL=ON",
+            "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
+            "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
 
         blas_libs = " ".join(blaslibfortname)
         blas_libs = blas_libs.replace(' ', ';')
         cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
-        cmake_args.append('-DBUILD_SHARED_LIBS=ON')
-        cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
+        if spec.satisfies('+shared'):
+            cmake_args.append('-DBUILD_SHARED_LIBS=ON')
+            cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
+            if platform.system() == 'Darwin':
+                cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
         cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
-        if platform.system() == 'Darwin':
-            cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
+        if spec.satisfies("%xl"):
+            #cmake_ar1gs.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
+            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-g"])
 
         cmake(*cmake_args)
         make()

@@ -43,18 +43,15 @@ class EsslBlas(Package):
         # set essl lib
         esslroot=os.environ['ESSLROOT']
         xlfroot=os.environ['XLFROOT']
-        if os.path.isdir(esslroot) and os.path.isdir(xlfroot):
+        xlsmproot=os.environ['XLSMPROOT']
+        if os.path.isdir(esslroot) and os.path.isdir(xlfroot) and os.path.isdir(xlsmproot):
             if spec.satisfies("+mt"):
-                xlsmproot=os.environ['XLSMPROOT']
-                if os.path.isdir(xlsmproot):
-                    module.blaslibname=["-L%s -R%s -lesslsmp -L%s -lxlsmp -L%s -lxlfmath -lxlf90 -lxlf90_r %s -lesslsmp -lxlsmp -lxlfmath -lxlf90 -lxlf90_r" %(esslroot,esslroot,xlsmproot,xlfroot,netlib_blas_libs)]
-                else:
-                    sys.exit('XLSMPROOT environment variable does not exist. Please set XLSMPROOT, where lies libxlsmp, to use the ESSL Blas')
+                module.blaslibname=["-L%s -R%s -lesslsmp -L%s -lxlsmp -L%s -lxlfmath -lxlf90 -lxlf90_r %s -lesslsmp -lxlsmp -lxlfmath -lxlf90 -lxlf90_r" %(esslroot,esslroot,xlsmproot,xlfroot,netlib_blas_libs)]
             else:
-                module.blaslibname=["-L%s -R%s -lessl -L%s -lxlfmath -lxlf90 -lxlf90_r %s -lxlfmath -lxlf90 -lxlf90_r" % (esslroot,esslroot,xlfroot,netlib_blas_libs)]
+                module.blaslibname=["-L%s -R%s -lessl -L%s -lxlsmp -L%s -lxlfmath -lxlf90 -lxlf90_r %s -lxlfmath -lxlf90 -lxlf90_r" % (esslroot,esslroot,xlsmproot,xlfroot,netlib_blas_libs)]
             module.blaslibfortname=module.blaslibname
         else:
-            sys.exit('ESSLROOT or XLFROOT environment variable does not exist. Please set ESSLROOT and XLFROOT, where lies libessl and libxlf90, to use the ESSL Blas')
+            sys.exit('ESSLROOT or XLFROOT or XLSMPROOT environment variable does not exist. Please set ESSLROOT and XLFROOT and XLSMPROOT, where lies libessl and libxlf90 and xlsmp, to use the ESSL')
 
     # Null literal string is not permitted with xlf
     def patch_xlf(self):
@@ -71,17 +68,22 @@ class EsslBlas(Package):
         mf = FileFilter('CMakeLists.txt')
         mf.filter('add_subdirectory\(SRC\)','#add_subdirectory(SRC)')
         mf.filter('set\(ALL_TARGETS \$\{ALL_TARGETS\} lapack\)','#set(ALL_TARGETS ${ALL_TARGETS} lapack)')
-
         cmake_args = ["."]
-        cmake_args+= std_cmake_args
-        cmake_args+=[
-                "-DBUILD_TESTING=OFF",
-                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"]
-        cmake_args.append('-DBUILD_SHARED_LIBS=ON')
-        cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
+        cmake_args.extend(std_cmake_args)
+        cmake_args.extend([
+            "-Wno-dev",
+            "-DBUILD_TESTING:BOOL=OFF",
+            "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
+            "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
+        if spec.satisfies('+shared'):
+            cmake_args.append('-DBUILD_SHARED_LIBS=ON')
+            cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
+            if platform.system() == 'Darwin':
+                cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
         cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
-        if platform.system() == 'Darwin':
-            cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
+        if spec.satisfies("%xl"):
+            #cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
+            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-g"])
 
         cmake(*cmake_args)
         make()
