@@ -46,7 +46,7 @@ class NetlibLapacke(Package):
     depends_on('cmake')
 
     # Doesn't always build correctly in parallel
-    parallel = False
+    #parallel = False
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for netlib-lapacke."""
@@ -94,8 +94,8 @@ class NetlibLapacke(Package):
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
         cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
         if spec.satisfies("%xl"):
-            cmake_args.extend(["-DCMAKE_C_FLAGS=-qarch=auto -qhot -qtune=auto"])
-            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-qfixed -qnosave -qarch=auto -qhot -qtune=auto"])
+            cmake_args.extend(["-DCMAKE_C_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto -DNOCHANGE"])
+            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
 
 
         cmake(*cmake_args)

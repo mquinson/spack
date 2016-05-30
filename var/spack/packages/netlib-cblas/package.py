@@ -28,6 +28,7 @@ class NetlibCblas(Package):
     # blas is a virtual dependency.
     depends_on('blas')
 
+    # Doesn't always build correctly in parallel
     parallel = False
 
     def setup_dependent_environment(self, module, spec, dep_spec):
@@ -55,8 +56,8 @@ class NetlibCblas(Package):
         mf.filter('^CFLAGS =', 'CFLAGS = -fPIC ')
         mf.filter('^FFLAGS =', 'FFLAGS = -fPIC ')
         if spec.satisfies('%xl'):
-            mf.filter('^CFLAGS =.*', 'CFLAGS = -fPIC -qhot -O3 -qtune=auto -qarch=auto -qstrict -DNOCHANGE')
-            mf.filter('^FFLAGS =.*', 'FFLAGS = -fPIC -qnosave -qhot -O3 -qtune=auto -qarch=auto -qstrict')
+            mf.filter('^CFLAGS =.*', 'CFLAGS = -O3 -qpic -qhot -qtune=auto -qarch=auto -qstrict -DNOCHANGE')
+            mf.filter('^FFLAGS =.*', 'FFLAGS = -O3 -qpic -qhot -qtune=auto -qarch=auto -qstrict -qnosave')
 
         # Rename the generated lib file to libcblas
         mf.filter('^CBLIB =.*', 'CBLIB = ../lib/libcblas.a')
