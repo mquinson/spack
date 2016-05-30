@@ -26,7 +26,7 @@ class EigenBlas(Package):
 
     variant('shared', default=True, description='Build Eigen BLAS as a shared library')
 
-    depends_on('cmake')
+    depends_on('cmake@3:')
 
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for eigen-blas."""
