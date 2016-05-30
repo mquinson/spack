@@ -43,11 +43,13 @@ class Scalfmm(Package):
 
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
-
+            cmake_args.extend([
+                "-Wno-dev",
+                "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
             if spec.satisfies('+shared'):
                 # Enable build shared libs.
                 cmake_args+=["-DBUILD_SHARED_LIBS=ON"]
-
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DSCALFMM_BUILD_EXAMPLES=ON"])
                 cmake_args.extend(["-DSCALFMM_INSTALL_DATA=ON"])
