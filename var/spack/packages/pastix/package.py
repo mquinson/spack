@@ -237,7 +237,10 @@ class Pastix(Package):
 
                     cmake_args = [".."]
                     cmake_args.extend(std_cmake_args)
-
+                    cmake_args.extend([
+                        "-Wno-dev",
+                        "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
+                        "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
                     if spec.satisfies('+debug'):
                         # Enable Debug here.
                         cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
@@ -326,8 +329,8 @@ class Pastix(Package):
                     make('debug')
                 else:
                     make()
-                    if spec.satisfies('+examples'):
-                        make('examples')
+                if spec.satisfies('+examples'):
+                    make('examples')
                 make("install")
                 # examples are not installed by default
                 if spec.satisfies('+examples'):
