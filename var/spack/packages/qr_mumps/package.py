@@ -35,6 +35,9 @@ class QrMumps(Package):
     depends_on("fxt", when='+fxt')
     depends_on("starpu+fxt", when='+fxt')
 
+    # Don't build correctly in parallel
+    parallel = False
+
     def setup(self):
         spec = self.spec
 
@@ -74,6 +77,12 @@ class QrMumps(Package):
 
         optf = 'FCFLAGS  = -O3 -fPIC'
         optc = 'CFLAGS   = -O3 -fPIC'
+        if spec.satisfies("%xl"):
+            optf = 'FCFLAGS  = -O3 -qpic -qhot -qtune=auto -qarch=auto'
+            optc = 'CFLAGS   = -O3 -qpic -qhot -qtune=auto -qarch=auto'
+            mf.filter('^DEFINE_PREPEND =.*', 'DEFINE_PREPEND = -WF,')
+            definitionsWF = definitions.replace('-D', '-WF,-D')
+            mf.filter('FDEFS =.*', 'FDEFS = %s' % definitionsWF)
         if spec.satisfies('+debug'):
             optf += ' -g'
             optc += ' -g'
@@ -92,9 +101,6 @@ class QrMumps(Package):
         mf.filter('^# IHWLOC =.*', 'IHWLOC = -I%s' % hwloc.include)
 
         if spec.satisfies('+colamd'):
-            #colamdlibs = '-L%s -lcolamd -lsuitesparseconfig' % colamd.lib
-            #if platform.system() != 'Darwin':
-                #colamdlibs += ' -lrt'
             colamd_libs = " ".join(colamdlibname)
             mf.filter('^# LCOLAMD  =.*', 'LCOLAMD  = %s' % colamd_libs)
             mf.filter('^# ICOLAMD  =.*', 'ICOLAMD  = -I%s' % colamd.include)
@@ -113,14 +119,14 @@ class QrMumps(Package):
 
         self.setup()
 
-        make('setup', 'BUILD=build', 'PLAT=spack', parallel=False)
+        make('setup', 'BUILD=build', 'PLAT=spack')
         with working_dir('build'):
-            make('lib', 'BUILD=build', 'PLAT=spack', 'ARITH=s', parallel=False)
-            make('lib', 'BUILD=build', 'PLAT=spack', 'ARITH=d', parallel=False)
-            make('examples', 'BUILD=build', 'PLAT=spack', 'ARITH=s', parallel=False)
-            make('examples', 'BUILD=build', 'PLAT=spack', 'ARITH=d', parallel=False)
-            make('testing', 'BUILD=build', 'PLAT=spack', 'ARITH=s', parallel=False)
-            make('testing', 'BUILD=build', 'PLAT=spack', 'ARITH=d', parallel=False)
+            make('lib', 'BUILD=build', 'PLAT=spack', 'ARITH=s')
+            make('lib', 'BUILD=build', 'PLAT=spack', 'ARITH=d')
+            make('examples', 'BUILD=build', 'PLAT=spack', 'ARITH=s')
+            make('examples', 'BUILD=build', 'PLAT=spack', 'ARITH=d')
+            make('testing', 'BUILD=build', 'PLAT=spack', 'ARITH=s')
+            make('testing', 'BUILD=build', 'PLAT=spack', 'ARITH=d')
 
             ## No install provided
             # install lib
