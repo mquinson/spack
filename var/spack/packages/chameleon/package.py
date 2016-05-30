@@ -55,7 +55,10 @@ class Chameleon(Package):
 
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
-
+            cmake_args.extend([
+                "-Wno-dev",
+                "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
             if spec.satisfies('+shared'):
                 # Enable build shared libs.
                 cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
@@ -104,13 +107,22 @@ class Chameleon(Package):
                 cblas = self.spec['cblas']
                 lapack = self.spec['lapack']
                 lapacke = self.spec['lapacke']
-                cmake_args.extend(['-DBLAS_DIR=%s' % blas.prefix])
+
+                blas_libs = " ".join(blaslibname)
+                blas_libs = blas_libs.replace(' ', ';')
+                cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
+                lapack_libs = " ".join(lapacklibname)
+                lapack_libs = lapack_libs.replace(' ', ';')
+                cmake_args.extend(['-DLAPACK_LIBRARIES=%s' % lapack_libs])
+
                 cmake_args.extend(['-DCBLAS_DIR=%s' % cblas.prefix])
-                cmake_args.extend(['-DLAPACK_DIR=%s' % lapack.prefix])
                 cmake_args.extend(['-DLAPACKE_DIR=%s' % lapacke.prefix])
                 cmake_args.extend(['-DTMG_DIR=%s' % lapack.prefix])
                 if spec.satisfies('%gcc'):
                     os.environ["LDFLAGS"] = "-lgfortran"
+
+            if spec.satisfies("%xl"):
+                cmake_args.extend(["-DCMAKE_C_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
 
             cmake(*cmake_args)
             make()
