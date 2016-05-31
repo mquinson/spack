@@ -89,6 +89,8 @@ class QrMumps(Package):
         if '^mkl-blas' in spec or '^mkl-lapack' in spec:
             optf+= ' -m64 -I${MKLROOT}/include'
             optc+= ' -m64 -I${MKLROOT}/include'
+        if spec.satisfies("%intel"):
+            mf.filter('^LDFLAGS.*', 'LDFLAGS = $(FCFLAGS) -nofor_main')
         mf.filter('^FCFLAGS =.*', '%s' % optf)
         mf.filter('^CFLAGS  =.*', '%s' % optc)
 
@@ -158,6 +160,6 @@ class QrMumps(Package):
                 os.symlink(qrmumpsroot+"/include", prefix.include)
                 os.symlink(qrmumpsroot+"/lib", prefix.lib)
             else:
-                sys.exit(qrmumpsroot+' directory does not exist.'+' Do you really have openmpi installed in '+qrmumpsroot+' ?')
+                sys.exit(qrmumpsroot+' directory does not exist.'+' Do you really have qr_mumps installed in '+qrmumpsroot+' ?')
         else:
             sys.exit('QR_MUMPS_DIR is not set, you must set this environment variable to the installation path of your qr_mumps')
