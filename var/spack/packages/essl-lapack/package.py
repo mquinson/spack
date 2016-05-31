@@ -26,10 +26,12 @@ class EsslLapack(Package):
             provides('lapack')
 
     variant('mt', default=False, description="Use Multithreaded version")
+    # used for netlib-lapack
+    variant('shared', default=True, description="Build netlib-lapack shared library version")
 
     # blas is a virtual dependency.
     depends_on('blas')
-
+    # used for netlib-lapack
     depends_on('cmake')
 
     def setup_dependent_environment(self, module, spec, dep_spec):
@@ -87,8 +89,7 @@ class EsslLapack(Package):
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
         cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
         if spec.satisfies("%xl"):
-            #cmake_ar1gs.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
-            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-g"])
+            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
 
         cmake(*cmake_args)
         make()

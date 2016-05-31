@@ -27,6 +27,10 @@ class EsslBlas(Package):
 
     variant('mt', default=False, description="Use Multithreaded version")
 
+    # useful for netlib-blas
+    variant('shared', default=True, description="Build netlib-blas shared library version")
+    depends_on('cmake')
+
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the libraries names for essl-blas."""
 
@@ -82,8 +86,7 @@ class EsslBlas(Package):
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
         cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
         if spec.satisfies("%xl"):
-            #cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
-            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-g"])
+            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
 
         cmake(*cmake_args)
         make()
