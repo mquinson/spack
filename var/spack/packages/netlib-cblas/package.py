@@ -48,9 +48,12 @@ class NetlibCblas(Package):
 
     def install(self, spec, prefix):
 
-        # patch to fix path to cblas cmake modules
         mf = FileFilter('CBLAS/CMakeLists.txt')
+        # patch to fix path to cblas cmake modules
         mf.filter('CMAKE/','cmake/')
+        if spec.satisfies('%xl'):
+            # patch to fix mangling with xl compiler, detection is not working
+            mf.filter('#ADD_DEFINITIONS\( \"-D\$\{CDEFS\}\"\)','ADD_DEFINITIONS(-DNOCHANGE)')
 
         # Disable the building of lapack in CMakeLists.txt
         mf = FileFilter('CMakeLists.txt')

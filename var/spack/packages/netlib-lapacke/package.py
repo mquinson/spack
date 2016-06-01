@@ -64,6 +64,11 @@ class NetlibLapacke(Package):
         mf = FileFilter('CMakeLists.txt')
         mf.filter('dgeqrt', 'dgeqrf')
 
+        if spec.satisfies('%xl'):
+            mf = FileFilter('LAPACKE/CMakeLists.txt')
+            # patch to fix mangling with xl compiler, detection is not working
+            mf.filter('#ADD_DEFINITIONS\( \"-D\$\{CDEFS\}\"\)','ADD_DEFINITIONS(-DNOCHANGE)')
+
         # cmake configure
         cmake_args = ["."]
         cmake_args.extend(std_cmake_args)
