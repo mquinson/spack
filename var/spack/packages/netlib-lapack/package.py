@@ -80,14 +80,13 @@ class NetlibLapack(Package):
         blas_libs = " ".join(blaslibfortname)
         blas_libs = blas_libs.replace(' ', ';')
         cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
+
         if spec.satisfies('+shared'):
             cmake_args.append('-DBUILD_SHARED_LIBS=ON')
             cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
             if platform.system() == 'Darwin':
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
         cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
-        if spec.satisfies("%xl"):
-            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
 
         cmake(*cmake_args)
         make()

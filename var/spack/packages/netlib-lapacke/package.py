@@ -93,10 +93,6 @@ class NetlibLapacke(Package):
             if platform.system() == 'Darwin':
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
         cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
-        if spec.satisfies("%xl"):
-            cmake_args.extend(["-DCMAKE_C_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto -DNOCHANGE"])
-            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
-
 
         cmake(*cmake_args)
         # cp LAPACKE/include/lapacke_mangling_with_flags.h LAPACKE/include/lapacke_mangling.h

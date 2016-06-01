@@ -40,7 +40,17 @@ class NetlibBlas(Package):
         module.blaslibname=["-L%s -lblas" % libdir]
         module.blaslibfortname = module.blaslibname
 
+    # Null literal string is not permitted with xlf
+    def patch_xlf(self):
+
+        mf = FileFilter('BLAS/SRC/xerbla_array.f')
+        mf.filter('SRNAME = \'\'', 'SRNAME = \' \'')
+
     def install(self, spec, prefix):
+
+        if spec.satisfies('%xl'):
+            self.patch_xlf()
+
         # Disable the building of lapack in CMakeLists.txt
         mf = FileFilter('CMakeLists.txt')
         mf.filter('add_subdirectory\(SRC\)','#add_subdirectory(SRC)')
@@ -59,8 +69,6 @@ class NetlibBlas(Package):
             if platform.system() == 'Darwin':
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
         cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
-        if spec.satisfies("%xl"):
-            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
 
         cmake(*cmake_args)
         make()
