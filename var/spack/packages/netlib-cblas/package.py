@@ -2,17 +2,18 @@ from spack import *
 import os
 import platform
 import spack
+import shutil
 
 class NetlibCblas(Package):
-    """The BLAS (Basic Linear Algebra Subprograms) are routines that
-       provide standard building blocks for performing basic vector and
-       matrix operations."""
+    """Netlib reference CBLAS"""
+    homepage = "http://www.netlib.org/blas/#_cblas"
 
-    homepage = "http://www.netlib.org/blas/_cblas/"
-
-    # tarball has no version, but on the date below, this MD5 was correct.
-    version('2015-06-06', '1e8830f622d2112239a4a8a83b84209a',
-            url='http://www.netlib.org/blas/blast-forum/cblas.tgz')
+    version('3.6.0', 'f2f6c67134e851fe189bb3ca1fbb5101',
+            url="http://www.netlib.org/lapack/lapack-3.6.0.tgz")
+    version('3.5.0', 'b1d3e3e425b2e44a06760ff173104bdf',
+            url="http://www.netlib.org/lapack/lapack-3.5.0.tgz")
+    version('3.4.2', '61bf1a8a4469d4bdb7604f5897179478',
+            url="http://www.netlib.org/lapack/lapack-3.4.2.tgz")
 
     pkg_dir = spack.db.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
@@ -20,7 +21,7 @@ class NetlibCblas(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
-    variant('shared', default=True, description='Build CBLAS as a shared library')
+    variant('shared', default=True, description="Build shared library version")
 
     # virtual dependency
     provides('cblas')
@@ -28,65 +29,60 @@ class NetlibCblas(Package):
     # blas is a virtual dependency.
     depends_on('blas')
 
+    depends_on('cmake')
+
     # Doesn't always build correctly in parallel
     parallel = False
 
+    variant('shared', default=True, description="Build shared library version")
+
     def setup_dependent_environment(self, module, spec, dep_spec):
         """Dependencies of this package will get the library name for netlib-cblas."""
-
-        if spec.satisfies('+shared'):
-            if platform.system() == 'Darwin':
-                module.cblaslibname=[os.path.join(self.spec.prefix.lib, "libcblas.dylib")]
-            else:
-                module.cblaslibname=[os.path.join(self.spec.prefix.lib, "libcblas.so")]
+        if os.path.isdir(spec.prefix.lib64):
+            libdir = self.spec.prefix+"/lib64"
         else:
-            module.cblaslibname=[os.path.join(self.spec.prefix.lib, "libcblas.a")]
+            libdir = self.spec.prefix+"/lib"
+
+        module.cblaslibname=["-L%s -lcblas" % libdir]
         module.cblaslibfortname = module.cblaslibname
-
-    def setup(self):
-        spec = self.spec
-        mf = FileFilter('Makefile.in')
-        blas_libs = " ".join(blaslibfortname)
-        if spec.satisfies('+shared') and spec.satisfies('%xl'):
-            mf.filter('^BLLIB =.*', 'BLLIB = -Wl,--unresolved-symbols=ignore-in-shared-libs %s' % blas_libs)
-        else:
-            mf.filter('^BLLIB =.*', 'BLLIB = %s' % blas_libs)
-        mf.filter('^CC =.*', 'CC = cc')
-        mf.filter('^FC =.*', 'FC = f90')
-        mf.filter('^CFLAGS =', 'CFLAGS = -fPIC ')
-        mf.filter('^FFLAGS =', 'FFLAGS = -fPIC ')
-        if spec.satisfies('%xl'):
-            mf.filter('^CFLAGS =.*', 'CFLAGS = -O3 -qpic -qhot -qtune=auto -qarch=auto -qstrict -DNOCHANGE')
-            mf.filter('^FFLAGS =.*', 'FFLAGS = -O3 -qpic -qhot -qtune=auto -qarch=auto -qstrict -qnosave')
-
-        # Rename the generated lib file to libcblas
-        mf.filter('^CBLIB =.*', 'CBLIB = ../lib/libcblas.a')
-
-        if spec.satisfies('+shared'):
-            #mf.filter('^ARCH\s*=.*', 'ARCH=$(CC) $(BLLIB)')
-            mf.filter('^ARCH\s*=.*', 'ARCH=$(CC)')
-            archflags = '-shared -undefined dynamic_lookup -o' if platform.system() == 'Darwin' else '-shared -o'
-            mf.filter('^ARCHFLAGS\s*=.*', 'ARCHFLAGS=%s' % archflags)
-            mf.filter('^RANLIB\s*=.*', 'RANLIB=echo')
-            mf.filter('^CCFLAGS\s*=', 'CCFLAGS = -fPIC ')
-            mf.filter('^FFLAGS\s*=', 'FFLAGS = -fPIC ')
-            mf.filter('\.a', ".dylib" if platform.system() == 'Darwin' else ".so")
 
     def install(self, spec, prefix):
 
-        self.setup()
-        make('all')
-        mkdirp(prefix.lib)
-        mkdirp(prefix.include)
+        # patch to fix path to cblas cmake modules
+        mf = FileFilter('CBLAS/CMakeLists.txt')
+        mf.filter('CMAKE/','cmake/')
+
+        # Disable the building of lapack in CMakeLists.txt
+        mf = FileFilter('CMakeLists.txt')
+        mf.filter('add_subdirectory\(SRC\)','#add_subdirectory(SRC)')
+        mf.filter('set\(ALL_TARGETS \$\{ALL_TARGETS\} lapack\)','#set(ALL_TARGETS ${ALL_TARGETS} lapack)')
+
+        cmake_args = ["."]
+        cmake_args.extend(std_cmake_args)
+        cmake_args.extend([
+            "-Wno-dev",
+            "-DBUILD_TESTING:BOOL=OFF",
+            "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
+            "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
+
+        cmake_args.append('-DCBLAS=ON')
+
+        blas_libs = " ".join(blaslibname)
+        blas_libs = blas_libs.replace(' ', ';')
+        cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
 
         if spec.satisfies('+shared'):
-            libext=".dylib" if platform.system() == 'Darwin' else ".so"
-        else:
-            libext=".a"
+            cmake_args.append('-DBUILD_SHARED_LIBS=ON')
+            cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
+            if platform.system() == 'Darwin':
+                cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
+        cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
 
-        install('./lib/libcblas%s' % libext, '%s' % prefix.lib)
-        install('./include/cblas.h','%s' % prefix.include)
-        install('./include/cblas_f77.h','%s' % prefix.include)
+        cmake(*cmake_args)
+        # cp CBLAS/include/cblas_mangling_with_flags.h CBLAS/include/cblas_mangling.h
+        shutil.copy('CBLAS/include/cblas_mangling_with_flags.h', 'CBLAS/include/cblas_mangling.h')
+        make()
+        make("install")
 
     # to use the existing version available in the environment: CBLAS_DIR environment variable must be set
     @when('@exist')
