@@ -61,8 +61,10 @@ class Magma(Package):
             mf.filter('-Wall -Wno-unused-dummy-argument', '-warn all -warn nounused -nogen-interfaces')
             mf.filter('LDFLAGS   =     \$\(FPIC\)', 'LDFLAGS   =     $(FPIC) -openmp')
 
-        if not spec.satisfies("^mkl-blas"):
+        if not '^mkl-blas' in spec:
             mf.filter('-DMAGMA_WITH_MKL', '')
+            mf.filter('-include make.check-mkl', '')
+
 
         blas_libs = " ".join(blaslibfortname)
         cblas_libs = " ".join(cblaslibfortname)
