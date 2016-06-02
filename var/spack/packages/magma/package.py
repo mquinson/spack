@@ -55,16 +55,21 @@ class Magma(Package):
             mf.filter('-O3', '-O2 -g')
 
         if spec.satisfies("%intel"):
-            mf.filter('-Wall -DMAGMA_SETAFFINITY', '-Wall -Wshadow -openmp')
+            mf.filter('^CFLAGS.*',   'CFLAGS   = -O3 $(FPIC) -DADD_ -Wall -Wshadow -openmp')
+            mf.filter('^FFLAGS.*',   'FFLAGS   = -O3 $(FPIC) -DADD_ -warn all -warn nounused -nogen-interfaces')
+            mf.filter('^F90FLAGS.*', 'F90FLAGS = -O3 $(FPIC) -DADD_ -warn all -warn nounused')
+            mf.filter('^LDFLAGS.*',  'LDFLAGS  =     $(FPIC) -openmp')
+        elif spec.satisfies("%xl"):
+            mf.filter('^CFLAGS.*',    'CFLAGS    = -O3 -qpic -DNOCHANGE')
+            mf.filter('^FFLAGS.*',    'FFLAGS    = -O3 -qpic -WF,-DNOCHANGE')
+            mf.filter('^F90FLAGS.*',  'F90FLAGS  = -O3 -qpic -WF,-DNOCHANGE')
+            mf.filter('^NVCCFLAGS.*', 'NVCCFLAGS = -O3 -DNOCHANGE -Xcompiler \"-fno-strict-aliasing $(FPIC)\"')
+            mf.filter('^LDFLAGS.*',  'LDFLAGS  =')
 
-            mf.filter('-Wall -Wno-unused-dummy-argument -x f95-cpp-input', '-warn all -warn nounused')
-            mf.filter('-Wall -Wno-unused-dummy-argument', '-warn all -warn nounused -nogen-interfaces')
-            mf.filter('LDFLAGS   =     \$\(FPIC\)', 'LDFLAGS   =     $(FPIC) -openmp')
 
         if not '^mkl-blas' in spec:
             mf.filter('-DMAGMA_WITH_MKL', '')
             mf.filter('-include make.check-mkl', '')
-
 
         blas_libs = " ".join(blaslibfortname)
         cblas_libs = " ".join(cblaslibfortname)
@@ -76,6 +81,11 @@ class Magma(Package):
             if spec.satisfies('%gcc'):
                 lib_list += ' -lgfortran'
         mf.filter('^LIB       =.*', 'LIB       = %s' % lib_list)
+
+        if spec.satisfies("%xl"):
+            mf = FileFilter('Makefile')
+            mf.filter('-Dmagma_devptr_t', '-WF,-Dmagma_devptr_t')
+
 
     def install(self, spec, prefix):
 
