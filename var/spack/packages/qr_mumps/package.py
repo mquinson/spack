@@ -121,15 +121,16 @@ class QrMumps(Package):
 
         self.setup()
 
+        ariths=["d", "s", "z", "c"]
+        
         make('setup', 'BUILD=build', 'PLAT=spack')
         with working_dir('build'):
-            make('lib', 'BUILD=build', 'PLAT=spack', 'ARITH=s')
-            make('lib', 'BUILD=build', 'PLAT=spack', 'ARITH=d')
-            make('examples', 'BUILD=build', 'PLAT=spack', 'ARITH=s')
-            make('examples', 'BUILD=build', 'PLAT=spack', 'ARITH=d')
-            make('testing', 'BUILD=build', 'PLAT=spack', 'ARITH=s')
-            make('testing', 'BUILD=build', 'PLAT=spack', 'ARITH=d')
 
+            for a in ariths:
+                make('lib', 'BUILD=build', 'PLAT=spack', 'ARITH='+a)
+                make('examples', 'BUILD=build', 'PLAT=spack', 'ARITH='+a)
+                make('testing', 'BUILD=build', 'PLAT=spack', 'ARITH='+a)
+            
             ## No install provided
             # install lib
             install_tree('lib', prefix.lib)
@@ -139,12 +140,14 @@ class QrMumps(Package):
                 install("include/"+file, prefix.include)
             # install examples
             mkdirp('%s/examples' % prefix)
-            for executable in ["dqrm_front", "dqrm_test", "sqrm_front", "sqrm_test"]:
-                install('examples/'+executable, '%s/examples/' % prefix)
+            for executable in ["qrm_front", "qrm_test"]:
+                for a in ariths:
+                    install('examples/'+a+executable, '%s/examples/' % prefix)
             # install testing
             mkdirp('%s/testing' % prefix)
-            for executable in ["dqrm_testing", "sqrm_testing"]:
-                install('testing/'+executable, '%s/testing/' % prefix)
+            for executable in ["qrm_testing", "qrm_testing"]:
+                for a in ariths:
+                    install('testing/'+a+executable, '%s/testing/' % prefix)
             pkg_dir = spack.db.dirname_for_package_name("qr_mumps")
             install(pkg_dir+'/matfile.txt', '%s/testing/' % prefix)
             install(pkg_dir+'/cage5.mtx', '%s/testing/' % prefix)
