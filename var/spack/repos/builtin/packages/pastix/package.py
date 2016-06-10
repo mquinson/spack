@@ -24,7 +24,6 @@ class Pastix(Package):
     variant('blasmt', default=False, description='Enable to use multithreaded Blas library (MKL, ESSL, OpenBLAS)')
     variant('cuda', default=False, description='Enable CUDA kernels. Caution: only available if StarPU variant is enabled')
     variant('metis', default=False, description='Enable Metis')
-    variant('scotch', default=True, description='Enable Scotch')
     variant('starpu', default=False, description='Enable StarPU')
     variant('shared', default=True, description='Build Pastix as a shared library')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
@@ -37,8 +36,8 @@ class Pastix(Package):
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
     depends_on("blas")
-    depends_on("scotch", when='+scotch')
-    depends_on("scotch+idx64", when='+scotch+idx64')
+    depends_on("scotch")
+    depends_on("scotch+idx64", when='+idx64')
     depends_on("metis@:4", when='+metis')
     depends_on("metis@:4+idx64", when='+metis+idx64')
     depends_on("starpu", when='+starpu')
@@ -58,7 +57,7 @@ class Pastix(Package):
         mf = FileFilter('config.in')
         spec = self.spec
 
-        if ( spec.satisfies('+metis') and spec.satisfies('+scotch') ):
+        if spec.satisfies('+metis'):
             raise RuntimeError('You cannot use Metis and Scotch at the same'
              ' time because they are incompatible (Scotch provides a metis.h'
              ' which is not the same as the one providen by Metis)')
