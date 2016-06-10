@@ -41,7 +41,7 @@ class PreferredPackages(object):
             pkglist.append('all')
         for pkg in pkglist:
             order = self.preferred.get(pkg, {}).get(component, {})
-            if type(order) is dict or type(order) is spack.util.spack_yaml.syaml_dict:
+            if type(order) is dict:
                 order = order.get(second_key, {})
             if not order:
                 continue
@@ -89,11 +89,10 @@ class PreferredPackages(object):
     # a and b are considered to match entries in the sorting list if they
     # satisfy the list component.
     def _spec_compare(self, pkgname, component, a, b, reverse_natural_compare, second_key):
-        if not component == 'providers':
-            if not a or not a.concrete:
-                return -1
-            if not b or not b.concrete:
-                return 1
+        if not a or not a.concrete:
+            return -1
+        if not b or not b.concrete:
+            return 1
         specs = self._spec_for_pkgname(pkgname, component, second_key)
         a_index = None
         b_index = None
