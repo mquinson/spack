@@ -90,7 +90,12 @@ class QrMumps(Package):
             optf+= ' -m64 -I${MKLROOT}/include'
             optc+= ' -m64 -I${MKLROOT}/include'
         if spec.satisfies("%intel"):
-            mf.filter('^LDFLAGS.*', 'LDFLAGS = $(FCFLAGS) -nofor_main')
+            # The ifort default runtime is not thread safe. Adding the
+            # -qopenmp flag ensures that thread-safe code is generated
+            # and a thread-safe runtime is linked 
+            mf.filter('^LDFLAGS.*', 'LDFLAGS = $(FCFLAGS) -nofor_main -openmp')
+            optf = 'FCFLAGS  = -O3 -fPIC -openmp'
+            optc = 'CFLAGS   = -O3 -fPIC'
         mf.filter('^FCFLAGS =.*', '%s' % optf)
         mf.filter('^CFLAGS  =.*', '%s' % optc)
 
