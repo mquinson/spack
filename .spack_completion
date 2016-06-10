@@ -2,7 +2,7 @@ _spack()
 {
     local cur prev words cword
     if [ -n "$(type -t _init_completion)" ];then
-    	_init_completion -n = || return
+	_init_completion -n = || return
 	fi
 	COMPREPLY=()
 	cur="${COMP_WORDS[COMP_CWORD]}"
@@ -14,15 +14,15 @@ _spack()
 
     case "$cur" in
     ^*)
-        COMPREPLY=( $( compgen -W '$(\ls $SPACK_ROOT/var/spack/packages | while read pack; do echo ^$pack; done)' -- "$cur" ) )
+	COMPREPLY=( $( compgen -W '$(\ls $SPACK_ROOT/var/spack/repos/builtin/packages | while read pack; do echo ^$pack; done)' -- "$cur" ) )
 	    return
 	    ;;
 	esac
     case "$prev" in
 	build)
-	    COMPREPLY=( $( compgen -W '-h -a -j -v $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    COMPREPLY=( $( compgen -W '-h -a -j -v $(\ls $SPACK_ROOT/var/spack/repos/builtin/packages)' -- "$cur" ) )
 	    return
-	    ;;    
+	    ;;
 	cd)
 	    COMPREPLY=( $( compgen -W '-h -m -r -i -p -P -s -S -b' -- "$cur" ) )
 	    return
@@ -42,7 +42,7 @@ _spack()
 	create)
 		case "$preprev" in
 		mirror)
-			COMPREPLY=( $( compgen -W '-h -d -D -f -o $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+			COMPREPLY=( $( compgen -W '-h -d -D -f -o $(\ls $SPACK_ROOT/var/spack/repos/builtin/packages)' -- "$cur" ) )
 			return
 			;;
 		*)
@@ -62,7 +62,7 @@ _spack()
 			return
 			;;
 		*)
-			COMPREPLY=( $( compgen -W '-h -f -c $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+			COMPREPLY=( $( compgen -W '-h -f -c $(\ls $SPACK_ROOT/var/spack/repos/builtin/packages)' -- "$cur" ) )
 			return
 			;;
 		esac
@@ -83,7 +83,7 @@ _spack()
 			return
 			;;
 		*)
-			COMPREPLY=( $( compgen -W '-h -p -d -l -L -u -m -M $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+			COMPREPLY=( $( compgen -W '-h -p -d -l -L -u -m -M $(\ls $SPACK_ROOT/var/spack/repos/builtin/packages)' -- "$cur" ) )
 			return
 			;;
 		esac
@@ -94,18 +94,18 @@ _spack()
 	    return
 	    ;;
    help|-h)
-   		return
-   		;;
+		return
+		;;
 	info)
-	    COMPREPLY=( $( compgen -W '$(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    COMPREPLY=( $( compgen -W '$(\ls $SPACK_ROOT/var/spack/repos/builtin/packages)' -- "$cur" ) )
 	    return
 	    ;;
 	install)
-	    COMPREPLY=( $( compgen -W '-h -i -j -n -v $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    COMPREPLY=( $( compgen -W '-h -i -j -n -v $(\ls $SPACK_ROOT/var/spack/repos/builtin/packages)' -- "$cur" ) )
 	    return
 	    ;;
 	list)
-	    COMPREPLY=( $( compgen -W '-h -i $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    COMPREPLY=( $( compgen -W '-h -i $(\ls $SPACK_ROOT/var/spack/repos/builtin/packages)' -- "$cur" ) )
 	    return
 	    ;;
 	location)
@@ -113,7 +113,7 @@ _spack()
 	    return
 	    ;;
 	load|unload)
-	    COMPREPLY=( $( compgen -W '$(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    COMPREPLY=( $( compgen -W '$(\ls $SPACK_ROOT/var/spack/repos/builtin/packages)' -- "$cur" ) )
 	    return
 	    ;;
 	mirror)
@@ -125,42 +125,42 @@ _spack()
 	    return
 	    ;;
 	patch)
-	    COMPREPLY=( $( compgen -W '-h -n $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    COMPREPLY=( $( compgen -W '-h -n $(\ls $SPACK_ROOT/var/spack/repos/builtin/packages)' -- "$cur" ) )
 	    return
 	    ;;
 	spec)
-	    COMPREPLY=( $( compgen -W '-h -i $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    COMPREPLY=( $( compgen -W '-h -i $(\ls $SPACK_ROOT/var/spack/repos/builtin/packages)' -- "$cur" ) )
 	    return
 	    ;;
 	stage)
-	    COMPREPLY=( $( compgen -W '-h -n $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    COMPREPLY=( $( compgen -W '-h -n $(\ls $SPACK_ROOT/var/spack/repos/builtin/packages)' -- "$cur" ) )
 	    return
 	    ;;
     tcl|dotkit)
 	    COMPREPLY=( $( compgen -W 'spec' -- "$cur" ) )
-    	return
-    	;;
+	return
+	;;
 	uninstall)
-	    COMPREPLY=( $( compgen -W ' -h --help -f --force -a --all $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    COMPREPLY=( $( compgen -W ' -h --help -f --force -a --all $(\ls $SPACK_ROOT/var/spack/repos/builtin/packages)' -- "$cur" ) )
 	    return
 	    ;;
 	versions)
-	    COMPREPLY=( $( compgen -W ' -h $(\ls $SPACK_ROOT/var/spack/packages)' -- "$cur" ) )
+	    COMPREPLY=( $( compgen -W ' -h $(\ls $SPACK_ROOT/var/spack/repos/builtin/packages)' -- "$cur" ) )
 	    return
 	    ;;
 	-*)
-	    COMPREPLY=($( compgen -W '$(\ls $SPACK_ROOT/var/spack/packages) ' -- "$cur" ) )
+	    COMPREPLY=($( compgen -W '$(\ls $SPACK_ROOT/var/spack/repos/builtin/packages) ' -- "$cur" ) )
 	    return
 		;;
     spack)
-	    COMPREPLY=($( compgen -W 'activate arch bootstrap build cd checksum clean compiler compilers config create deactivate dependents diy doc edit env extensions fetch find graph help info install list load location md5 mirror module package-list patch pkg 
+	    COMPREPLY=($( compgen -W 'activate arch bootstrap build cd checksum clean compiler compilers config create deactivate dependents diy doc edit env extensions fetch find graph help info install list load location md5 mirror module package-list patch pkg
 	    providers purge python reindex restage spec stage test test-install uninstall unload unuse url-parse urls use versions ' -- $cur ))
 	    return
 	    ;;
     esac
 
     if [ -n "$(type -t _filedir)" ];then
-    	_filedir
+	_filedir
 	fi
 }
 complete -F _spack spack
