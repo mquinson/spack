@@ -15,7 +15,7 @@ class Mkl(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     provides('blas')
-    provides('cbas')
+    provides('cblas')
     provides('lapack')
     provides('lapacke')
     provides('fft')
