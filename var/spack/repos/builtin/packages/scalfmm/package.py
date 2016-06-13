@@ -34,8 +34,9 @@ class Scalfmm(Package):
     depends_on("blas")
     depends_on("lapack")
     depends_on("fft", when='+fft')
-    depends_on("starpu", when='+starpu')
     depends_on("mpi", when='+mpi')
+    depends_on("starpu", when='+starpu')
+    depends_on("starpu+mpi", when='+mpi+starpu')
 
     def install(self, spec, prefix):
 
