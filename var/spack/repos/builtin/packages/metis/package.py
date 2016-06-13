@@ -108,46 +108,47 @@ class Metis(Package):
 
             ccompile(*shared_flags)
 
-        # Set up and run tests on installation
-        ccompile('-I%s' % prefix.include, '-L%s' % prefix.lib,
-                 '-Wl,-rpath=%s' % (prefix.lib if '+shared' in spec else ''),
-                 join_path('Programs', 'io.o'), join_path('Test', 'mtest.c'),
-                 '-o', '%s/mtest' % prefix.bin, '-lmetis', '-lm')
+        if not sys.platform == 'darwin':
+            # Set up and run tests on installation
+            ccompile('-I%s' % prefix.include, '-L%s' % prefix.lib,
+                     '-Wl,-rpath=%s' % (prefix.lib if '+shared' in spec else ''),
+                     join_path('Programs', 'io.o'), join_path('Test', 'mtest.c'),
+                     '-o', '%s/mtest' % prefix.bin, '-lmetis', '-lm')
 
-        test_bin = lambda testname: join_path(prefix.bin, testname)
-        test_graph = lambda graphname: join_path(prefix.share, graphname)
+            test_bin = lambda testname: join_path(prefix.bin, testname)
+            test_graph = lambda graphname: join_path(prefix.share, graphname)
 
-        graph = test_graph('4elt.graph')
-        os.system('%s %s' % (test_bin('mtest'), graph))
-        os.system('%s %s 40' % (test_bin('kmetis'), graph))
-        os.system('%s %s' % (test_bin('onmetis'), graph))
-        graph = test_graph('test.mgraph')
-        os.system('%s %s 2' % (test_bin('pmetis'), graph))
-        os.system('%s %s 2' % (test_bin('kmetis'), graph))
-        os.system('%s %s 5' % (test_bin('kmetis'), graph))
-        graph = test_graph('metis.mesh')
-        os.system('%s %s 10' % (test_bin('partnmesh'), graph))
-        os.system('%s %s 10' % (test_bin('partdmesh'), graph))
-        os.system('%s %s' % (test_bin('mesh2dual'), graph))
+            graph = test_graph('4elt.graph')
+            os.system('%s %s' % (test_bin('mtest'), graph))
+            os.system('%s %s 40' % (test_bin('kmetis'), graph))
+            os.system('%s %s' % (test_bin('onmetis'), graph))
+            graph = test_graph('test.mgraph')
+            os.system('%s %s 2' % (test_bin('pmetis'), graph))
+            os.system('%s %s 2' % (test_bin('kmetis'), graph))
+            os.system('%s %s 5' % (test_bin('kmetis'), graph))
+            graph = test_graph('metis.mesh')
+            os.system('%s %s 10' % (test_bin('partnmesh'), graph))
+            os.system('%s %s 10' % (test_bin('partdmesh'), graph))
+            os.system('%s %s' % (test_bin('mesh2dual'), graph))
 
-        # FIXME: The following code should replace the testing code in the
-        # block above since it causes installs to fail when one or more of the
-        # Metis tests fail, but it currently doesn't work because the 'mtest',
-        # 'onmetis', and 'partnmesh' tests return error codes that trigger
-        # false positives for failure.
-        """
-        Executable(test_bin('mtest'))(test_graph('4elt.graph'))
-        Executable(test_bin('kmetis'))(test_graph('4elt.graph'), '40')
-        Executable(test_bin('onmetis'))(test_graph('4elt.graph'))
+            # FIXME: The following code should replace the testing code in the
+            # block above since it causes installs to fail when one or more of the
+            # Metis tests fail, but it currently doesn't work because the 'mtest',
+            # 'onmetis', and 'partnmesh' tests return error codes that trigger
+            # false positives for failure.
+            """
+            Executable(test_bin('mtest'))(test_graph('4elt.graph'))
+            Executable(test_bin('kmetis'))(test_graph('4elt.graph'), '40')
+            Executable(test_bin('onmetis'))(test_graph('4elt.graph'))
 
-        Executable(test_bin('pmetis'))(test_graph('test.mgraph'), '2')
-        Executable(test_bin('kmetis'))(test_graph('test.mgraph'), '2')
-        Executable(test_bin('kmetis'))(test_graph('test.mgraph'), '5')
+            Executable(test_bin('pmetis'))(test_graph('test.mgraph'), '2')
+            Executable(test_bin('kmetis'))(test_graph('test.mgraph'), '2')
+            Executable(test_bin('kmetis'))(test_graph('test.mgraph'), '5')
 
-        Executable(test_bin('partnmesh'))(test_graph('metis.mesh'), '10')
-        Executable(test_bin('partdmesh'))(test_graph('metis.mesh'), '10')
-        Executable(test_bin('mesh2dual'))(test_graph('metis.mesh'))
-        """
+            Executable(test_bin('partnmesh'))(test_graph('metis.mesh'), '10')
+            Executable(test_bin('partdmesh'))(test_graph('metis.mesh'), '10')
+            Executable(test_bin('mesh2dual'))(test_graph('metis.mesh'))
+            """
 
     @when('@5:')
     def install(self, spec, prefix):
