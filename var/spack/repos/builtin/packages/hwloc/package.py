@@ -61,7 +61,7 @@ class Hwloc(Package):
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
-    depends_on('libpciaccess')
+    #depends_on('libpciaccess')
 
     def url_for_version(self, version):
         return "http://www.open-mpi.org/software/hwloc/v%s/downloads/hwloc-%s.tar.gz" % (version.up_to(2), version)
