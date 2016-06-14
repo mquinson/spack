@@ -254,26 +254,26 @@ class Mumps(Package):
             # be aware that it must come after the actual MPI library during the link phase
             spec.fc_link  += ' -lmpiseq'
         ## mumps dependencies
-        if spec.satisfies('+metis'):
-            # metis
-            spec.fc_link += ' '+spec['metis'].cc_link
-        if spec.satisfies('+parmetis'):
-            # parmetis
-            spec.fc_link += ' '+spec['parmetis'].cc_link
-        if spec.satisfies('+scotch'):
-            # scotch and ptscotch
-            spec.fc_link += ' '+spec['scotch'].cc_link
-        # scalapack, blacs
-        spec.fc_link += ' %s %s' % (spec['scalapack'].cc_link, spec['blacs'].cc_link)
-        if spec.satisfies('+blasmt'):
-            # lapack and blas
-            if '^mkl' in spec or '^essl' in spec:
-                spec.fc_link += ' %s' % spec['lapack'].fc_link_mt
-            else:
-                spec.fc_link += ' %s' % spec['lapack'].fc_link
-            spec.fc_link += ' %s' % spec['blas'].fc_link_mt
-        else:
-            spec.fc_link += ' %s %s' % (spec['lapack'].fc_link, spec['blas'].fc_link)
+#         if spec.satisfies('+metis'):
+#             # metis
+#             spec.fc_link += ' '+spec['metis'].cc_link
+#         if spec.satisfies('+parmetis'):
+#             # parmetis
+#             spec.fc_link += ' '+spec['parmetis'].cc_link
+#         if spec.satisfies('+scotch'):
+#             # scotch and ptscotch
+#             spec.fc_link += ' '+spec['scotch'].cc_link
+#         # scalapack, blacs
+#         spec.fc_link += ' %s %s' % (spec['scalapack'].cc_link, spec['blacs'].cc_link)
+#         if spec.satisfies('+blasmt'):
+#             # lapack and blas
+#             if '^mkl' in spec or '^essl' in spec:
+#                 spec.fc_link += ' %s' % spec['lapack'].fc_link_mt
+#             else:
+#                 spec.fc_link += ' %s' % spec['lapack'].fc_link
+#             spec.fc_link += ' %s' % spec['blas'].fc_link_mt
+#         else:
+#             spec.fc_link += ' %s %s' % (spec['lapack'].fc_link, spec['blas'].fc_link)
 
         # there is a bug with the hash calculation of mumps
         spec.mumpsprefix=spec.prefix

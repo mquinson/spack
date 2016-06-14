@@ -72,6 +72,27 @@ class Maphys(Package):
         if spec.satisfies('+mumps'):
             mumps = spec['mumps'].mumpsprefix
             mumps_libs = spec['mumps'].fc_link
+            if spec.satisfies('^mumps+metis'):
+                # metis
+                mumps_libs += ' '+spec['metis'].cc_link
+            if spec.satisfies('^mumps+parmetis'):
+                # parmetis
+                mumps_libs += ' '+spec['parmetis'].cc_link
+            if spec.satisfies('^mumps+scotch'):
+                # scotch and ptscotch
+                mumps_libs += ' '+spec['scotch'].cc_link
+            if spec.satisfies('^mumps+mpi'):
+                # scalapack, blacs
+                mumps_libs += ' %s %s' % (spec['scalapack'].cc_link, spec['blacs'].cc_link)
+            if spec.satisfies('^mumps+blasmt'):
+                # lapack and blas
+                if '^mkl' in spec or '^essl' in spec:
+                    mumps_libs += ' %s' % spec['lapack'].fc_link_mt
+                else:
+                    mumps_libs += ' %s' % spec['lapack'].fc_link
+                mumps_libs += ' %s' % spec['blas'].fc_link_mt
+            else:
+                mumps_libs += ' %s %s' % (spec['lapack'].fc_link, spec['blas'].fc_link)
             mf.filter('^MUMPS_prefix  :=.*',
                       'MUMPS_prefix  := %s' % mumps)
             mf.filter('^MUMPS_LIBS :=.*',
