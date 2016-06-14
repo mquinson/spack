@@ -148,7 +148,7 @@ class Pastix(Package):
                 mf.filter('^MPCCPROG    =.*', 'MPCCPROG    = %s\nMPCXXPROG   = %s'%(mpicc, mpicxx))
             mf.filter('^MCFPROG     =.*', 'MCFPROG     = %s' % mpif90)
             mf.filter('MPCXXPROG   = mpic\+\+ -Wall', '')
-            if spec.satisfies('^simgrid'):
+            if '^simgrid' in spec:
                 mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) -DPASTIX_FUNNELED', 'CCPASTIX   := $(CCPASTIX) -DPASTIX_SINGLE')
         else:
             mf.filter('^#VERSIONMPI  = _nompi', 'VERSIONMPI  = _nompi')

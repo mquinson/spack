@@ -72,7 +72,7 @@ class Scotch(Package):
                     'CCP       = %s' % os.path.join(self.spec['mpi'].prefix.bin, '%s' % mpicc),
                     ])
 
-            if self.spec.satisfies("^simgrid"):
+            if "^simgrid" in self.spec:
                 makefile_inc.extend([
                     'CCD       = cc -I'+self.spec['simgrid'].prefix+'/include/smpi'
                     ])
