@@ -88,3 +88,17 @@ class Cmake(Package):
         configure(*options)
         make()
         make('install')
+
+    # to use the existing version available in the environment: CMAKE_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        os.chdir(self.get_env_dir(self.name.upper()+'_DIR'))
+        if os.getenv('CMAKE_DIR'):
+            cmakeroot=os.environ['CMAKE_DIR']
+            if os.path.isdir(cmakeroot):
+                os.symlink(cmakeroot+"/bin", prefix.bin)
+                os.symlink(cmakeroot+"/share", prefix.share)
+            else:
+                sys.exit(cmakeroot+' directory does not exist.'+' Do you really have openmpi installed in '+cmakeroot+' ?')
+        else:
+            sys.exit('CMAKE_DIR is not set, you must set this environment variable to the installation path of your cmake')
