@@ -23,6 +23,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ##############################################################################
 from spack import *
+import os
+import spack
 
 class Cmake(Package):
     """A cross-platform, open-source build system. CMake is a family of
