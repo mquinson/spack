@@ -38,6 +38,10 @@ class Cmake(Package):
     version('3.3.1',    '52638576f4e1e621fed6c3410d3a1b12')
     version('3.0.2',    'db4c687a31444a929d2fdc36c4dfb95f')
     version('2.8.10.2', '097278785da7182ec0aea8769d06860c')
+    pkg_dir = spack.repo.dirname_for_package_name("fake")
+    # fake tarball because we consider it is already installed
+    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
+            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
     variant('ncurses', default=False, description='Enables the build of the ncurses gui')
     variant('openssl', default=False, description="Enables CMake's OpenSSL features")
