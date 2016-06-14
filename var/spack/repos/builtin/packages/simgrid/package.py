@@ -27,7 +27,7 @@ class Simgrid(Package):
 
     depends_on('cmake')
 
-    provides('mpi@simu', when='+smpi')
+    #provides('mpi@simu', when='+smpi')
 
     def build(self, spec, prefix):
         make()
