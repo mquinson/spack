@@ -26,7 +26,7 @@ class Fxt(Package):
 
     def install(self, spec, prefix):
 
-        if spec.satisfies("arch=ppc64"):
+        if spec.satisfies("arch=linux-ppc64le"):
             pkg_dir = spack.repo.dirname_for_package_name("fxt")
             call(["cp", pkg_dir+"/config.guess", "."])
 
