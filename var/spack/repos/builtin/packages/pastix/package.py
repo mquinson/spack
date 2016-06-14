@@ -66,17 +66,17 @@ class Pastix(Package):
         # versions the line exists, and we can filter it, and in some
         # versions it does not
         if spec.satisfies('^starpu@1.2:') or spec.satisfies('^starpu@svn-trunk'):
-            mf.filter('CCPROG      = gcc', 'CCPROG      = cc -Wall -DSTARPU_1_2\nCXXPROG     = c++')
+            mf.filter('CCPROG      = gcc', 'CCPROG      = cc -Wall -DSTARPU_1_2\nCXXPROG     = cxx')
         else:
-            mf.filter('CCPROG      = gcc', 'CCPROG      = cc -Wall \nCXXPROG     = c++')
+            mf.filter('CCPROG      = gcc', 'CCPROG      = cc -Wall \nCXXPROG     = cxx')
 
-        mf.filter('CXXPROG     = g\+\+', 'CXXPROG     = c++')
+        mf.filter('CXXPROG     = g\+\+', 'CXXPROG     = cxx')
         mf.filter('CFPROG      = gfortran', 'CFPROG      = f77')
         mf.filter('CF90PROG    = gfortran', 'CF90PROG    = f90')
 
         if spec.satisfies('%xl'):
             mf.filter('CCPROG      = cc -Wall', 'CCPROG      = cc -O2 -fPIC -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=pwr8')
-            mf.filter('CXXPROG     = c\+\+', 'CXXPROG     = c++ -O2 -qsmp -fPIC  -qlanglvl=extended -qarch=auto -qhot -qtune=pwr8')
+            mf.filter('CXXPROG     = c\+\+', 'CXXPROG     = cxx -O2 -qsmp -fPIC  -qlanglvl=extended -qarch=auto -qhot -qtune=pwr8')
             mf.filter('CFPROG      = f77', 'CFPROG      = f77 -O2 -fPIC -qsmp -qextname -qhot -qtune=pwr8')
             mf.filter('CF90PROG    = fc', 'CF90PROG    = fc -O2 -qsmp -qextname -fPIC -qlanglvl=extended -qarch=auto -qhot -qtune=pwr8  -qlanglvl=90std')
 

@@ -44,7 +44,7 @@ class Magma(Package):
         mf = FileFilter('make.inc')
 
         mf.filter('CC        = gcc',      'CC        = cc')
-        mf.filter('CXX       = g\+\+',    'CXX       = c++')
+        mf.filter('CXX       = g\+\+',    'CXX       = cxx')
         mf.filter('FORT      = gfortran', 'FORT      = f90')
 
         if spec.satisfies("+debug"):
