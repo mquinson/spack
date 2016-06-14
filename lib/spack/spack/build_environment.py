@@ -161,27 +161,6 @@ def set_build_environment_variables(pkg, env):
     """
     This ensures a clean install environment when we build packages
     """
-    # Add spack build environment path with compiler wrappers first in
-    # the path. We add both spack.env_path, which includes default
-    # wrappers (cc, c++, f77, f90), AND a subdirectory containing
-    # compiler-specific symlinks.  The latter ensures that builds that
-    # are sensitive to the *name* of the compiler see the right name
-    # when we're building with the wrappers.
-    #
-    # Conflicts on case-insensitive systems (like "CC" and "cc") are
-    # handled by putting one in the <build_env_path>/case-insensitive
-    # directory.  Add that to the path too.
-    env_paths = []
-    for item in [spack.build_env_path, join_path(spack.build_env_path, pkg.compiler.name)]:
-        env_paths.append(item)
-        ci = join_path(item, 'case-insensitive')
-        if os.path.isdir(ci):
-            env_paths.append(ci)
-
-    for item in reversed(env_paths):
-        env.prepend_path('PATH', item)
-    env.set_path(SPACK_ENV_PATH, env_paths)
-
     # Prefixes of all of the package's dependencies go in SPACK_DEPENDENCIES
     dep_prefixes = [d.prefix for d in pkg.spec.traverse(root=False)]
     env.set_path(SPACK_DEPENDENCIES, dep_prefixes)
@@ -204,6 +183,27 @@ def set_build_environment_variables(pkg, env):
     bin_dirs = reversed(filter(os.path.isdir, ['%s/bin' % prefix for prefix in dep_prefixes]))
     for item in bin_dirs:
         env.prepend_path('PATH', item)
+
+    # Add spack build environment path with compiler wrappers first in
+    # the path. We add both spack.env_path, which includes default
+    # wrappers (cc, c++, f77, f90), AND a subdirectory containing
+    # compiler-specific symlinks.  The latter ensures that builds that
+    # are sensitive to the *name* of the compiler see the right name
+    # when we're building with the wrappers.
+    #
+    # Conflicts on case-insensitive systems (like "CC" and "cc") are
+    # handled by putting one in the <build_env_path>/case-insensitive
+    # directory.  Add that to the path too.
+    env_paths = []
+    for item in [spack.build_env_path, join_path(spack.build_env_path, pkg.compiler.name)]:
+        env_paths.append(item)
+        ci = join_path(item, 'case-insensitive')
+        if os.path.isdir(ci):
+            env_paths.append(ci)
+
+    for item in reversed(env_paths):
+        env.prepend_path('PATH', item)
+    env.set_path(SPACK_ENV_PATH, env_paths)
 
     # Working directory for the spack command itself, for debug logs.
     if spack.debug:
