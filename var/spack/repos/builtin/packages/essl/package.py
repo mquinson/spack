@@ -78,15 +78,15 @@ class Essl(Package):
 
     def setup_dependent_package(self, module, dep_spec):
         """Dependencies of this package will get the link for essl."""
-
+        spec = self.spec
         if spec.satisfies('@exist'):
             netlib_lapack_libs = ""
         else:
             # set netlib-lapack lib
             if os.path.isdir(spec.prefix.lib64):
-                libdir = self.spec.prefix+"/lib64"
+                libdir = spec.prefix+"/lib64"
             else:
-                libdir = self.spec.prefix+"/lib"
+                libdir = spec.prefix+"/lib"
             netlib_lapack_libs = "-L%s -llapack -lblas" % libdir
 
         # set essl lib
@@ -94,9 +94,9 @@ class Essl(Package):
         xlfroot=os.environ['XLFROOT']
         xlsmproot=os.environ['XLSMPROOT']
         if os.path.isdir(esslroot) and os.path.isdir(xlfroot) and os.path.isdir(xlsmproot):
-            self.spec.cc_link_mt = "-L%s -R%s -lesslsmp -L%s -lxlsmp -L%s -lxlfmath -lxlf90 -lxlf90_r %s -lesslsmp -lxlsmp -lxlfmath -lxlf90 -lxlf90_r" %(esslroot,esslroot,xlsmproot,xlfroot,netlib_lapack_libs)
-            self.spec.cc_link    = "-L%s -R%s -lessl -L%s -lxlsmp -L%s -lxlfmath -lxlf90 -lxlf90_r %s -lxlfmath -lxlf90 -lxlf90_r" % (esslroot,esslroot,xlsmproot,xlfroot,netlib_lapack_libs)
-            self.spec.fc_link_mt = self.spec.cc_link_mt
-            self.spec.fc_link    = self.spec.cc_link
+            spec.cc_link_mt = "-L%s -R%s -lesslsmp -L%s -lxlsmp -L%s -lxlfmath -lxlf90 -lxlf90_r %s -lesslsmp -lxlsmp -lxlfmath -lxlf90 -lxlf90_r" %(esslroot,esslroot,xlsmproot,xlfroot,netlib_lapack_libs)
+            spec.cc_link    = "-L%s -R%s -lessl -L%s -lxlsmp -L%s -lxlfmath -lxlf90 -lxlf90_r %s -lxlfmath -lxlf90 -lxlf90_r" % (esslroot,esslroot,xlsmproot,xlfroot,netlib_lapack_libs)
+            spec.fc_link_mt = spec.cc_link_mt
+            spec.fc_link    = spec.cc_link
         else:
             raise RuntimeError('ESSLROOT or XLFROOT or XLSMPROOT environment variable does not exist. Please set ESSLROOT and XLFROOT and XLSMPROOT, where lies libessl and libxlf90 and xlsmp, to use the ESSL')
