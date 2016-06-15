@@ -30,11 +30,16 @@ class Essl(Package):
     depends_on('cmake')
 
 
-    # Null literal string is not permitted with xlf
     def patch_xlf(self):
-
+        # Null literal string is not permitted with xlf
         mf = FileFilter('SRC/xerbla_array.f')
         mf.filter('SRNAME = \'\'', 'SRNAME = \' \'')
+        # ETIME_ results to an etime__ undefined symbols because of the -qextname flag
+        mf = FileFilter('INSTALL/second_EXT_ETIME_.f')
+        mf.filter('T1 = ETIME_', 'T1 = ETIME')
+        mf = FileFilter('./INSTALL/dsecnd_EXT_ETIME_.f')
+        mf.filter('T1 = ETIME_', 'T1 = ETIME')
+
 
     def install(self, spec, prefix):
 
@@ -56,7 +61,7 @@ class Essl(Package):
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
         cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
         if spec.satisfies("%xl"):
-            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
+            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto -qextname"])
 
         cmake(*cmake_args)
         make()
