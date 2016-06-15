@@ -43,7 +43,7 @@ class NetlibCblas(Package):
         mf.filter('CMAKE/','cmake/')
         if spec.satisfies('%xl'):
             # patch to fix mangling with xl compiler, detection is not working
-            mf.filter('#ADD_DEFINITIONS\( \"-D\$\{CDEFS\}\"\)','ADD_DEFINITIONS(-DNOCHANGE)')
+            mf.filter('#ADD_DEFINITIONS\( \"-D\$\{CDEFS\}\"\)','ADD_DEFINITIONS(-DADD_)')
 
         # Disable the building of lapack in CMakeLists.txt
         mf = FileFilter('CMakeLists.txt')
@@ -70,6 +70,9 @@ class NetlibCblas(Package):
             cmake_args.append('-DBUILD_STATIC_LIBS=OFF')
             if platform.system() == 'Darwin':
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
+
+        if spec.satisfies("%xl"):
+            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-qextname"])
 
         cmake(*cmake_args)
         shutil.copy('CBLAS/include/cblas_mangling_with_flags.h', 'CBLAS/include/cblas_mangling.h')

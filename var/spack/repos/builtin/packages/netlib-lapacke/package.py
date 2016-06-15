@@ -58,7 +58,7 @@ class NetlibLapacke(Package):
         if spec.satisfies('%xl'):
             mf = FileFilter('LAPACKE/CMakeLists.txt')
             # patch to fix mangling with xl compiler, detection is not working
-            mf.filter('#ADD_DEFINITIONS\( \"-D\$\{CDEFS\}\"\)','ADD_DEFINITIONS(-DNOCHANGE)')
+            mf.filter('#ADD_DEFINITIONS\( \"-D\$\{CDEFS\}\"\)','ADD_DEFINITIONS(-DADD_)')
 
         # cmake configure
         cmake_args = ["."]
@@ -89,6 +89,9 @@ class NetlibLapacke(Package):
             if platform.system() == 'Darwin':
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
         cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
+
+        if spec.satisfies("%xl"):
+            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-qextname"])
 
         cmake(*cmake_args)
         # cp LAPACKE/include/lapacke_mangling_with_flags.h LAPACKE/include/lapacke_mangling.h
