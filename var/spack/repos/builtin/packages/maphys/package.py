@@ -30,7 +30,8 @@ class Maphys(Package):
 
     depends_on("mpi")
     depends_on("hwloc")
-    depends_on("scotch+esmumps")
+    depends_on("scotch~esmumps", when='~mumps')
+    depends_on("scotch+esmumps", when='+mumps')
     depends_on("blas")
     depends_on("lapack")
     depends_on("pastix+mpi", when='+pastix')
