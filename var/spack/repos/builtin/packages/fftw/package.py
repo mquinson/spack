@@ -101,12 +101,13 @@ class Fftw(Package):
 
     def setup_dependent_package(self, module, dep_spec):
         """Dependencies of this package will get the link for fftw."""
-        self.spec.cc_link="-L%s -lfftw3" % self.spec.prefix.lib
+        spec = self.spec
+        spec.cc_link="-L%s -lfftw3" % spec.prefix.lib
         if spec.satisfies('+float'):
-            self.spec.cc_link+=" -lfftw3f"
+            spec.cc_link+=" -lfftw3f"
         elif spec.satisfies('+long_double'):
-            self.spec.cc_link+=" -lfftw3l"
+            spec.cc_link+=" -lfftw3l"
         elif spec.satisfies('+quad'):
-            self.spec.cc_link+=" -lfftw3q -lquadmath"
-        self.spec.cc_link+=" -lm"
-        self.spec.fc_link=self.spec.cc_link
+            spec.cc_link+=" -lfftw3q -lquadmath"
+        spec.cc_link+=" -lm"
+        spec.fc_link=spec.cc_link
