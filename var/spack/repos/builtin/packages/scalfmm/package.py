@@ -79,18 +79,20 @@ class Scalfmm(Package):
             #     # Disable BLAS here.
             #     cmake_args.extend(["-DSCALFMM_USE_BLAS=OFF"])
 
-            if '^mkl-blas' in spec or '^mkl-lapack' in spec or '^mkl-fft' in spec:
+            if '^mkl' in spec:
                 cmake_args.extend(["-DSCALFMM_USE_MKL=ON"])
-            if '^mkl-blas' in spec or '^mkl-lapack' in spec:
                 cmake_args.extend(["-DSCALFMM_USE_MKL_AS_BLAS=ON"])
-            if '^mkl-fft' in spec:
                 cmake_args.extend(["-DSCALFMM_USE_MKL_AS_FFTW=ON"])
+            if '^essl' in spec:
+                    cmake_args.extend(["-DSCALFMM_USE_ESSL_AS_BLAS=ON"])
 
             if spec.satisfies('+fft'):
                 # Enable FFT here.
                 fft = spec['fft'].prefix
                 cmake_args.extend(["-DSCALFMM_USE_FFT=ON"])
                 cmake_args.extend(["-DFFTW_DIR=%s" % fft])
+                if '^essl' in spec:
+                    cmake_args.extend(["-DSCALFMM_USE_ESSL_AS_FFTW=ON"])
             else:
                 # Disable FFTW here.
                 cmake_args.extend(["-DSCALFMM_USE_FFT=OFF"])
