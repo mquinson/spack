@@ -14,6 +14,7 @@ class Chameleon(Package):
     version('trunk', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/chameleon')
     version('clusters', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/chameleon-clusters')
     version('external-prio', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/chameleon-external-prio')
+    version('twosided', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/twosided')
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
