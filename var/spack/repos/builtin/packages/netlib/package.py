@@ -4,9 +4,9 @@ import platform
 import spack
 import shutil
 
-class NetlibLapacke(Package):
+class Netlib(Package):
     """
-    LAPACK version 3.X is a comprehensive FORTRAN library that does
+    BLAS/LAPACK version 3.X is a comprehensive FORTRAN library that does
     linear algebra operations including matrix inversions, least
     squared solutions to linear sets of equations, eigenvector
     analysis, singular value decomposition, etc. It is a very
@@ -37,28 +37,45 @@ class NetlibLapacke(Package):
     variant('shared', default=True, description="Build shared library version")
 
     # virtual dependency
+    provides('blas')
+    provides('lapack')
+    provides('tmglib')
+    provides('cblas')
     provides('lapacke')
-
-    # blas is a virtual dependency.
-    depends_on('blas')
-    depends_on('lapack')
 
     depends_on('cmake')
 
     # Doesn't always build correctly in parallel
-    #parallel = False
+    parallel = False
+
+    # Null literal string is not permitted with xlf
+    def patch_xlf(self):
+
+        # xl does not accept empty strings
+        mf = FileFilter('SRC/xerbla_array.f')
+        mf.filter('SRNAME = \'\'', 'SRNAME = \' \'')
+        mf = FileFilter('BLAS/SRC/xerbla_array.f')
+        mf.filter('SRNAME = \'\'', 'SRNAME = \' \'')
+
+        # fix mangling with xl compiler, detection is not working
+        mf = FileFilter('CBLAS/CMakeLists.txt')
+        mf.filter('#ADD_DEFINITIONS\( \"-D\$\{CDEFS\}\"\)','ADD_DEFINITIONS(-DADD_)')
+        mf = FileFilter('LAPACKE/CMakeLists.txt')
+        mf.filter('#ADD_DEFINITIONS\( \"-D\$\{CDEFS\}\"\)','ADD_DEFINITIONS(-DADD_)')
+
 
     def install(self, spec, prefix):
 
+        if spec.satisfies('%xl'):
+            self.patch_xlf()
+
+        # patch to fix path to cblas cmake modules
+        mf = FileFilter('CBLAS/CMakeLists.txt')
+        mf.filter('CMAKE/','cmake/')
         # some lapack vendors do not provide geqrt so that we should
         # try another symbol to find lapack
         mf = FileFilter('CMakeLists.txt')
         mf.filter('dgeqrt', 'dgeqrf')
-
-        if spec.satisfies('%xl'):
-            mf = FileFilter('LAPACKE/CMakeLists.txt')
-            # patch to fix mangling with xl compiler, detection is not working
-            mf.filter('#ADD_DEFINITIONS\( \"-D\$\{CDEFS\}\"\)','ADD_DEFINITIONS(-DADD_)')
 
         # cmake configure
         cmake_args = ["."]
@@ -69,19 +86,11 @@ class NetlibLapacke(Package):
             "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
             "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
 
-        blas_libs = spec['blas'].cc_link
-        blas_libs = blas_libs.replace(' ', ';')
-        cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
-
-        lapack_libs = spec['lapack'].cc_link
-        lapack_libs = lapack_libs.replace(' ', ';')
-        cmake_args.extend(['-DLAPACK_LIBRARIES=%s;%s' % (lapack_libs,blas_libs)])
-
+        # Enable cblas here.
+        cmake_args.append('-DCBLAS=ON')
         # Enable lapacke here.
         cmake_args.extend(["-DLAPACKE=ON"])
         cmake_args.extend(["-DLAPACKE_WITH_TMG=ON"])
-        # indicate that lapack must not be built but found thanks to find_package
-        cmake_args.extend(["-DUSE_OPTIMIZED_LAPACK=ON"])
 
         if spec.satisfies('+shared'):
             cmake_args.append('-DBUILD_SHARED_LIBS=ON')
@@ -115,5 +124,5 @@ class NetlibLapacke(Package):
 
     def setup_dependent_package(self, module, dep_spec):
         """Dependencies of this package will get the link for netlib-lapacke."""
-        self.spec.cc_link="-L%s -llapacke" % self.spec.prefix.lib
+        self.spec.cc_link="-L%s -llapacke -llapack -ltmglib -lcblas -lblas" % self.spec.prefix.lib
         self.spec.fc_link=self.spec.cc_link

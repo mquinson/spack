@@ -30,6 +30,7 @@ class Fxt(Package):
             pkg_dir = spack.repo.dirname_for_package_name("fxt")
             call(["cp", pkg_dir+"/config.guess", "."])
 
+        os.environ["CFLAGS"] = "-fPIC"
         configure("--prefix=%s" % prefix)
 
         # it seems that this patch is required after configure

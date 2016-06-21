@@ -56,10 +56,10 @@ class Magma(Package):
             mf.filter('^F90FLAGS.*', 'F90FLAGS = -O3 $(FPIC) -DADD_ -warn all -warn nounused')
             mf.filter('^LDFLAGS.*',  'LDFLAGS  =     $(FPIC) -openmp')
         elif spec.satisfies("%xl"):
-            mf.filter('^CFLAGS.*',    'CFLAGS    = -O3 -qpic -DNOCHANGE')
-            mf.filter('^FFLAGS.*',    'FFLAGS    = -O3 -qpic -WF,-DNOCHANGE')
-            mf.filter('^F90FLAGS.*',  'F90FLAGS  = -O3 -qpic -WF,-DNOCHANGE')
-            mf.filter('^NVCCFLAGS.*', 'NVCCFLAGS = -O3 -DNOCHANGE -Xcompiler \"-fno-strict-aliasing $(FPIC)\"')
+            mf.filter('^CFLAGS.*',    'CFLAGS    = -O3 -qpic -DADD_')
+            mf.filter('^FFLAGS.*',    'FFLAGS    = -O3 -qpic -qextname -WF,-DADD_')
+            mf.filter('^F90FLAGS.*',  'F90FLAGS  = -O3 -qpic -qextname -WF,-DADD_')
+            mf.filter('^NVCCFLAGS.*', 'NVCCFLAGS = -O3 -DADD_ -Xcompiler \"-fno-strict-aliasing $(FPIC)\"')
             mf.filter('^LDFLAGS.*',  'LDFLAGS  =')
 
 

@@ -14,6 +14,7 @@ class Chameleon(Package):
     version('trunk', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/chameleon')
     version('clusters', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/chameleon-clusters')
     version('external-prio', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/chameleon-external-prio')
+    version('twosided', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/twosided')
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
@@ -60,8 +61,7 @@ class Chameleon(Package):
                 "-Wno-dev",
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
-            if spec.satisfies("%xl"):
-                cmake_args.extend(["-DCMAKE_C_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
+
             if spec.satisfies('+shared'):
                 # Enable build shared libs.
                 cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
@@ -131,6 +131,10 @@ class Chameleon(Package):
                 cmake_args.extend(['-DTMG_DIR=%s' % lapack.prefix])
                 if spec.satisfies('%gcc'):
                     os.environ["LDFLAGS"] = "-lgfortran"
+
+            if spec.satisfies("%xl"):
+                cmake_args.extend(["-DCMAKE_C_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
+                cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto -qextname"])
 
             cmake(*cmake_args)
             make()

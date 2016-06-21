@@ -18,7 +18,7 @@ class QrMumps(Package):
 
     variant('debug', default=False, description='Enable debug symbols')
     variant('colamd', default=True, description='Enable COLAMD ordering')
-    variant('metis', default=True, description='Enable Metis ordering')
+    variant('metis', default=False, description='Enable Metis ordering')
     variant('scotch', default=True, description='Enable Scotch ordering')
     variant('starpu', default=True, description='Enable StarPU runtime system support')
     variant('fxt', default=False, description='Enable FxT tracing support to be used through StarPU')
@@ -30,7 +30,7 @@ class QrMumps(Package):
     # optional dependencies
     depends_on("metis", when='+metis')
     depends_on("scotch", when='+scotch')
-    depends_on("colamd", when='+colamd') # for COLAMD
+    depends_on("colamd", when='+colamd')
     depends_on("starpu", when='+starpu')
     depends_on("fxt", when='+fxt')
     depends_on("starpu+fxt", when='+fxt')
@@ -40,6 +40,11 @@ class QrMumps(Package):
 
     def setup(self):
         spec = self.spec
+
+        if spec.satisfies('+metis') and spec.satisfies('+scotch'):
+            raise RuntimeError('You cannot use Metis and Scotch at the same'
+             ' time because they are incompatible (Scotch provides a metis.h'
+             ' which is not the same as the one providen by Metis)')
 
         copyfile('makeincs/Make.inc.gnu', 'makeincs/Make.inc.spack')
         mf = FileFilter('makeincs/Make.inc.spack')
@@ -86,13 +91,13 @@ class QrMumps(Package):
         if spec.satisfies('+debug'):
             optf += ' -g'
             optc += ' -g'
-        if '^mkl-blas' in spec or '^mkl-lapack' in spec:
+        if '^mkl' in spec:
             optf+= ' -m64 -I${MKLROOT}/include'
             optc+= ' -m64 -I${MKLROOT}/include'
         if spec.satisfies("%intel"):
             # The ifort default runtime is not thread safe. Adding the
             # -qopenmp flag ensures that thread-safe code is generated
-            # and a thread-safe runtime is linked 
+            # and a thread-safe runtime is linked
             mf.filter('^LDFLAGS.*', 'LDFLAGS = $(FCFLAGS) -nofor_main -openmp')
             optf = 'FCFLAGS  = -O3 -fPIC -openmp'
             optc = 'CFLAGS   = -O3 -fPIC'

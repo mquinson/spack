@@ -17,6 +17,7 @@ class Mkl(Package):
     provides('blas')
     provides('cblas')
     provides('lapack')
+    provides('tmglib')
     provides('lapacke')
     provides('fft')
 

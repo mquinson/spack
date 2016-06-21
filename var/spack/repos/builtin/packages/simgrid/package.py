@@ -27,14 +27,14 @@ class Simgrid(Package):
 
     depends_on('cmake')
 
-    #provides('mpi@simu', when='+smpi')
+    provides('mpi@simu', when='+smpi')
 
     def build(self, spec, prefix):
         make()
         make("install")
 
     def setup_dependent_package(self, module, dep_spec):
-        if spec.satisfies('+smpi'):
+        if self.spec.satisfies('+smpi'):
             self.spec.mpicc  = join_path(self.prefix.bin, 'smpicc')
             self.spec.mpicxx = join_path(self.prefix.bin, 'smpicxx -std=c++11')
             self.spec.mpifc  = join_path(self.prefix.bin, 'smpif90')

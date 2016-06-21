@@ -53,15 +53,16 @@ class Scalfmm(Package):
                 cmake_args+=["-DBUILD_SHARED_LIBS=ON"]
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DSCALFMM_BUILD_EXAMPLES=ON"])
+                cmake_args.extend(["-DSCALFMM_BUILD_TESTS=ON"])
                 cmake_args.extend(["-DSCALFMM_INSTALL_DATA=ON"])
             else:
                 cmake_args.extend(["-DSCALFMM_BUILD_EXAMPLES=OFF"])
+                cmake_args.extend(["-DSCALFMM_BUILD_TESTS=OFF"])
             if spec.satisfies('+tests'):
-                cmake_args.extend(["-DSCALFMM_BUILD_TESTS=ON"])
                 cmake_args.extend(["-DSCALFMM_BUILD_UTESTS=ON"])
                 cmake_args.extend(["-DSCALFMM_INSTALL_DATA=ON"])
             else:
-                cmake_args.extend(["-DSCALFMM_BUILD_TESTS=OFF"])
+                cmake_args.extend(["-DSCALFMM_BUILD_UTESTS=OFF"])
 
             if spec.satisfies('+debug'):
                 cmake_args.extend(["-DSCALFMM_BUILD_DEBUG=ON"])
@@ -70,30 +71,39 @@ class Scalfmm(Package):
                 # Disable SSE  here.
                 cmake_args.extend(["-DSCALFMM_USE_SSE=OFF"])
 
+
+            # BLAS config
             cmake_args.extend(["-DSCALFMM_USE_BLAS=ON"])
-            # if spec.satisfies('+blas'):
-            #     # Enable BLAS here.
-            #     cmake_args.extend(["-DSCALFMM_USE_BLAS=ON"])
-            # else:
-            #     # Disable BLAS here.
-            #     cmake_args.extend(["-DSCALFMM_USE_BLAS=OFF"])
-
-            if '^mkl-blas' in spec or '^mkl-lapack' in spec or '^mkl-fft' in spec:
+            if '^mkl' in spec:
                 cmake_args.extend(["-DSCALFMM_USE_MKL=ON"])
-            if '^mkl-blas' in spec or '^mkl-lapack' in spec:
                 cmake_args.extend(["-DSCALFMM_USE_MKL_AS_BLAS=ON"])
-            if '^mkl-fft' in spec:
-                cmake_args.extend(["-DSCALFMM_USE_MKL_AS_FFTW=ON"])
+            if '^essl' in spec:
+                    cmake_args.extend(["-DSCALFMM_USE_ESSL_AS_BLAS=ON"])
 
+            blas_libs = spec['blas'].cc_link
+            blas_libs = blas_libs.replace(' ', ';')
+            cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
+            lapack_libs = spec['lapack'].cc_link
+            lapack_libs = lapack_libs.replace(' ', ';')
+            cmake_args.extend(['-DLAPACK_LIBRARIES=%s' % lapack_libs])
+            if spec.satisfies('%gcc'):
+                os.environ["LDFLAGS"] = "-lgfortran"
+
+            # FFTW config
             if spec.satisfies('+fft'):
                 # Enable FFT here.
-                fft = spec['fft'].prefix
                 cmake_args.extend(["-DSCALFMM_USE_FFT=ON"])
+                fft = spec['fft'].prefix
                 cmake_args.extend(["-DFFTW_DIR=%s" % fft])
+                if '^essl_fftw' in spec:
+                    cmake_args.extend(["-DSCALFMM_USE_ESSL_AS_FFTW=ON"])
+                elif '^mkl' in spec:
+                    cmake_args.extend(["-DSCALFMM_USE_MKL_AS_FFTW=ON"])
             else:
                 # Disable FFTW here.
                 cmake_args.extend(["-DSCALFMM_USE_FFT=OFF"])
 
+            # StarPU config
             if spec.satisfies('+starpu'):
                 # Enable STARPU here.
                 cmake_args.extend(["-DSCALFMM_USE_STARPU=ON"])
@@ -101,6 +111,7 @@ class Scalfmm(Package):
                 # Disable STARPU here.
                 cmake_args.extend(["-DSCALFMM_USE_STARPU=OFF"])
 
+            # MPI config
             if spec.satisfies('+mpi'):
                 # Enable MPI here.
                 cmake_args.extend(["-DSCALFMM_USE_MPI=ON"])
@@ -108,15 +119,11 @@ class Scalfmm(Package):
                 # Disable MPI here.
                 cmake_args.extend(["-DSCALFMM_USE_MPI=OFF"])
 
-            blas = self.spec['blas']
-            lapack = self.spec['lapack']
-            cmake_args.extend(['-DBLAS_DIR=%s' % blas.prefix])
-            cmake_args.extend(['-DLAPACK_DIR=%s' % lapack.prefix])
-            if spec.satisfies('%gcc'):
-                os.environ["LDFLAGS"] = "-lgfortran"
-
+            # Config process
             cmake(*cmake_args)
+            # Build process
             make()
+            # Install process
             # No install provided for test drivers
             if spec.satisfies('+tests'):
                 if spec.satisfies('+debug'):
