@@ -68,7 +68,8 @@ class Hmat(Package):
             cmake_args+=[
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DINSTALL_DATA_DIR:PATH=share",
-                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
+                "-DCMAKE_BUILD_TYPE=debug"
                 ]
 
             if '^scotch' in spec:
