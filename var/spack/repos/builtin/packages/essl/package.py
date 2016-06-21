@@ -14,6 +14,7 @@ class Essl(Package):
     # virtual dependency
     provides('blas')
     provides('lapack')
+    provides('tmglib')
 
     variant('mt', default=False, description="Use Multithreaded version")
     # used for netlib-lapack
