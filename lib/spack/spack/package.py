@@ -869,6 +869,53 @@ class Package(object):
         resource_stage_folder = '-'.join(pieces)
         return resource_stage_folder
 
+    def do_build(self, build_deps=False, make_jobs=None, verbose=False):
+        start_time = time.time()
+        if not spack.install_layout.check_installed(self.spec):
+          self.do_install(
+            keep_prefix=False,  keep_stage=False, ignore_deps=False,
+            skip_patch=False, verbose=True, make_jobs=None, fake=False)
+          return
+        if not self.spec.concrete:
+          raise ValueError("Can only install concrete packages.")
+
+        self.make_jobs = make_jobs
+        if build_deps:
+          self.do_build_dependencies(
+            build_deps=build_deps,
+            make_jobs=make_jobs,
+            verbose=verbose)
+
+        if not self.spec.satisfies('@src') and  spack.install_layout.check_installed(self.spec):
+          tty.msg("%s is already installed in %s." % (self.name, self.prefix))
+          return
+
+        tty.msg("Building %s" % self.name)
+
+        def real_work():
+          self.stage.chdir_to_source()
+
+          # This redirects I/O to a build log (and optionally to the terminal)
+          log_path = join_path(os.getcwd(), 'spack-build.out')
+          log_file = open(log_path, 'w')
+          with log_output(log_file, verbose, sys.stdout.isatty(), True):
+            self.build(self.spec, self.prefix)
+
+        spack.build_environment.fork(self, real_work)
+
+        tty.msg("Successfully built %s." % self.name,
+          "Total: %s." % _hms(time.time() - start_time))
+
+    def do_build_dependencies(self, **kwargs):
+        for dep in self.spec.dependencies.values():
+            dep.package.do_build(**kwargs)
+
+    def build(self, spec, prefix):
+        """Package implementations can override this with their own build configuration."""
+        self.do_install(
+          keep_prefix=False,  keep_stage=False, ignore_deps=False,
+          skip_patch=False, verbose=True, make_jobs=None, fake=False)
+
     def do_install(self,
                    keep_prefix=False,
                    keep_stage=False,
