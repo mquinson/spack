@@ -71,45 +71,14 @@ class Scalfmm(Package):
                 # Disable SSE  here.
                 cmake_args.extend(["-DSCALFMM_USE_SSE=OFF"])
 
-            cmake_args.extend(["-DSCALFMM_USE_BLAS=ON"])
-            # if spec.satisfies('+blas'):
-            #     # Enable BLAS here.
-            #     cmake_args.extend(["-DSCALFMM_USE_BLAS=ON"])
-            # else:
-            #     # Disable BLAS here.
-            #     cmake_args.extend(["-DSCALFMM_USE_BLAS=OFF"])
 
+            # BLAS config
+            cmake_args.extend(["-DSCALFMM_USE_BLAS=ON"])
             if '^mkl' in spec:
                 cmake_args.extend(["-DSCALFMM_USE_MKL=ON"])
                 cmake_args.extend(["-DSCALFMM_USE_MKL_AS_BLAS=ON"])
-                cmake_args.extend(["-DSCALFMM_USE_MKL_AS_FFTW=ON"])
             if '^essl' in spec:
                     cmake_args.extend(["-DSCALFMM_USE_ESSL_AS_BLAS=ON"])
-
-            if spec.satisfies('+fft'):
-                # Enable FFT here.
-                fft = spec['fft'].prefix
-                cmake_args.extend(["-DSCALFMM_USE_FFT=ON"])
-                cmake_args.extend(["-DFFTW_DIR=%s" % fft])
-                if '^essl' in spec:
-                    cmake_args.extend(["-DSCALFMM_USE_ESSL_AS_FFTW=ON"])
-            else:
-                # Disable FFTW here.
-                cmake_args.extend(["-DSCALFMM_USE_FFT=OFF"])
-
-            if spec.satisfies('+starpu'):
-                # Enable STARPU here.
-                cmake_args.extend(["-DSCALFMM_USE_STARPU=ON"])
-            else:
-                # Disable STARPU here.
-                cmake_args.extend(["-DSCALFMM_USE_STARPU=OFF"])
-
-            if spec.satisfies('+mpi'):
-                # Enable MPI here.
-                cmake_args.extend(["-DSCALFMM_USE_MPI=ON"])
-            else:
-                # Disable MPI here.
-                cmake_args.extend(["-DSCALFMM_USE_MPI=OFF"])
 
             blas_libs = spec['blas'].cc_link
             blas_libs = blas_libs.replace(' ', ';')
@@ -120,8 +89,41 @@ class Scalfmm(Package):
             if spec.satisfies('%gcc'):
                 os.environ["LDFLAGS"] = "-lgfortran"
 
+            # FFTW config
+            if spec.satisfies('+fft'):
+                # Enable FFT here.
+                cmake_args.extend(["-DSCALFMM_USE_FFT=ON"])
+                fft = spec['fft'].prefix
+                cmake_args.extend(["-DFFTW_DIR=%s" % fft])
+                if '^essl_fftw' in spec:
+                    cmake_args.extend(["-DSCALFMM_USE_ESSL_AS_FFTW=ON"])
+                elif '^mkl' in spec:
+                    cmake_args.extend(["-DSCALFMM_USE_MKL_AS_FFTW=ON"])
+            else:
+                # Disable FFTW here.
+                cmake_args.extend(["-DSCALFMM_USE_FFT=OFF"])
+
+            # StarPU config
+            if spec.satisfies('+starpu'):
+                # Enable STARPU here.
+                cmake_args.extend(["-DSCALFMM_USE_STARPU=ON"])
+            else:
+                # Disable STARPU here.
+                cmake_args.extend(["-DSCALFMM_USE_STARPU=OFF"])
+
+            # MPI config
+            if spec.satisfies('+mpi'):
+                # Enable MPI here.
+                cmake_args.extend(["-DSCALFMM_USE_MPI=ON"])
+            else:
+                # Disable MPI here.
+                cmake_args.extend(["-DSCALFMM_USE_MPI=OFF"])
+
+            # Config process
             cmake(*cmake_args)
+            # Build process
             make()
+            # Install process
             # No install provided for test drivers
             if spec.satisfies('+tests'):
                 if spec.satisfies('+debug'):

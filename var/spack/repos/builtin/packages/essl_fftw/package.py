@@ -4,7 +4,7 @@ import spack
 import sys
 import platform
 
-class Essl_fftw(Package):
+class EsslFftw(Package):
     """IBM ESSL FFTW3 routines"""
     homepage = "http://www-03.ibm.com/systems/power/software/essl/"
 
@@ -18,7 +18,6 @@ class Essl_fftw(Package):
 
     depends_on('essl')
 
-    @when('@exist')
     def install(self, spec, prefix):
         if os.getenv('ESSLFFTROOT'):
             esslroot=os.environ['ESSLFFTROOT']
