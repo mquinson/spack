@@ -134,7 +134,7 @@ class Chameleon(Package):
 
             if spec.satisfies("%xl"):
                 cmake_args.extend(["-DCMAKE_C_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
-                cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto -qextname"])
+                cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
 
             cmake(*cmake_args)
             make()

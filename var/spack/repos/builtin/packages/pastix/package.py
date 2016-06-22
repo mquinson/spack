@@ -78,8 +78,9 @@ class Pastix(Package):
         if spec.satisfies('%xl'):
             mf.filter('CCPROG      = cc -Wall', 'CCPROG      = cc -O2 -fPIC -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=pwr8')
             mf.filter('CXXPROG     = c\+\+', 'CXXPROG     = c++ -O2 -qsmp -fPIC  -qlanglvl=extended -qarch=auto -qhot -qtune=pwr8')
-            mf.filter('CFPROG      = f77', 'CFPROG      = f77 -O2 -fPIC -qsmp -qextname -qhot -qtune=pwr8')
-            mf.filter('CF90PROG    = fc', 'CF90PROG    = fc -O2 -qsmp -qextname -fPIC -qlanglvl=extended -qarch=auto -qhot -qtune=pwr8  -qlanglvl=90std')
+            mf.filter('CFPROG      = f77', 'CFPROG      = f77 -O2 -fPIC -qsmp -qhot -qtune=pwr8')
+            mf.filter('CF90PROG    = fc', 'CF90PROG    = fc -O2 -qsmp -fPIC -qlanglvl=extended -qarch=auto -qhot -qtune=pwr8  -qlanglvl=90std')
+            mf.filter('#CCTYPES    := \$\(CCTYPES\) -DPASTIX_FM_NOCHANGE', 'CCTYPES    := $(CCTYPES) -DPASTIX_FM_NOCHANGE')
 
         mf.filter('^# ROOT          =.*', 'ROOT          = %s' % spec.prefix)
         mf.filter('^# INCLUDEDIR    =.*', 'INCLUDEDIR    = ${ROOT}/include')
@@ -309,8 +310,9 @@ class Pastix(Package):
 
                     if spec.satisfies("%xl"):
                         cmake_args.extend(["-DCMAKE_C_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
-                        cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-qstrict -qsmp -qextname -qarch=auto -qhot -qtune=auto"])
+                        cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-qstrict -qsmp -qarch=auto -qhot -qtune=auto"])
                         cmake_args.extend(["-DCMAKE_CXX_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
+                        cmake_args.extend(["-DPASTIX_FM_NOCHANGE=ON"])
 
 
                     cmake(*cmake_args)

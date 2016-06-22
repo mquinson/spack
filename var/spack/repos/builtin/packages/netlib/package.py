@@ -59,9 +59,9 @@ class Netlib(Package):
 
         # fix mangling with xl compiler, detection is not working
         mf = FileFilter('CBLAS/CMakeLists.txt')
-        mf.filter('#ADD_DEFINITIONS\( \"-D\$\{CDEFS\}\"\)','ADD_DEFINITIONS(-DADD_)')
+        mf.filter('#ADD_DEFINITIONS\( \"-D\$\{CDEFS\}\"\)','ADD_DEFINITIONS(-DNOCHANGE)')
         mf = FileFilter('LAPACKE/CMakeLists.txt')
-        mf.filter('#ADD_DEFINITIONS\( \"-D\$\{CDEFS\}\"\)','ADD_DEFINITIONS(-DADD_)')
+        mf.filter('#ADD_DEFINITIONS\( \"-D\$\{CDEFS\}\"\)','ADD_DEFINITIONS(-DNOCHANGE)')
 
 
     def install(self, spec, prefix):
@@ -99,12 +99,10 @@ class Netlib(Package):
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
         cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
 
-        if spec.satisfies("%xl"):
-            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-qextname"])
-
         cmake(*cmake_args)
-        # cp LAPACKE/include/lapacke_mangling_with_flags.h LAPACKE/include/lapacke_mangling.h
-        shutil.copy('LAPACKE/include/lapacke_mangling_with_flags.h', 'LAPACKE/include/lapacke_mangling.h')
+        if spec.satisfies("%xl"):
+            shutil.copy('CBLAS/include/cblas_mangling_with_flags.h', 'CBLAS/include/cblas_mangling.h')
+            shutil.copy('LAPACKE/include/lapacke_mangling_with_flags.h', 'LAPACKE/include/lapacke_mangling.h')
         make()
         make("install")
 

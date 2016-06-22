@@ -29,11 +29,6 @@ class Essl(Package):
         # Null literal string is not permitted with xlf
         mf = FileFilter('SRC/xerbla_array.f')
         mf.filter('SRNAME = \'\'', 'SRNAME = \' \'')
-        # ETIME_ results to an etime__ undefined symbols because of the -qextname flag
-        mf = FileFilter('INSTALL/second_EXT_ETIME_.f')
-        mf.filter('T1 = ETIME_', 'T1 = ETIME')
-        mf = FileFilter('./INSTALL/dsecnd_EXT_ETIME_.f')
-        mf.filter('T1 = ETIME_', 'T1 = ETIME')
 
 
     def install(self, spec, prefix):
@@ -56,7 +51,7 @@ class Essl(Package):
                 cmake_args.append('-DCMAKE_SHARED_LINKER_FLAGS=-undefined dynamic_lookup')
         cmake_args.append('-DCMAKE_INSTALL_LIBDIR=lib')
         if spec.satisfies("%xl"):
-            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto -qextname"])
+            cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
 
         cmake(*cmake_args)
         make()
@@ -75,9 +70,9 @@ class Essl(Package):
         xlfroot=os.environ['XLFROOT']
         xlsmproot=os.environ['XLSMPROOT']
         if os.path.isdir(esslroot) and os.path.isdir(xlfroot) and os.path.isdir(xlsmproot):
-            spec.cc_link_mt = "-L%s -R%s -lesslsmp -L%s -lxlsmp -L%s -lxlfmath -lxlf90_r %s -lesslsmp -lxlsmp -lxlfmath -lxlf90_r %s" \
+            spec.cc_link_mt = "-L%s -R%s -lesslsmp -L%s -lxlsmp -L%s -lxlfmath -lxlf90 -lxlf90_r %s -lesslsmp -lxlsmp -lxlfmath -lxlf90_r %s" \
                               %(esslroot, esslroot, xlsmproot, xlfroot, netlib_lapack_libs, netlib_blas_libs)
-            spec.cc_link    = "-L%s -R%s -lessl -L%s -lxlfmath -lxlf90_r %s -lxlfmath -lxlf90_r %s" \
+            spec.cc_link    = "-L%s -R%s -lessl -L%s -lxlfmath -lxlf90_r %s -lxlfmath -lxlf90 -lxlf90_r %s" \
                               % (esslroot, esslroot, xlfroot, netlib_lapack_libs, netlib_blas_libs)
             spec.fc_link_mt = spec.cc_link_mt
             spec.fc_link    = spec.cc_link
