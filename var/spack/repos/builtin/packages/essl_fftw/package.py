@@ -33,11 +33,14 @@ class EsslFftw(Package):
     def setup_dependent_package(self, module, dep_spec):
         """Dependencies of this package will get the link for fftw_essl."""
         spec = self.spec
-        esslroot=os.environ['ESSLFFTROOT']
-        if os.path.isdir(esslroot):
-            spec.cc_link_mt = "-L%s -lfftw3_essl %s" % (esslroot,spec['essl'].cc_link_mt)
-            spec.cc_link    = "-L%s -lfftw3_essl %s" % (esslroot,spec['essl'].cc_link)
-            spec.fc_link_mt = "-L%s -lfftw3_essl %s" % (esslroot,spec['essl'].fc_link_mt)
-            spec.fc_link    = "-L%s -lfftw3_essl %s" % (esslroot,spec['essl'].fc_link)
+        if os.getenv('ESSLFFTROOT'):
+            esslroot=os.environ['ESSLFFTROOT']
+            if os.path.isdir(esslroot):
+                spec.cc_link_mt = "-L%s -lfftw3_essl %s" % (esslroot,spec['essl'].cc_link_mt)
+                spec.cc_link    = "-L%s -lfftw3_essl %s" % (esslroot,spec['essl'].cc_link)
+                spec.fc_link_mt = "-L%s -lfftw3_essl %s" % (esslroot,spec['essl'].fc_link_mt)
+                spec.fc_link    = "-L%s -lfftw3_essl %s" % (esslroot,spec['essl'].fc_link)
+            else:
+                raise RuntimeError('Path in ESSLFFTROOT environment variable does not exist. Please set ESSLFFTROOT, where lies include/fftw3_essl.h and lib64/libfftw3_essl.a (or .so)')                
         else:
             raise RuntimeError('ESSLFFTROOT environment variable does not exist. Please set ESSLFFTROOT, where lies include/fftw3_essl.h and lib64/libfftw3_essl.a (or .so)')

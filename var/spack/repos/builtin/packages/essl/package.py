@@ -66,15 +66,18 @@ class Essl(Package):
         netlib_blas_libs   = "-L%s -lblas"   % libdir
 
         # set essl lib
-        esslroot=os.environ['ESSLROOT']
-        xlfroot=os.environ['XLFROOT']
-        xlsmproot=os.environ['XLSMPROOT']
-        if os.path.isdir(esslroot) and os.path.isdir(xlfroot) and os.path.isdir(xlsmproot):
-            spec.cc_link_mt = "-L%s -R%s -lesslsmp -L%s -lxlsmp -L%s -lxlfmath -lxlf90 -lxlf90_r %s -lesslsmp -lxlsmp -lxlfmath -lxlf90_r %s" \
-                              %(esslroot, esslroot, xlsmproot, xlfroot, netlib_lapack_libs, netlib_blas_libs)
-            spec.cc_link    = "-L%s -R%s -lessl -L%s -lxlfmath -lxlf90_r %s -lxlfmath -lxlf90 -lxlf90_r %s" \
-                              % (esslroot, esslroot, xlfroot, netlib_lapack_libs, netlib_blas_libs)
-            spec.fc_link_mt = spec.cc_link_mt
-            spec.fc_link    = spec.cc_link
+        if os.getenv('ESSLROOT') and os.getenv('XLFROOT') and os.getenv('XLSMPROOT'):
+            esslroot=os.environ['ESSLROOT']
+            xlfroot=os.environ['XLFROOT']
+            xlsmproot=os.environ['XLSMPROOT']
+            if os.path.isdir(esslroot) and os.path.isdir(xlfroot) and os.path.isdir(xlsmproot):
+                spec.cc_link_mt = "-L%s -R%s -lesslsmp -L%s -lxlsmp -L%s -lxlfmath -lxlf90 -lxlf90_r %s -lesslsmp -lxlsmp -lxlfmath -lxlf90_r %s" \
+                                  %(esslroot, esslroot, xlsmproot, xlfroot, netlib_lapack_libs, netlib_blas_libs)
+                spec.cc_link    = "-L%s -R%s -lessl -L%s -lxlfmath -lxlf90_r %s -lxlfmath -lxlf90 -lxlf90_r %s" \
+                                  % (esslroot, esslroot, xlfroot, netlib_lapack_libs, netlib_blas_libs)
+                spec.fc_link_mt = spec.cc_link_mt
+                spec.fc_link    = spec.cc_link
+            else:
+                raise RuntimeError('Path in ESSLROOT or XLFROOT or XLSMPROOT environment variable does not exist. Please set ESSLROOT and XLFROOT and XLSMPROOT, where lies libessl and libxlf90 and xlsmp, to use the ESSL')
         else:
             raise RuntimeError('ESSLROOT or XLFROOT or XLSMPROOT environment variable does not exist. Please set ESSLROOT and XLFROOT and XLSMPROOT, where lies libessl and libxlf90 and xlsmp, to use the ESSL')
