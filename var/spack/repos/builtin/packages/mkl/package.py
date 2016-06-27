@@ -21,6 +21,8 @@ class Mkl(Package):
     provides('lapacke')
     provides('fft')
 
+    variant('32bit', default=False, description="Use 32-bit version")
+    variant('int64', default=False, description="Use 64-bit integer version")
     variant('shared', default=True, description="Use shared library version")
 
     def install(self, spec, prefix):
@@ -32,7 +34,10 @@ class Mkl(Package):
                 if platform.system() == "Darwin":
                     os.symlink(mklroot+"/lib", prefix.lib)
                 else:
-                    os.symlink(mklroot+"/lib/intel64", prefix.lib)
+                    if spec.satisfies('+32bit'):
+                        os.symlink(mklroot+"/lib/ia32", prefix.lib)
+                    else:
+                        os.symlink(mklroot+"/lib/intel64", prefix.lib)
             else:
                 raise RuntimeError(mklroot+' directory does not exist.'+' Do you really have Intel MKL installed in '+mklroot+' ?')
         else:
@@ -40,25 +45,77 @@ class Mkl(Package):
 
     def setup_dependent_package(self, module, dep_spec):
         """Dependencies of this package will get the link for mkl-blas."""
+        spec = self.spec
         libdir = self.spec.prefix.lib
-        opt_noasneeded="-Wl,--no-as-needed " if not platform.system() == "Darwin" else ""
-        if self.spec.satisfies('%gcc'):
-            if self.spec.satisfies('+shared'):
-                self.spec.cc_link_mt = opt_noasneeded+"-L%s -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -ldl -lgomp -lpthread -lm" % libdir
-                self.spec.fc_link_mt = opt_noasneeded+"-L%s -lmkl_gf_lp64 -lmkl_core -lmkl_gnu_thread -ldl -lgomp -lpthread -lm" % libdir
-                self.spec.cc_link    = opt_noasneeded+"-L%s -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm" % libdir
-                self.spec.fc_link    = opt_noasneeded+"-L%s -lmkl_gf_lp64 -lmkl_core -lmkl_sequential -lpthread -lm" % libdir
-            else:
-                self.spec.cc_link_mt ="-Wl,--start-group "+libdir+"/libmkl_intel_lp64.a "+libdir+"/libmkl_core.a "+libdir+"/libmkl_gnu_thread.a -Wl,--end-group -ldl -lgomp -lpthread -lm"
-                self.spec.fc_link_mt ="-Wl,--start-group "+libdir+"/libmkl_gf_lp64.a "+libdir+"/libmkl_core.a "+libdir+"/libmkl_gnu_thread.a -Wl,--end-group -ldl -lgomp -lpthread -lm"
-                self.spec.cc_link    ="-Wl,--start-group "+libdir+"/libmkl_intel_lp64.a "+libdir+"/libmkl_core.a "+libdir+"/libmkl_sequential.a -Wl,--end-group -lpthread -lm"
-                self.spec.fc_link    ="-Wl,--start-group "+libdir+"/libmkl_gf_lp64.a "+libdir+"/libmkl_core.a "+libdir+"/libmkl_sequential.a -Wl,--end-group -lpthread -lm"
+
+        ## define C/Fortran flags
+        spec.cc_flags    = ""
+
+        # 32/64 bits pointers option
+        if spec.satisfies('%gcc'):
+            spec.cc_flags = "-m32" if spec.satisfies('+32bit') else "-m64"
+
+        # int 64 bits options
+        if spec.satisfies('+int64'):
+            spec.cc_flags = spec.cc_flags + " -DMKL_ILP64"
+            if spec.satisfies('%gcc'):
+                spec.fc_flags = spec.fc_flags + " -fdefault-integer-8"
+            elif spec.satisfies('%intel'):
+                spec.fc_flags = spec.fc_flags + " -i8"
+
+        # path to headers
+        spec.cc_flags = spec.cc_flags+" -I${MKLROOT}/include"
+
+        spec.cc_flags_mt = spec.cc_flags
+        spec.fc_flags_mt = spec.fc_flags
+        if spec.satisfies('%intel'):
+            spec.cc_flags_mt = "-qopenmp " + spec.cc_flags_mt
+            spec.fc_flags_mt = "-qopenmp " + spec.fc_flags_mt
+
+        # define mkl libs
+        if spec.satisfies('+32bit'):
+            mkl_lib    = "mkl_intel"
+            mkl_lib_gf = "mkl_gf"
         else:
-            if self.spec.satisfies('+shared'):
-                self.spec.cc_link_mt = "-L%s -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -lpthread -lm" % libdir
-                self.spec.cc_link    = "-L%s -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm" % libdir
+            if spec.satisfies('+int64'):
+                mkl_lib    = "mkl_intel_ilp64"
+                mkl_lib_gf = "mkl_gf_ilp64" if spec.satisfies('%gcc') else "mkl_intel_ilp64"
             else:
-                self.spec.cc_link_mt =["-Wl,--start-group "+libdir+"/libmkl_intel_lp64.a "+libdir+"/libmkl_core.a "+libdir+"/libmkl_intel_thread.a -Wl,--end-group -lpthread -lm"]
-                self.spec.cc_link    =["-Wl,--start-group "+libdir+"/libmkl_intel_lp64.a "+libdir+"/libmkl_core.a "+libdir+"/libmkl_sequential.a -Wl,--end-group -lpthread -lm"]
-            self.spec.fc_link_mt = self.spec.cc_link_mt
-            self.spec.fc_link    = self.spec.cc_link
+                mkl_lib    = "mkl_intel_lp64"
+                mkl_lib_gf = "mkl_gf_lp64" if spec.satisfies('%gcc') else "mkl_intel_lp64"
+
+        mkl_core = "mkl_core"
+
+        # define mkl thread and other libs
+        mkl_seq = "mkl_sequential"
+        if spec.satisfies('%gcc'):
+            mkl_thread = "mkl_gnu_thread"
+        else:
+            mkl_thread = "mkl_intel_thread"
+        mkl_thread_others = "-liomp5"
+        mkl_others  = "-lpthread -lm -ldl"
+        if not platform.system() == "Darwin":
+            start_group = "-Wl,--start-group"
+            end_group   = "-Wl,--end-group"
+        else:
+            start_group = ""
+            end_group   = ""
+        # option required by gcc in dynamic
+        opt_noasneeded="-Wl,--no-as-needed " if not platform.system() == "Darwin" else ""
+
+        if spec.satisfies('+shared'):
+            spec.cc_link = "%s -L%s -l%s -l%s -l%s %s" % \
+            (opt_noasneeded, libdir, mkl_lib, mkl_core, mkl_seq, mkl_others)
+            spec.cc_link_mt = "%s -L%s -l%s -l%s -l%s %s %s" % \
+            (opt_noasneeded, libdir, mkl_lib, mkl_core, mkl_thread, mkl_thread_others, mkl_others)
+            spec.fc_link = "%s -L%s -l%s -l%s -l%s %s" % \
+            (opt_noasneeded, libdir, mkl_lib_gf, mkl_core, mkl_seq, mkl_others)
+            spec.fc_link_mt = "%s -L%s -l%s -l%s -l%s %s %s" % \
+            (opt_noasneeded, libdir, mkl_lib_gf, mkl_core, mkl_thread, mkl_thread_others, mkl_others)
+        else:
+            spec.cc_link = "%s %s/lib%s.a %s/lib%s.a %s/lib%s.a %s %s" % \
+            (start_group, libdir, mkl_lib, libdir, mkl_core, libdir, mkl_seq, end_group, mkl_others)
+            spec.cc_link_mt = "%s %s/lib%s.a %s/lib%s.a %s/lib%s.a %s %s %s" % \
+            (start_group, libdir, mkl_lib, libdir, mkl_core, libdir, mkl_thread, end_group, mkl_thread_others, mkl_others)
+            spec.fc_link = spec.cc_link
+            spec.fc_link_mt = spec.cc_link_mt
