@@ -48,8 +48,8 @@ class Atlas(Package):
 
     variant('shared', default=True, description='Builds shared library')
 
-    provides('blas')
-    provides('lapack')
+    #provides('blas')
+    #provides('lapack')
 
     parallel = False
 
