@@ -119,6 +119,10 @@ class Scalfmm(Package):
                 # Disable MPI here.
                 cmake_args.extend(["-DSCALFMM_USE_MPI=OFF"])
 
+            if spec.satisfies('%xl'):
+                # there are no _ to fortran symbols with xlf compiler
+                cmake_args.extend(["-DSCALFMM_BLAS_NOCHANGE=ON"])
+
             # Config process
             cmake(*cmake_args)
             # Build process
