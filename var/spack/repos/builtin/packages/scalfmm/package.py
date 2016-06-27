@@ -83,6 +83,11 @@ class Scalfmm(Package):
             blas_libs = spec['blas'].cc_link
             blas_libs = blas_libs.replace(' ', ';')
             cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
+            try:
+                blas_flags = spec['blas'].cc_flags
+            except NameError:
+                blas_flags = ''
+            cmake_args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
             lapack_libs = spec['lapack'].cc_link
             lapack_libs = lapack_libs.replace(' ', ';')
             cmake_args.extend(['-DLAPACK_LIBRARIES=%s' % lapack_libs])

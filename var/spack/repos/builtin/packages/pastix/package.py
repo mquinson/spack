@@ -305,6 +305,11 @@ class Pastix(Package):
                     blas = spec['blas'].prefix
                     blas_libs = spec['blas'].cc_link
                     cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
+                    try:
+                        blas_flags = spec['blas'].cc_flags
+                    except NameError:
+                        blas_flags = ''
+                    cmake_args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
 
                     cmake_args.extend(["-DCMAKE_VERBOSE_MAKEFILE=ON"])
 
