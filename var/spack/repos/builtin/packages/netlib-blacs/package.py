@@ -39,11 +39,11 @@ class NetlibBlacs(Package):
         mpi = spec['mpi'].prefix
         try:
             mpicc = spec['mpi'].mpicc
-        except NameError:
+        except AttributeError:
             mpicc = 'mpicc'
         try:
             mpif77 = spec['mpi'].mpif77
-        except NameError:
+        except AttributeError:
             mpif77 = 'mpif77'
         mf.filter('F77            = g77', 'F77            = %s' % mpif77)
         mf.filter('CC             = gcc', 'CC             = %s' % mpicc)

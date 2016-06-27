@@ -110,7 +110,7 @@ class Mpf(Package):
                 mkl_libs=[]
                 try:
                     blaslibname = spec['blas'].cc_link_mt
-                except NameError:
+                except AttributeError:
                     blaslibname = spec['blas'].cc_link
                 blaslibname = blaslibname.replace(' ', ';')
                 for l1 in blaslibname:

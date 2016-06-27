@@ -58,7 +58,7 @@ class Scotch(Package):
         if self.spec.satisfies('+mpi'):
             try:
                 mpicc = spec['mpi'].mpicc
-            except NameError:
+            except AttributeError:
                 mpicc = 'mpicc'
         if self.compiler.name == 'gcc':
             defines.append('-Drestrict=__restrict')

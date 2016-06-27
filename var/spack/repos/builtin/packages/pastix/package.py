@@ -126,19 +126,19 @@ class Pastix(Package):
             mpi = spec['mpi'].prefix
             try:
                 mpicc = spec['mpi'].mpicc
-            except NameError:
+            except AttributeError:
                 mpicc = 'mpicc'
             try:
                 mpicxx = spec['mpi'].mpicxx
-            except NameError:
+            except AttributeError:
                 mpicxx = 'mpic++'
             try:
                 mpif90 = spec['mpi'].mpifc
-            except NameError:
+            except AttributeError:
                 mpif90 = 'mpif90'
             try:
                 mpif77 = spec['mpi'].mpif77
-            except NameError:
+            except AttributeError:
                 mpif77 = 'mpif77'
 
             # it seems we set CXXPROG twice but it is because in some
@@ -307,7 +307,7 @@ class Pastix(Package):
                     cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
                     try:
                         blas_flags = spec['blas'].cc_flags
-                    except NameError:
+                    except AttributeError:
                         blas_flags = ''
                     cmake_args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
 

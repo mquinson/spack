@@ -54,11 +54,11 @@ class Hips(Package):
         mpi = spec['mpi'].prefix
         try:
             mpicc = spec['mpi'].mpicc
-        except NameError:
+        except AttributeError:
             mpicc = 'mpicc'
         try:
             mpif90 = spec['mpi'].mpifc
-        except NameError:
+        except AttributeError:
             mpif90 = 'mpif90'
         mf.filter('= gcc', '= cc')
         mf.filter('= gfortran', '= f90')

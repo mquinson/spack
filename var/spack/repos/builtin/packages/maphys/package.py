@@ -50,15 +50,15 @@ class Maphys(Package):
         mpi = spec['mpi'].prefix
         try:
             mpicc = spec['mpi'].mpicc
-        except NameError:
+        except AttributeError:
             mpicc = 'mpicc'
         try:
             mpif90 = spec['mpi'].mpifc
-        except NameError:
+        except AttributeError:
             mpif90 = 'mpif90'
         try:
             mpif77 = spec['mpi'].mpif77
-        except NameError:
+        except AttributeError:
             mpif77 = 'mpif77'
 
         if spec.satisfies("%intel"):

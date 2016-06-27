@@ -85,7 +85,7 @@ class Scalfmm(Package):
             cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
             try:
                 blas_flags = spec['blas'].cc_flags
-            except NameError:
+            except AttributeError:
                 blas_flags = ''
             cmake_args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
             lapack_libs = spec['lapack'].cc_link
