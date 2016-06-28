@@ -50,6 +50,7 @@ class Mkl(Package):
 
         ## define C/Fortran flags
         spec.cc_flags    = ""
+        spec.fc_flags    = ""
 
         # 32/64 bits pointers option
         if spec.satisfies('%gcc'):
