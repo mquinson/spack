@@ -9,6 +9,8 @@ class QrMumps(Package):
     homepage = "http://buttari.perso.enseeiht.fr/qr_mumps/"
 
     version('trunk', svn='https://wwwsecu.irit.fr/svn/qr_mumps/trunk')
+    version('2.0', 'e880670f4dddba16032f43faa03aa903',
+            url="http://buttari.perso.enseeiht.fr/qr_mumps/releases/qr_mumps-2.0.tgz")
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
@@ -46,10 +48,15 @@ class QrMumps(Package):
              ' time because they are incompatible (Scotch provides a metis.h'
              ' which is not the same as the one providen by Metis)')
 
+        if spec.satisfies('@2.0'):
+            stagedir=self.stage.path+'/qr_mumps-2.0'
+        elif spec.satisfies('@trunk'):
+            stagedir=self.stage.path+'/trunk'
+
         copyfile('makeincs/Make.inc.gnu', 'makeincs/Make.inc.spack')
         mf = FileFilter('makeincs/Make.inc.spack')
 
-        mf.filter('topdir=\$\(HOME\)/path/to/here', 'topdir=%s/trunk/' % self.stage.path)
+        mf.filter('topdir=\$\(HOME\)/path/to/here', 'topdir=%s/' % stagedir)
 
         mf.filter('^# CC      =.*', 'CC      = cc')
         mf.filter('^# FC      =.*', 'FC      = f90')
@@ -106,11 +113,8 @@ class QrMumps(Package):
 
         blas_libs = spec['blas'].fc_link
         lapack_libs = spec['lapack'].fc_link
-        mf.filter('^# LBLAS    =.*', 'LBLAS    = %s' % blas_libs)
-        mf.filter('^# LLAPACK  =.*', 'LLAPACK  = %s' % lapack_libs)
-
-        mf.filter('^# LHWLOC =.*', 'LHWLOC = -L%s -lhwloc' % hwloc.lib)
-        mf.filter('^# IHWLOC =.*', 'IHWLOC = -I%s' % hwloc.include)
+        mf.filter('^LBLAS    =.*', 'LBLAS    = %s' % blas_libs)
+        mf.filter('^LLAPACK  =.*', 'LLAPACK  = %s' % lapack_libs)
 
         if spec.satisfies('+colamd'):
             colamd_libs = spec['colamd'].cc_link
@@ -135,6 +139,11 @@ class QrMumps(Package):
 
         ariths=["d", "s", "z", "c"]
 
+        if spec.satisfies('@2.0'):
+            stagedir=self.stage.path+'/qr_mumps-2.0'
+        elif spec.satisfies('@trunk'):
+            stagedir=self.stage.path+'/trunk'
+        
         make('setup', 'BUILD=build', 'PLAT=spack')
         with working_dir('build'):
 
@@ -148,7 +157,7 @@ class QrMumps(Package):
             install_tree('lib', prefix.lib)
             # install headers
             mkdirp(prefix.include)
-            for file in os.listdir("%s/trunk/build/include" % self.stage.path):
+            for file in os.listdir("%s/build/include" % stagedir):
                 install("include/"+file, prefix.include)
             # install examples
             mkdirp('%s/examples' % prefix)
