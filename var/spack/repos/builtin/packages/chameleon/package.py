@@ -47,7 +47,7 @@ class Chameleon(Package):
     depends_on("quark", when='+quark')
     depends_on("mpi", when='+mpi')
     depends_on("cuda", when='~simu+cuda')
-    depends_on("magma", when='~simu+magma')
+    depends_on("magma@1.6:1.7", when='~simu+magma')
     depends_on("fxt", when='+fxt+starpu')
     depends_on("eztrace", when='+eztrace')
 
