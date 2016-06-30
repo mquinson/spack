@@ -56,10 +56,10 @@ class Magma(Package):
             mf.filter('^F90FLAGS.*', 'F90FLAGS = -O3 $(FPIC) -DADD_ -warn all -warn nounused')
             mf.filter('^LDFLAGS.*',  'LDFLAGS  =     $(FPIC) -openmp')
         elif spec.satisfies("%xl"):
-            mf.filter('^CFLAGS.*',    'CFLAGS    = -O3 -qpic')
-            mf.filter('^FFLAGS.*',    'FFLAGS    = -O3 -qpic')
-            mf.filter('^F90FLAGS.*',  'F90FLAGS  = -O3 -qpic')
-            mf.filter('^NVCCFLAGS.*', 'NVCCFLAGS = -O3 -Xcompiler \"-fno-strict-aliasing $(FPIC)\"')
+            mf.filter('^CFLAGS.*',    'CFLAGS    = -O3 -qpic -DNOCHANGE')
+            mf.filter('^FFLAGS.*',    'FFLAGS    = -O3 -qpic -WF,-DNOCHANGE')
+            mf.filter('^F90FLAGS.*',  'F90FLAGS  = -O3 -qpic -WF,-DNOCHANGE')
+            mf.filter('^NVCCFLAGS.*', 'NVCCFLAGS = -O3 -Xcompiler \"-fno-strict-aliasing $(FPIC) -DNOCHANGE\"')
             mf.filter('^LDFLAGS.*',  'LDFLAGS  =')
 
 
@@ -79,6 +79,8 @@ class Magma(Package):
 
         if spec.satisfies("%xl"):
             mf = FileFilter('Makefile')
+            mf.filter('-Dmagma_devptr_t', '-WF,-Dmagma_devptr_t')
+            mf = FileFilter('Makefile.internal')
             mf.filter('-Dmagma_devptr_t', '-WF,-Dmagma_devptr_t')
 
 
