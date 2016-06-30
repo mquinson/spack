@@ -30,14 +30,14 @@ class Maphys(Package):
 
     depends_on("mpi")
     depends_on("hwloc")
-    depends_on("scotch~esmumps", when='~mumps')
-    depends_on("scotch+esmumps", when='+mumps')
+    depends_on("scotch+mpi+esmumps", when='+mumps')
+    depends_on("scotch+mpi~esmumps", when='~mumps')
     depends_on("blas")
     depends_on("lapack")
     depends_on("pastix+mpi", when='+pastix')
+    depends_on("pastix+mpi+blasmt", when='+pastix+blasmt')
     depends_on("mumps+mpi", when='+mumps')
-    depends_on("pastix+blasmt", when='+pastix+blasmt')
-    depends_on("mumps+blasmt", when='+mumps+blasmt')
+    depends_on("mumps+mpi+blasmt", when='+mumps+blasmt')
 
     def setup(self):
         spec = self.spec
