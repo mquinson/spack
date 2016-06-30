@@ -30,7 +30,8 @@ class Hips(Package):
 
     depends_on("mpi")
     depends_on("metis@:4", when='+metis')
-    depends_on("scotch",   when='~metis')
+    depends_on("scotch", when='~metis')
+    depends_on("scotch+idx64", when='~metis+idx64')
     depends_on("blas")
     depends_on("pastix", when='@trunk+pastix')
 
