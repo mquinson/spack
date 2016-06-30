@@ -48,18 +48,22 @@ class Scotch(Package):
     variant('shared', default=True, description='Build shared libraries')
     variant('idx64', default=False, description='to use 64 bits integers')
     variant('grf', default=False, description='Install grf examples files')
+    variant('simgrid', default=False, description='Build Scotch with smpi from Simgrid')
 
-    depends_on('mpi', when='+mpi')
+    depends_on('mpi', when='+mpi~simgrid')
+    depends_on('simgrid+smpi', when='+simgrid')
     depends_on('zlib', when='+compression')
     #depends_on('flex')
     #depends_on('bison')
 
     def compiler_specifics(self, makefile_inc, defines):
-        if self.spec.satisfies('+mpi'):
-            try:
-                mpicc = spec['mpi'].mpicc
-            except AttributeError:
-                mpicc = 'mpicc'
+
+        spec = self.spec
+
+        if spec.satisfies('+mpi') and spec.satisfies('+simgrid'):
+            raise RuntimeError('You cannot use mpi and simgrid at the same'
+             ' time because these variants are mutually exclusive')
+
         if self.compiler.name == 'gcc':
             defines.append('-Drestrict=__restrict')
         elif self.compiler.name == 'intel':
@@ -67,29 +71,26 @@ class Scotch(Package):
 
         makefile_inc.append('CCS       = cc')
 
-        if self.spec.satisfies('+mpi'):
+        if spec.satisfies('+mpi'):
             makefile_inc.extend([
-                    'CCP       = %s' % os.path.join(self.spec['mpi'].prefix.bin, '%s' % mpicc),
-                    ])
-
-            if "^simgrid" in self.spec:
-                makefile_inc.extend([
-                    'CCD       = cc -I'+self.spec['simgrid'].prefix+'/include/smpi'
-                    ])
-                filter_file('static MPI_Datatype         dgraphstattypetab\[2\] = \{ GNUM_MPI, MPI_DOUBLE \};', '', 'src/libscotch/library_dgraph_stat.c')
-                # Beware: dirty code
-                filter_file('velolocdlt = 0.0L;', 'velolocdlt = 0.0L;MPI_Datatype         dgraphstattypetab[2] = { GNUM_MPI, MPI_DOUBLE };', 'src/libscotch/library_dgraph_stat.c')
-
-
-            else:
-                makefile_inc.extend([
+                    'CCP       = %s' % spec['mpi'].mpicc,
                     'CCD       = $(CCP)'
                     ])
-        else:
+
+        if spec.satisfies('+simgrid'):
             makefile_inc.extend([
-                    'CCP       = mpicc', # It is set but not used
-                    'CCD       = $(CCS)'
-                    ])
+                'CCP       = %s' % spec['simgrid'].smpicc,
+                'CCD       = cc -I'+spec['simgrid'].prefix+'/include/smpi'
+                ])
+            filter_file('static MPI_Datatype         dgraphstattypetab\[2\] = \{ GNUM_MPI, MPI_DOUBLE \};', '', 'src/libscotch/library_dgraph_stat.c')
+            # Beware: dirty code
+            filter_file('velolocdlt = 0.0L;', 'velolocdlt = 0.0L;MPI_Datatype         dgraphstattypetab[2] = { GNUM_MPI, MPI_DOUBLE };', 'src/libscotch/library_dgraph_stat.c')
+
+        if not spec.satisfies('+mpi') and not spec.satisfies('+simgrid'):
+            makefile_inc.extend([
+                'CCP       = $(CCS)'
+                'CCD       = $(CCS)'
+                ])
 
     def library_build_type(self, makefile_inc, defines):
         makefile_inc.extend([
@@ -117,17 +118,18 @@ class Scotch(Package):
             ])
 
     def extra_features(self, makefile_inc, defines):
+        spec = self.spec
         ldflags = []
 
-        if '+compression' in self.spec:
+        if '+compression' in spec:
             defines.append('-DCOMMON_FILE_COMPRESS_GZ')
-            ldflags.append('-L%s -lz' % (self.spec['zlib'].prefix.lib))
+            ldflags.append('-L%s -lz' % (spec['zlib'].prefix.lib))
 
-        if self.spec.satisfies('+pthread'):
+        if spec.satisfies('+pthread'):
             defines.append('-DCOMMON_PTHREAD')
             defines.append('-DCOMMON_PTHREAD_BARRIER')
 
-        if self.spec.satisfies('+idx64'):
+        if spec.satisfies('+idx64'):
             defines.append('-DINTSIZE64')
             defines.append('-DIDXSIZE64')
 
@@ -144,7 +146,9 @@ class Scotch(Package):
 
     def setup(self):
 
-        if self.spec.satisfies('~pthread') and self.spec.satisfies('@6.0.4'):
+        spec = self.spec
+
+        if spec.satisfies('~pthread') and spec.satisfies('@6.0.4'):
             raise RuntimeError('Error: SCOTCH 6.0.4 cannot compile without pthread... :(')
 
         makefile_inc = []
@@ -169,8 +173,8 @@ class Scotch(Package):
             'MV        = mv',
             'CP        = cp',
             'CFLAGS    = -O3 %s' % (' '.join(defines)),
-            #'LEX       = %s -Pscotchyy -olex.yy.c' % os.path.join(self.spec['flex'].prefix.bin , 'flex'),
-            #'YACC      = %s -pscotchyy -y -b y' %    os.path.join(self.spec['bison'].prefix.bin, 'bison'),
+            #'LEX       = %s -Pscotchyy -olex.yy.c' % os.path.join(spec['flex'].prefix.bin , 'flex'),
+            #'YACC      = %s -pscotchyy -y -b y' %    os.path.join(spec['bison'].prefix.bin, 'bison'),
             'prefix    = %s' % self.prefix,
             ''
             ])
@@ -183,13 +187,13 @@ class Scotch(Package):
         self.setup()
 
         targets = ['scotch']
-        if self.spec.satisfies('+mpi'):
+        if spec.satisfies('+mpi'):
             targets.append('ptscotch')
 
-        if self.spec.satisfies('+esmumps') and spec.satisfies('@6:'):
+        if spec.satisfies('+esmumps') and spec.satisfies('@6:'):
             # No 'make esmumps ptesmumps' in scotch_5.1.11_esmumps.tar.gz
             targets.append('esmumps')
-            if self.spec.satisfies('+mpi'):
+            if spec.satisfies('+mpi'):
                 targets.append('ptesmumps')
 
         with working_dir('src'):
