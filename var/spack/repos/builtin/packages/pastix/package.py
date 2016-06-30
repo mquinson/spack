@@ -24,6 +24,7 @@ class Pastix(Package):
     variant('blasmt', default=False, description='Enable to use multithreaded Blas library (MKL, ESSL, OpenBLAS)')
     variant('cuda', default=False, description='Enable CUDA kernels. Caution: only available if StarPU variant is enabled')
     variant('metis', default=False, description='Enable Metis')
+    variant('scotch', default=True, description='Enable Scotch')
     variant('starpu', default=False, description='Enable StarPU')
     variant('shared', default=True, description='Build Pastix as a shared library')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
@@ -36,9 +37,9 @@ class Pastix(Package):
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
     depends_on("blas")
-    depends_on("scotch")
-    depends_on("scotch+mpi", when='+mpi')
-    depends_on("scotch+idx64", when='+idx64')
+    depends_on("scotch", when='+scotch')
+    depends_on("scotch+mpi", when='+scotch+mpi')
+    depends_on("scotch+idx64", when='+scotch+idx64')
     depends_on("metis@:4", when='+metis')
     depends_on("metis@:4+idx64", when='+metis+idx64')
     depends_on("starpu", when='+starpu')
@@ -58,7 +59,7 @@ class Pastix(Package):
         mf = FileFilter('config.in')
         spec = self.spec
 
-        if spec.satisfies('+metis'):
+        if spec.satisfies('+metis') and spec.satisfies('+scotch'):
             raise RuntimeError('You cannot use Metis and Scotch at the same'
              ' time because they are incompatible (Scotch provides a metis.h'
              ' which is not the same as the one providen by Metis)')
@@ -150,8 +151,8 @@ class Pastix(Package):
                 mf.filter('^MPCCPROG    =.*', 'MPCCPROG    = %s\nMPCXXPROG   = %s'%(mpicc, mpicxx))
             mf.filter('^MCFPROG     =.*', 'MCFPROG     = %s' % mpif90)
             mf.filter('MPCXXPROG   = mpic\+\+ -Wall', '')
-            if '^simgrid' in spec:
-                mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) -DPASTIX_FUNNELED', 'CCPASTIX   := $(CCPASTIX) -DPASTIX_SINGLE')
+            #if '^simgrid' in spec:
+            #    mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) -DPASTIX_FUNNELED', 'CCPASTIX   := $(CCPASTIX) -DPASTIX_SINGLE')
         else:
             mf.filter('^#VERSIONMPI  = _nompi', 'VERSIONMPI  = _nompi')
             mf.filter('^#CCTYPES    := \$\(CCTYPES\) -DFORCE_NOMPI', 'CCTYPES    := $(CCTYPES) -DFORCE_NOMPI')
@@ -176,26 +177,28 @@ class Pastix(Package):
             mf.filter('^#CCPASTIX   := \$\(CCPASTIX\) -DMETIS -I\$\(METIS_HOME\)/Lib', 'CCPASTIX   := $(CCPASTIX) -DMETIS -I$(METIS_HOME)/include')
             mf.filter('^#EXTRALIB   := \$\(EXTRALIB\) -L\$\(METIS_HOME\) -lmetis', 'EXTRALIB   := $(EXTRALIB) -L$(METIS_HOME)/lib -lmetis')
 
-        scotch = spec['scotch'].prefix
-        scotch_libs = spec['scotch'].cc_link
-        mf.filter('^SCOTCH_HOME \?= \$\{HOME\}/scotch_5.1/', 'SCOTCH_HOME = %s' % scotch)
-        if not spec.satisfies('^scotch+mpi'):
-            mf.filter('#CCPASTIX   := \$\(CCPASTIX\) -I\$\(SCOTCH_INC\) -DWITH_SCOTCH',
-                      'CCPASTIX   := $(CCPASTIX) -I$(SCOTCH_INC) -DWITH_SCOTCH')
-            mf.filter('#EXTRALIB   := \$\(EXTRALIB\) -L\$\(SCOTCH_LIB\) -lscotch -lscotcherrexit',
-                      'EXTRALIB   := $(EXTRALIB) -L$(SCOTCH_LIB) -lscotch -lscotcherrexit -lz -lm -lpthread')
-            mf.filter('CCPASTIX   := \$\(CCPASTIX\) -I\$\(SCOTCH_INC\) -DDISTRIBUTED -DWITH_SCOTCH',
-                      '#CCPASTIX   := $(CCPASTIX) -I$(SCOTCH_INC) -DDISTRIBUTED -DWITH_SCOTCH')
-            mf.filter('EXTRALIB   := \$\(EXTRALIB\) -L\$\(SCOTCH_LIB\) -lptscotch -lscotch -lptscotcherrexit',
-                      '#EXTRALIB   := $(EXTRALIB) -L$(SCOTCH_LIB) -lptscotch -lscotch -lptscotcherrexit')
-        elif '^scotch@6:' in spec:
-            mf.filter('EXTRALIB   := \$\(EXTRALIB\) -L\$\(SCOTCH_LIB\) -lptscotch -lscotch -lptscotcherrexit',
-                      'EXTRALIB   := $(EXTRALIB) -L$(SCOTCH_LIB) -lptscotch -lscotch -lptscotcherrexit -lz -lm -lpthread')
-        else:
-            mf.filter('#EXTRALIB   := \$\(EXTRALIB\) -L\$\(SCOTCH_LIB\) -lptscotch -lptscotcherrexit',
-                      'EXTRALIB   := $(EXTRALIB) -L$(SCOTCH_LIB) -lptscotch -lptscotcherrexit -lz -lm -lpthread')
-            mf.filter('EXTRALIB   := \$\(EXTRALIB\) -L\$\(SCOTCH_LIB\) -lptscotch -lscotch -lptscotcherrexit',
-                      '#EXTRALIB   := $(EXTRALIB) -L$(SCOTCH_LIB) -lptscotch -lscotch -lptscotcherrexit')
+        if spec.satisfies('+scotch'):
+            scotch = spec['scotch'].prefix
+            scotch_libs = spec['scotch'].cc_link
+            mf.filter('^SCOTCH_HOME \?= \$\{HOME\}/scotch_5.1/', 'SCOTCH_HOME = %s' % scotch)
+            if not spec.satisfies('^scotch+mpi'):
+                mf.filter('#CCPASTIX   := \$\(CCPASTIX\) -I\$\(SCOTCH_INC\) -DWITH_SCOTCH',
+                          'CCPASTIX   := $(CCPASTIX) -I$(SCOTCH_INC) -DWITH_SCOTCH')
+                mf.filter('#EXTRALIB   := \$\(EXTRALIB\) -L\$\(SCOTCH_LIB\) -lscotch -lscotcherrexit',
+                          'EXTRALIB   := $(EXTRALIB) -L$(SCOTCH_LIB) -lscotch -lscotcherrexit -lz -lm -lpthread')
+                mf.filter('CCPASTIX   := \$\(CCPASTIX\) -I\$\(SCOTCH_INC\) -DDISTRIBUTED -DWITH_SCOTCH',
+                          '#CCPASTIX   := $(CCPASTIX) -I$(SCOTCH_INC) -DDISTRIBUTED -DWITH_SCOTCH')
+                mf.filter('EXTRALIB   := \$\(EXTRALIB\) -L\$\(SCOTCH_LIB\) -lptscotch -lscotch -lptscotcherrexit',
+                          '#EXTRALIB   := $(EXTRALIB) -L$(SCOTCH_LIB) -lptscotch -lscotch -lptscotcherrexit')
+            elif '^scotch@6:' in spec:
+                mf.filter('EXTRALIB   := \$\(EXTRALIB\) -L\$\(SCOTCH_LIB\) -lptscotch -lscotch -lptscotcherrexit',
+                          'EXTRALIB   := $(EXTRALIB) -L$(SCOTCH_LIB) -lptscotch -lscotch -lptscotcherrexit -lz -lm -lpthread')
+            else:
+                mf.filter('#EXTRALIB   := \$\(EXTRALIB\) -L\$\(SCOTCH_LIB\) -lptscotch -lptscotcherrexit',
+                          'EXTRALIB   := $(EXTRALIB) -L$(SCOTCH_LIB) -lptscotch -lptscotcherrexit -lz -lm -lpthread')
+                mf.filter('EXTRALIB   := \$\(EXTRALIB\) -L\$\(SCOTCH_LIB\) -lptscotch -lscotch -lptscotcherrexit',
+                          '#EXTRALIB   := $(EXTRALIB) -L$(SCOTCH_LIB) -lptscotch -lscotch -lptscotcherrexit')
+
         hwloc = spec['hwloc'].prefix
         mf.filter('^HWLOC_HOME \?= /opt/hwloc/', 'HWLOC_HOME = %s' % hwloc)
 
