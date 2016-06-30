@@ -7,6 +7,9 @@ class Simgrid(Package):
     homepage = "http://simgrid.gforge.inria.fr/index.html"
     url      = "http://gforge.inria.fr/frs/download.php/file/35215/SimGrid-3.12.tar.gz"
 
+
+    version('3.13', '8ace1684972a01429d5f1c5db8966709',
+            url='http://gforge.inria.fr/frs/download.php/file/35817/SimGrid-3.13.tar.gz')
     version('3.12', 'd73faaf81d7a9eb0d309cfd72532c5f1',
             url='http://gforge.inria.fr/frs/download.php/file/35215/SimGrid-3.12.tar.gz')
     version('3.11', '358ed81042bd283348604eb1beb80224',
@@ -27,18 +30,16 @@ class Simgrid(Package):
 
     depends_on('cmake')
 
-    provides('mpi@simu', when='+smpi')
-
     def build(self, spec, prefix):
         make()
         make("install")
 
     def setup_dependent_package(self, module, dep_spec):
         if self.spec.satisfies('+smpi'):
-            self.spec.mpicc  = join_path(self.prefix.bin, 'smpicc')
-            self.spec.mpicxx = join_path(self.prefix.bin, 'smpicxx -std=c++11')
-            self.spec.mpifc  = join_path(self.prefix.bin, 'smpif90')
-            self.spec.mpif77 = join_path(self.prefix.bin, 'smpiff')
+            self.spec.smpicc  = join_path(self.prefix.bin, 'smpicc')
+            self.spec.smpicxx = join_path(self.prefix.bin, 'smpicxx -std=c++11')
+            self.spec.smpifc  = join_path(self.prefix.bin, 'smpif90')
+            self.spec.smpif77 = join_path(self.prefix.bin, 'smpiff')
 
     def install(self, spec, prefix):
         cmake_args = ["."]
