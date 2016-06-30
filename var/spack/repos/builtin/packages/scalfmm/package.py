@@ -18,7 +18,7 @@ class Scalfmm(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
-    variant('sse', default=True, description='Enable SSE')
+    variant('sse', default=True, description='Enable vectorization with SSE')
     #variant('blas', default=False, description='Enable BLAS')
     variant('fft', default=False, description='Enable FFT')
     variant('mpi', default=False, description='Enable MPI')
