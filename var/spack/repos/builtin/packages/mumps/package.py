@@ -133,6 +133,9 @@ class Mumps(Package):
         # when building shared libs need -fPIC, otherwise
         # /usr/bin/ld: graph.o: relocation R_X86_64_32 against `.rodata.str1.1' can not be used when making a shared object; recompile with -fPIC
         fpic = '-fPIC' if '+shared' in spec else ''
+        nofor_main = ''
+        if spec.satisfies('%intel'):
+            nofor_main = '-nofor_main'
         # TODO: test this part, it needs a full blas, scalapack and
         # partitionning environment with 64bit integers
         if '+idx64' in spec:
@@ -140,13 +143,13 @@ class Mumps(Package):
                 # the fortran compilation flags most probably are
                 # working only for intel and gnu compilers this is
                 # perhaps something the compiler should provide
-                ['OPTF    = %s -O  -DALLOW_NON_INIT %s' % (fpic,'-fdefault-integer-8' if self.compiler.name == "gcc" else '-i8'),
-                 'OPTL    = %s -O ' % fpic,
+                ['OPTF    = %s -O  -DALLOW_NON_INIT %s %s' % (fpic,'-fdefault-integer-8' if self.compiler.name == "gcc" else '-i8',nofor_main),
+                 'OPTL    = %s -O %s' % (fpic,nofor_main),
                  'OPTC    = %s -O -DINTSIZE64' % fpic])
         else:
             makefile_conf.extend(
-                ['OPTF    = %s -O  -DALLOW_NON_INIT' % fpic,
-                 'OPTL    = %s -O ' % fpic,
+                ['OPTF    = %s -O  -DALLOW_NON_INIT %s' % (fpic,nofor_main),
+                 'OPTL    = %s -O %s' % (fpic,nofor_main),
                  'OPTC    = %s -O ' % fpic])
 
 
