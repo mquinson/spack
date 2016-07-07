@@ -110,6 +110,8 @@ class Starpu(Package):
             if spec.satisfies('+mpi'):
                 config_args.append("--with-mpicc=%s/bin/smpicc" % simgrid)
 
+        config_args.append("--with-hwloc=%s" % spec['hwloc'].prefix)
+
         if not spec.satisfies('+mpi'):
             config_args.append("--without-mpicc")
 
