@@ -105,18 +105,18 @@ class Mkl(Package):
         opt_noasneeded="-Wl,--no-as-needed " if not platform.system() == "Darwin" else ""
 
         if spec.satisfies('+shared'):
-            spec.cc_link = "%s -L%s -l%s -l%s -l%s %s" % \
+            spec.cc_link = "%s-L%s -l%s -l%s -l%s %s" % \
             (opt_noasneeded, libdir, mkl_lib, mkl_core, mkl_seq, mkl_others)
-            spec.cc_link_mt = "%s -L%s -l%s -l%s -l%s %s %s" % \
+            spec.cc_link_mt = "%s-L%s -l%s -l%s -l%s %s %s" % \
             (opt_noasneeded, libdir, mkl_lib, mkl_core, mkl_thread, mkl_thread_others, mkl_others)
-            spec.fc_link = "%s -L%s -l%s -l%s -l%s %s" % \
+            spec.fc_link = "%s-L%s -l%s -l%s -l%s %s" % \
             (opt_noasneeded, libdir, mkl_lib_gf, mkl_core, mkl_seq, mkl_others)
-            spec.fc_link_mt = "%s -L%s -l%s -l%s -l%s %s %s" % \
+            spec.fc_link_mt = "%s-L%s -l%s -l%s -l%s %s %s" % \
             (opt_noasneeded, libdir, mkl_lib_gf, mkl_core, mkl_thread, mkl_thread_others, mkl_others)
         else:
-            spec.cc_link = "%s %s/lib%s.a %s/lib%s.a %s/lib%s.a %s %s" % \
+            spec.cc_link = "%s%s/lib%s.a %s/lib%s.a %s/lib%s.a %s %s" % \
             (start_group, libdir, mkl_lib, libdir, mkl_core, libdir, mkl_seq, end_group, mkl_others)
-            spec.cc_link_mt = "%s %s/lib%s.a %s/lib%s.a %s/lib%s.a %s %s %s" % \
+            spec.cc_link_mt = "%s%s/lib%s.a %s/lib%s.a %s/lib%s.a %s %s %s" % \
             (start_group, libdir, mkl_lib, libdir, mkl_core, libdir, mkl_thread, end_group, mkl_thread_others, mkl_others)
             spec.fc_link = spec.cc_link
             spec.fc_link_mt = spec.cc_link_mt
