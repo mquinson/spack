@@ -87,7 +87,8 @@ class Mpf(Package):
                 blacs = spec['blacs'].prefix
                 cmake_args.extend(["-DBLACS_LIBRARY_DIRS=" + blacs.lib])
             except KeyError:
-                filter_file('BLACS REQUIRED', 'BLACS', '../CMakeLists.txt')
+                pass
+            filter_file('BLACS REQUIRED', 'BLACS', '../CMakeLists.txt')
 
             pastix = spec['pastix'].prefix
             cmake_args.extend(["-DPASTIX_LIBRARY_DIRS=" + pastix.lib])
@@ -96,7 +97,7 @@ class Mpf(Package):
 
             mumps = spec['mumps'].prefix
             # Workaround for the current bug in the hash calculation of mumps
-            mumps = mumpsprefix
+            mumps = spec['mumps'].mumpsprefix
             cmake_args.extend(["-DMUMPS_LIBRARY_DIRS=" + mumps.lib])
             cmake_args.extend(["-DMUMPS_INCLUDE_DIRS=" + mumps.include])
             cmake_args.extend(["-DENABLE_MUMPS=ON"])
@@ -104,7 +105,7 @@ class Mpf(Package):
             if '^mkl' in spec:
                 # cree les variables utilisees par as-make/CMake/FindMKL()
                 cmake_args.extend(["-DMKL_DETECT=ON"])
-                mklblas = spec['mkl-blas'].prefix
+                mklblas = spec['mkl'].prefix
                 cmake_args.extend(["-DMKL_LIBRARY_DIRS=%s" % mklblas.lib])
                 cmake_args.extend(["-DMKL_INCLUDE_DIRS=%s" % mklblas.include])
                 mkl_libs=[]
@@ -139,7 +140,11 @@ class Mpf(Package):
 
             if os.environ.has_key("MKLROOT"):
                 mklroot = os.environ['MKLROOT']
-                cmake_args.extend(["-DMKL_LIBRARIES=mkl_scalapack_lp64;mkl_intel_lp64;mkl_core;mkl_gnu_thread;mkl_blacs_lp64;"])
+                if spec.satisfies('%gcc'):
+                    mkl_thread = "mkl_gnu_thread"
+                else:
+                    mkl_thread = "mkl_intel_thread"
+                cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_core;%s;" % mkl_thread])
 
                 # problem with static library blacs...
                 mf = FileFilter('../as-make/CMake/FindMKL.cmake')

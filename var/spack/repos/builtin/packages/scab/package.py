@@ -65,6 +65,12 @@ class Scab(Package):
 
             if spec.satisfies('%intel'):
                 cmake_args.extend(['-DINTEL_LINK_FLAGS=-nofor-main'])
+                cmake_args.extend(["-DCMAKE_C_FLAGS_RELEASE=-g -O -DNDEBUG -axCORE-AVX2,CORE-AVX-I,AVX,SSE4.2,SSE4.1,SSSE3,SSE3,SSE2 -openmp -D_GNU_SOURCE -pthread",
+                                   "-DCMAKE_C_FLAGS=-openmp -D_GNU_SOURCE -pthread",
+                                   "-DCMAKE_CXX_FLAGS_RELEASE=-I/usr/local/include/c++/4.8 -g -O -DNDEBUG -axCORE-AVX2,CORE-AVX-I,AVX,SSE4.2,SSE4.1,SSSE3,SSE3,SSE2 -openmp -D_GNU_SOURCE -pthread",
+                                   "-DCMAKE_CXX_FLAGS=-I/usr/local/include/c++/4.8 -openmp -pthread",
+                                   "-DCMAKE_Fortran_FLAGS_RELEASE=-g -O -assume byterecl -axCORE-AVX2,CORE-AVX-I,AVX,SSE4.2,SSE4.1,SSSE3,SSE3,SSE2 -openmp",
+                                   "-DCMAKE_Fortran_FLAGS=-openmp"])
      
             if spec.satisfies('+shared'):
                 cmake_args.extend(['-DBUILD_SHARED_LIBS=ON'])
@@ -111,6 +117,18 @@ class Scab(Package):
                 lapacke = spec['lapacke'].prefix
                 cmake_args.extend(["-DLAPACKE_LIBRARY_DIRS=%s/" % lapacke.lib])
                 cmake_args.extend(["-DLAPACKE_INCLUDE_DIRS=%s" % lapacke.include])
+
+            if os.environ.has_key("MKLROOT"):
+                mklroot = os.environ['MKLROOT']
+                if spec.satisfies('%gcc'):
+                    mkl_thread = "mkl_gnu_thread"
+                else:
+                    mkl_thread = "mkl_intel_thread"
+                cmake_args.extend(["-DMKL_LIBRARIES=mkl_intel_lp64;mkl_core;%s;" % mkl_thread])
+
+                # problem with static library blacs...
+                mf = FileFilter('../as-make/CMake/FindMKL.cmake')
+                mf.filter('set\(MKL_LIBRARIES -Wl,--start-group;\$\{MKL_LIBRARIES\};-Wl,--end-group\)','set(MKL_LIBRARIES -Wl,--start-group,--whole-archive;${MKL_LIBRARIES};-Wl,--end-group,--no-whole-archive )')
 
             cmake(*cmake_args)
 
