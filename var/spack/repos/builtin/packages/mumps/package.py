@@ -36,6 +36,8 @@ class Mumps(Package):
             url="http://mumps.enseeiht.fr/MUMPS_5.0.0.tar.gz")
     version('5.0.1', 'b477573fdcc87babe861f62316833db0',
             url="http://mumps.enseeiht.fr/MUMPS_5.0.1.tar.gz")
+    version('5.0.2', '591bcb2c205dcb0283872608cdf04927',
+            url="http://mumps.enseeiht.fr/MUMPS_5.0.2.tar.gz")
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
