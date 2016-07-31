@@ -17,6 +17,7 @@ class Mpf(Package):
         version('nd',     git='hades:/home/falco/Airbus/mpf.git', branch='master')
         repo=os.environ['SOFTWAREREPO1']
         version('master', git=repo+'mpf.git', branch='master')
+        version('chameleon', git=repo+'mpf.git', branch='gs/chameleon')
         version('1.22',   git=repo+'mpf.git', branch='v1.22')
         version('1.22.0', git=repo+'mpf.git', tag='v1.22.0')
         version('1.23',   git=repo+'mpf.git', branch='v1.23')
@@ -35,6 +36,7 @@ class Mpf(Package):
     depends_on("blas")
     depends_on("lapack")
     depends_on("metis", when="+metis")
+    depends_on("chameleon", when="@chameleon")
     depends_on("scotch +esmumps")
     depends_on("mumps +scotch")
     depends_on("pastix+mpi")
@@ -134,6 +136,10 @@ class Mpf(Package):
                 cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
 
             cmake_args.extend(["-DUSE_DEBIAN_OPENBLAS=OFF"])
+
+            if spec.satisfies('@chameleon'):
+                cmake_args.extend(["-DCHAMELEON_LIBRARY_DIRS="+ spec['chameleon'].prefix.lib])
+                cmake_args.extend(["-DCHAMELEON_INCLUDE_DIRS="+ spec['chameleon'].prefix.include+'/chameleon'])
 
             if spec.satisfies('+metis'):
                 cmake_args.extend(["-DMETIS_LIBRARY_DIRS="+ spec['metis'].prefix.lib])
