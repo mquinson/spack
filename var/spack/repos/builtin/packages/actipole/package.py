@@ -35,19 +35,6 @@ class Actipole(Package):
     depends_on("scab@src", when="@src")
     depends_on('cmake')
 
-    # Global variant NETLIB
-    variant('netlib', default=False, description='Use all netlib libraries as dependencies')
-    depends_on("netlib-blas", when="+netlib")
-    depends_on("netlib-blacs", when="+netlib")
-    depends_on("netlib-cblas", when="+netlib")
-    depends_on("netlib-lapacke", when="+netlib")
-    depends_on("netlib-lapack", when="+netlib")
-    depends_on("netlib-scalapack", when="+netlib")
-    # Global variant MKL
-    variant('mkl', default=False, description='Use all MKL libraries as dependencies')
-    depends_on("mkl", when="+mkl")
-    depends_on("mkl-scalapack", when="+mkl")
-
     if os.getenv("LOCAL_PATH"):
         project_local_path = os.environ["LOCAL_PATH"] + "/actipole"
 
@@ -71,6 +58,16 @@ class Actipole(Package):
                                    '-DCMAKE_CXX_FLAGS_DEBUG=-g -fopenmp -D_GNU_SOURCE -pthread'+opt_ass,
                                    '-DCMAKE_Fortran_FLAGS=-pthread -fopenmp',
                                    '-DCMAKE_Fortran_FLAGS_DEBUG=-g -fopenmp -pthread'])
+            if spec.satisfies('%intel'):
+                cmake_args.extend(["-DINTEL_LINK_FLAGS=-nofor-main",
+                                   "-DCMAKE_BUILD_TYPE=Release",
+                                   "-DCMAKE_C_FLAGS_RELEASE=-g -O -DNDEBUG -axCORE-AVX2,CORE-AVX-I,AVX,SSE4.2,SSE4.1,SSSE3,SSE3,SSE2 -openmp -D_GNU_SOURCE -pthread",
+                                   "-DCMAKE_C_FLAGS=-openmp -D_GNU_SOURCE -pthread",
+                                   "-DCMAKE_CXX_FLAGS_RELEASE=-I/usr/local/include/c++/4.8 -g -O -DNDEBUG -axCORE-AVX2,CORE-AVX-I,AVX,SSE4.2,SSE4.1,SSSE3,SSE3,SSE2 -openmp -D_GNU_SOURCE -pthread",
+                                   "-DCMAKE_CXX_FLAGS=-I/usr/local/include/c++/4.8 -openmp -pthread",
+                                   "-DCMAKE_Fortran_FLAGS_RELEASE=-g -O -assume byterecl -axCORE-AVX2,CORE-AVX-I,AVX,SSE4.2,SSE4.1,SSSE3,SSE3,SSE2 -openmp",
+                                   "-DCMAKE_Fortran_FLAGS=-openmp",
+                                   "-DULM_FORCE_DISABLED=ON"])
 
             if spec.satisfies('+shared'):
                 cmake_args.extend(['-DBUILD_SHARED_LIBS=ON'])
