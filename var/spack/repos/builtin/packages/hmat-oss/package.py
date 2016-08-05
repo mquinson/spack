@@ -6,6 +6,11 @@ class HmatOss(Package):
     """A H-Matrix C/C++ library"""
     homepage = "https://github.com/jeromerobert/hmat-oss/"
 
+    try:
+        repo=os.environ['SOFTWAREREPO1']
+        version('localmaster', git=repo+'hmat-oss.git', branch='master')
+    except KeyError:
+        pass
     version('nd',     git='hades:/home/falco/Airbus/hmat-oss.git', branch='af/BinaryNestedDissection')
     version('master', git='https://github.com/jeromerobert/hmat-oss.git', branch='master')
     version('hmat-oss-1.1', git='https://github.com/jeromerobert/hmat-oss.git', branch='hmat-oss-1.1')
@@ -14,6 +19,7 @@ class HmatOss(Package):
 
     variant('examples', default=True, description='Build examples at installation')
 
+    depends_on("cmake")
     depends_on("blas")
     depends_on("cblas")
     depends_on("lapack")

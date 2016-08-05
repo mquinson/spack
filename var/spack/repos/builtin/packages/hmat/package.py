@@ -3,8 +3,7 @@ import spack
 import os
 import shutil
 import sys
-from subprocess import call
-from subprocess import check_call
+import subprocess 
 import platform
 import spack
 
@@ -49,9 +48,19 @@ class Hmat(Package):
         if self.spec.satisfies('@src'):
             return 0
         if os.environ.has_key("SPACK_HMATOSS_TAR"):
-            check_call(["tar" , "xvf" , os.environ['SPACK_HMATOSS_TAR'] ])
+            subprocess.check_call(["tar" , "xvf" , os.environ['SPACK_HMATOSS_TAR'] ])
         else:
-            check_call(["git" , "submodule" , "update", "--init"])
+            try:
+                subprocess.check_call(["git" , "submodule" , "update", "--init"])
+            except subprocess.CalledProcessError:
+                # If github could not be contacted, we try to find the submodule hmat-oss in locally in SOFTWAREREPO1
+                if os.environ.has_key("SOFTWAREREPO1"):
+                    repo = os.environ['SOFTWAREREPO1']
+                    for f in (FileFilter('.gitmodules'), FileFilter('.git/config')):
+                        f.filter("https://github.com/jeromerobert/", "%s/" % repo)
+                    subprocess.check_call(["git" , "submodule" , "update", "--init"])
+                else:
+                    raise
 
     def build(self, spec, prefix):
         with working_dir('spack-build'):
