@@ -31,6 +31,7 @@ class Hmat(Package):
     variant('starpu'  , default=True , description='Use StarPU library')
     variant('examples', default=False, description='Build and run examples at installation')
     variant('shared',   default=True , description='Build HMAT as a shared library')
+    variant('runtime' , default=True , description='Use integrated toy runtime')
 
     depends_on("mpi")
     depends_on("starpu+mpi", when='+starpu')
@@ -86,6 +87,16 @@ class Hmat(Package):
                 cmake_args+=[
                     "-DSCOTCH_DIR="+ scotch
                     ]
+
+            if spec.satisfies('+starpu'):
+                cmake_args.extend(['-DSTARPU_ENABLE=ON'])
+            else:
+                cmake_args.extend(['-DSTARPU_ENABLE=OFF'])
+
+            if spec.satisfies('+runtime'):
+                cmake_args.extend(['-DRUNTIME_ENABLE=ON'])
+            else:
+                cmake_args.extend(['-DRUNTIME_ENABLE=OFF'])
 
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DBUILD_EXAMPLES:BOOL=ON"])
