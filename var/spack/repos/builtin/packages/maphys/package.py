@@ -179,8 +179,15 @@ class Maphys(Package):
         fflags = ''
         cflags = ''
         if spec.satisfies('+debug'):
-            fflags += ' -g -O2'
-            cflags += ' -g -O2'
+            if spec.satisfies('%gcc'):
+                fflags += ' -g3 -O0 -Wall -fcheck=bounds -fbacktrace'
+                cflags += ' -g3 -O0 -Wall -fcheck=bounds -fbacktrace'
+            elif spec.satisfies('%intel'):
+                fflags += ' -g3 -O0 -w3 -diag-disable:remark -check bounds -traceback'
+                cflags += ' -g3 -O0 -w3 -diag-disable:remark -check bounds -traceback'
+            else:
+                fflags += ' -g -O0'
+                cflags += ' -g -O0'
         else:
             fflags += ' -O3'
             cflags += ' -O3'
