@@ -184,7 +184,7 @@ class Mumps(Package):
             else:
                 makefile_conf.extend([
                     'LIBEXT=.so',
-                    'AR=$(FL) -shared -Wl,-soname -Wl,%s/$(notdir $@) -o' % prefix.lib,
+                    'AR=$(FL) -shared $(SCALAP) $(LMETIS) $(LSCOTCH) -Wl,-soname -Wl,%s/$(notdir $@) -o' % prefix.lib,
                     'RANLIB=echo'
                 ])
         else:
