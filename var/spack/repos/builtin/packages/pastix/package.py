@@ -51,6 +51,8 @@ class Pastix(Package):
         mf = FileFilter('example/src/makefile')
         mf.filter('^EXTRALIB       :=.*', 'EXTRALIB       :=  ${DST}/mem_trace.o ${EXTRALIB}')
         mf.filter('^EXTRALIB_MURGE :=.*', 'EXTRALIB_MURGE :=  ${DST}/mem_trace.o ${EXTRALIB_MURGE}')
+        mf = FileFilter('Makefile')
+        mf.filter('^DYLIB_OPT=', 'DYLIB_OPT=${LDFLAGS} -L__LIBDIR__ -lpastix')
 
     def setup(self):
 
