@@ -80,6 +80,10 @@ class Starpu(Package):
 
     def install(self, spec, prefix):
 
+        # add missing lib for simgrid static compilation
+        mf = FileFilter('configure.ac')
+        mf.filter('libfxt.a -lrt', 'libfxt.a -lrt -lbfd')
+
         if os.path.isfile("./autogen.sh"):
             subprocess.check_call("./autogen.sh")
 
@@ -117,6 +121,8 @@ class Starpu(Package):
 
         if not spec.satisfies('+cuda'):
             config_args.append("--disable-cuda")
+        else:
+            config_args.append("--enable-cuda")
 
         if not spec.satisfies('+opencl'):
             config_args.append("--disable-opencl")

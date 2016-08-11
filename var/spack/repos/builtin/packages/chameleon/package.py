@@ -137,6 +137,17 @@ class Chameleon(Package):
                 if spec.satisfies('%gcc'):
                     os.environ["LDFLAGS"] = "-lgfortran"
 
+            if spec.satisfies('@clusters'):
+                blas = self.spec['blas']
+                lapack = self.spec['lapack']
+
+                blas_libs = spec['blas'].cc_link_mt
+                blas_libs = blas_libs.replace(' ', ';')
+                cmake_args.extend(['-DBLAS_PAR_LIBRARIES=%s' % blas_libs])
+                lapack_libs = spec['lapack'].cc_link_mt
+                lapack_libs = lapack_libs.replace(' ', ';')
+                cmake_args.extend(['-DLAPACK_PAR_LIBRARIES=%s' % lapack_libs])
+
             if spec.satisfies("%xl"):
                 cmake_args.extend(["-DCMAKE_C_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
                 cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
