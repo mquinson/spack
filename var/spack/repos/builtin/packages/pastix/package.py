@@ -309,6 +309,11 @@ class Pastix(Package):
 
                     blas = spec['blas'].prefix
                     blas_libs = spec['blas'].cc_link
+                    if spec.satisfies('+blasmt'):
+                        if '^mkl' in spec or '^essl' in spec or '^openblas+mt' in spec:
+                            blas_libs = spec['blas'].cc_link_mt
+                        else:
+                            raise RuntimeError('Only ^openblas+mt, ^mkl and ^essl provide multithreaded blas.')
                     cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
                     try:
                         blas_flags = spec['blas'].cc_flags
