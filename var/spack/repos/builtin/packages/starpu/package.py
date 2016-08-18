@@ -71,6 +71,7 @@ class Starpu(Package):
     variant('examples', default=True, description='Enable Examples')
     variant('blas', default=False, description='Enable BLAS related features')
 
+    depends_on("automake")
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
     depends_on("cuda", when='+cuda')
