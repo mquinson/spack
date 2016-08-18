@@ -18,6 +18,7 @@ class HmatOss(Package):
     version('1.1.2', 'fe52fa22e413be862bec1b44a2b695a566525138', url='https://github.com/jeromerobert/hmat-oss/archive/1.1.2.tar.gz')
 
     variant('examples', default=True, description='Build examples at installation')
+    variant('context' , default=False , description='Use context timers')
 
     depends_on("cmake")
     depends_on("blas")
@@ -39,6 +40,9 @@ class HmatOss(Package):
 
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DBUILD_EXAMPLES:BOOL=ON"])
+
+            if spec.satisfies('+context'):
+                cmake_args.extend(["-DHMAT_CONTEXT:BOOL=ON"])
 
             cmake_args.extend(["-DMKL_DETECT=OFF"])
 

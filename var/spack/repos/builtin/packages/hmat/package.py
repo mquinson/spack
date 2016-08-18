@@ -32,6 +32,7 @@ class Hmat(Package):
     variant('examples', default=False, description='Build and run examples at installation')
     variant('shared',   default=True , description='Build HMAT as a shared library')
     variant('runtime' , default=True , description='Use integrated toy runtime')
+    variant('context' , default=False , description='Use context timers')
 
     depends_on("mpi")
     depends_on("starpu+mpi", when='+starpu')
@@ -100,6 +101,9 @@ class Hmat(Package):
 
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DBUILD_EXAMPLES:BOOL=ON"])
+
+            if spec.satisfies('+context'):
+                cmake_args.extend(["-DHMAT_CONTEXT:BOOL=ON"])
 
             if spec.satisfies('%gcc'):
                 cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug",
