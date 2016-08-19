@@ -63,6 +63,8 @@ class Hwloc(Package):
     version('src')
     #depends_on('libpciaccess')
 
+    variant('cuda', default=False, description='Build support for CUDA.')
+
     def url_for_version(self, version):
         return "http://www.open-mpi.org/software/hwloc/v%s/downloads/hwloc-%s.tar.gz" % (version.up_to(2), version)
 
@@ -72,7 +74,7 @@ class Hwloc(Package):
         if sys_name == 'Darwin':
             configure("--prefix=%s" % prefix , "--without-x")
         else:
-            configure("--prefix=%s" % prefix)
+            configure("--prefix=%s" % prefix, "--enable-cuda" if "+cuda" in spec else "--disable-cuda")
 
         make()
         make("install")
