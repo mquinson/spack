@@ -73,7 +73,6 @@ class Starpu(Package):
     variant('examples', default=True, description='Enable Examples')
     variant('blas', default=False, description='Enable BLAS related features')
 
-    depends_on("automake")
     depends_on("hwloc")
     depends_on("mpi", when='+mpi')
     depends_on("cuda", when='+cuda')
@@ -83,12 +82,12 @@ class Starpu(Package):
 
     def install(self, spec, prefix):
 
-        # add missing lib for simgrid static compilation
-        mf = FileFilter('configure.ac')
-        mf.filter('libfxt.a -lrt', 'libfxt.a -lrt -lbfd')
-
         if os.path.isfile("./autogen.sh"):
             subprocess.check_call("./autogen.sh")
+
+        # add missing lib for simgrid static compilation
+        mf = FileFilter('configure')
+        mf.filter('libfxt.a -lrt', 'libfxt.a -lrt -lbfd')
 
         config_args = ["--prefix=" + prefix]
         config_args.append("--disable-build-doc")
