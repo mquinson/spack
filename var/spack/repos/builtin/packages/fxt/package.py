@@ -24,6 +24,8 @@ class Fxt(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
+    variant('moreparams', default=False, description='Increase the value of FXT_MAX_PARAMS (to allow longer task names).')
+
     def install(self, spec, prefix):
 
         if spec.satisfies("arch=linux-ppc64le"):
@@ -32,6 +34,11 @@ class Fxt(Package):
 
         os.environ["CFLAGS"] = "-fPIC"
         configure("--prefix=%s" % prefix)
+
+        # Increase the value of FXT_MAX_PARAMS (to allow longer task names)
+        if '+moreparams' in spec:
+            mf = FileFilter('tools/fxt.h')
+            mf.filter('#define FXT_MAX_PARAMS.*', '#define FXT_MAX_PARAMS 16')
 
         # it seems that this patch is required after configure
         mf = FileFilter('tools/fut.h')
