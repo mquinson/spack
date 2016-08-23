@@ -86,8 +86,9 @@ class Starpu(Package):
             subprocess.check_call("./autogen.sh")
 
         # add missing lib for simgrid static compilation
-        mf = FileFilter('configure')
-        mf.filter('libfxt.a -lrt', 'libfxt.a -lrt -lbfd')
+        if spec.satisfies('+fxt'):
+            mf = FileFilter('configure')
+            mf.filter('libfxt.a -lrt', 'libfxt.a -lrt -lbfd')
 
         config_args = ["--prefix=" + prefix]
         config_args.append("--disable-build-doc")
