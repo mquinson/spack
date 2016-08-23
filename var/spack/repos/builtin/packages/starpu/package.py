@@ -82,8 +82,11 @@ class Starpu(Package):
 
     def install(self, spec, prefix):
 
-        if os.path.isfile("./autogen.sh"):
-            subprocess.check_call("./autogen.sh")
+        if not os.path.isfile("./configure"):
+            if os.path.isfile("./autogen.sh"):
+                subprocess.check_call("./autogen.sh")
+            else:
+                raise RuntimeError('Neither configure nor autogen.sh script exist. StarPU Cannot configure.')
 
         # add missing lib for simgrid static compilation
         if spec.satisfies('+fxt'):
