@@ -31,7 +31,7 @@ class Hmat(Package):
     variant('starpu'  , default=True , description='Use StarPU library')
     variant('examples', default=False, description='Build and run examples at installation')
     variant('shared',   default=True , description='Build HMAT as a shared library')
-    variant('runtime' , default=True , description='Use integrated toy runtime')
+    variant('toyrt' , default=True , description='Use integrated toy runtime')
     variant('context' , default=False , description='Use context timers')
 
     depends_on("mpi")
@@ -94,8 +94,8 @@ class Hmat(Package):
             else:
                 cmake_args.extend(['-DSTARPU_ENABLE=OFF'])
 
-            if spec.satisfies('+runtime'):
-                cmake_args.extend(['-DRUNTIME_ENABLE=ON'])
+            if spec.satisfies('+toyrt'):
+                cmake_args.extend(['-DTOYRT_ENABLE=ON'])
             else:
                 cmake_args.extend(['-DRUNTIME_ENABLE=OFF'])
 
