@@ -10,12 +10,8 @@ class Starpu(Package):
 
     version('1.2.0', '0cc98ac39b9cb4083c6c51399029d33b',
             url="http://starpu.gforge.inria.fr/files/starpu-1.2.0.tar.gz")
-    version('1.2.0rc6', 'ad44bdc17b7db1c350b3e5e80cd435f7',
-            url="http://starpu.gforge.inria.fr/files/starpu-1.2.0rc6.tar.gz")
-    version('1.2.0rc5', '5ee228354d0575c53e631ed359054cfd',
-            url="http://starpu.gforge.inria.fr/files/starpu-1.2.0rc5.tar.gz")
-    version('1.2.0rc4', '9509fa4cd2790bc51b164103f2c87f3c',
-            url="http://starpu.gforge.inria.fr/files/starpu-1.2.0rc4.tar.gz")
+    version('1.1.6', '005a3c15b25cb36df09e2492035b5aad',
+            url="http://starpu.gforge.inria.fr/files/starpu-1.1.6.tar.gz")
     version('1.1.5', '88de3bceece7e22260edd0a37d28ae08',
             url="http://starpu.gforge.inria.fr/files/starpu-1.1.5.tar.gz")
     version('1.1.4', '1ba56a7a6deee19fd88c90920f9403cc',
