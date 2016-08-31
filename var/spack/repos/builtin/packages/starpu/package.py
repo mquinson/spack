@@ -74,7 +74,7 @@ class Starpu(Package):
     depends_on("hwloc")
     depends_on("hwloc+cuda", when='+cuda')
     depends_on("mpi", when='+mpi~simgrid')
-    depends_on("cuda", when='+cuda')
+    depends_on("cuda", when='+cuda~simgrid')
     depends_on("fxt", when='+fxt')
     depends_on("simgrid", when='+simgrid')
     depends_on("simgrid+smpi", when='+simgrid+mpi')
@@ -125,7 +125,7 @@ class Starpu(Package):
         if not spec.satisfies('+mpi'):
             config_args.append("--without-mpicc")
 
-        if not spec.satisfies('+cuda'):
+        if not spec.satisfies('+cuda') or spec.satisfies('+simgrid'):
             config_args.append("--disable-cuda")
         else:
             config_args.append("--enable-cuda")
