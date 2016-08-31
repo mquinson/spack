@@ -72,10 +72,12 @@ class Starpu(Package):
     variant('blas', default=False, description='Enable BLAS related features')
 
     depends_on("hwloc")
-    depends_on("mpi", when='+mpi')
+    depends_on("hwloc+cuda", when='+cuda')
+    depends_on("mpi", when='+mpi~simgrid')
     depends_on("cuda", when='+cuda')
     depends_on("fxt", when='+fxt')
     depends_on("simgrid", when='+simgrid')
+    depends_on("simgrid+smpi", when='+simgrid+mpi')
     depends_on("blas", when='+blas')
 
     def install(self, spec, prefix):

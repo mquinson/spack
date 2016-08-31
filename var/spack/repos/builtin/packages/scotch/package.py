@@ -51,7 +51,8 @@ class Scotch(Package):
     variant('simgrid', default=False, description='Build Scotch with smpi from Simgrid')
 
     depends_on('mpi', when='+mpi~simgrid')
-    depends_on('simgrid+smpi', when='+simgrid')
+    depends_on('simgrid', when='+simgrid')
+    depends_on('simgrid+smpi', when='+simgrid+mpi')
     depends_on('zlib', when='+compression')
     #depends_on('flex')
     #depends_on('bison')

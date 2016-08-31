@@ -35,6 +35,7 @@ class Pastix(Package):
     variant('murgeup', default=False, description='Pull git murge source code (internet connection required), useful for the develop branch')
 
     depends_on("hwloc")
+    depends_on("hwloc+cuda", when='+cuda')
     depends_on("mpi", when='+mpi')
     depends_on("blas")
     depends_on("scotch", when='+scotch')
