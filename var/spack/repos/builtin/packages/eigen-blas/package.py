@@ -26,6 +26,7 @@ class EigenBlas(Package):
     provides('blas')
 
     variant('shared', default=True, description='Build Eigen BLAS as a shared library')
+    variant('opti',   default=True, description='Build Eigen BLAS with optimization compiler flags')
 
     depends_on('cmake@3:')
 
@@ -39,10 +40,12 @@ class EigenBlas(Package):
             cmake_args.extend(["-DEIGEN_TEST_NO_OPENGL=ON"])
 
             # Option for invoking the assembler on OSX (for sse/avx intrinsics)
-            opt_ass=" -Wa,-q" if platform.system() == "Darwin" else ""
+            if spec.satisfies('+opti'):
+                opt_ass=" -Wa,-q" if platform.system() == "Darwin" else ""
 
             if (spec.satisfies('@3.3:') or spec.satisfies('@hg-default')) and not spec.satisfies("arch=ppc64"):
-                cmake_args.extend(["-DCMAKE_CXX_FLAGS=-march=native"+opt_ass])
+                if spec.satisfies('+opti'):
+                    cmake_args.extend(["-DCMAKE_CXX_FLAGS=-march=native"+opt_ass])
 
             cmake(*cmake_args)
             make('blas')
