@@ -43,6 +43,9 @@ class Hwloc(Package):
     url      = "http://www.open-mpi.org/software/hwloc/v1.9/downloads/hwloc-1.9.tar.gz"
     list_url = "http://www.open-mpi.org/software/hwloc/"
     list_depth = 3
+
+    version('1.11.4', '840520dd09e391ef4b2268ccb9ac73fa',
+            url='https://www.open-mpi.org/software/hwloc/v1.11/downloads/hwloc-1.11.4.tar.bz2')
     version('1.11.3', '42d1d6c5c237069813cd28292629fc39',
             url='https://www.open-mpi.org/software/hwloc/v1.11/downloads/hwloc-1.11.3.tar.bz2')
     version('1.11.2', '486169cbe111cdea57be12638828ebbf',
