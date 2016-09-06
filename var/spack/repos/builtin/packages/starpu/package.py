@@ -110,7 +110,7 @@ class Starpu(Package):
         if spec.satisfies('+fxt'):
             fxt = spec['fxt'].prefix
             config_args.append("--with-fxt=%s" % fxt)
-            if spec.satisfies('@1.2:') or spec.satisfies('@svn-1.2') or spec.satisfies('@svn-trunk'):
+            if spec.satisfies('@1.2:') or spec.satisfies('@svn-1.2') or spec.satisfies('@svn-trunk') or spec.satisfies('@git-1.2'):
                 config_args.append("--enable-paje-codelet-details")
 
         if spec.satisfies('+simgrid'):
