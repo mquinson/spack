@@ -7,8 +7,8 @@ class Openblas(Package):
     """An optimized BLAS library based on GotoBLAS2 1.13 BSD version."""
     homepage = "http://www.openblas.net/"
 
-    version('0.2.18', '805e7f660877d588ea7e3792cda2ee65',
-            url="http://github.com/xianyi/OpenBLAS/archive/v0.2.18.tar.gz")
+    version('0.2.19', '28c998054fd377279741c6f0b9ea7941',
+            url="http://github.com/xianyi/OpenBLAS/archive/v0.2.19.tar.gz")
     version('develop', git='https://github.com/xianyi/OpenBLAS.git', branch='develop')
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
@@ -18,6 +18,9 @@ class Openblas(Package):
     version('src')
 
     provides('blas')
+    provides('lapack')
+    provides('cblas')
+    provides('lapacke')
 
     variant('mt', default=False, description="Use Multithreaded version")
     variant('openmp', default=False, description="Use Multithreaded version with OpenMP compatibility")
@@ -35,10 +38,10 @@ class Openblas(Package):
             openmp=0
 
         # build
-        make('NO_LAPACK=1', 'NO_CBLAS=1', 'USE_THREAD=%s'%thread, 'USE_OPENMP=%s'%openmp)
+        make('USE_THREAD=%s'%thread, 'USE_OPENMP=%s'%openmp)
 
         # install
-        make('install', 'NO_LAPACK=1', 'NO_CBLAS=1', 'PREFIX=%s' % prefix)
+        make('install', 'PREFIX=%s' % prefix)
 
     # to use the existing version available in the environment: BLAS_DIR environment variable must be set
     @when('@exist')
