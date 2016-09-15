@@ -24,6 +24,7 @@ class Openblas(Package):
 
     variant('mt', default=False, description="Use Multithreaded version")
     variant('openmp', default=False, description="Use Multithreaded version with OpenMP compatibility")
+    variant('lapack', default=True, description="Enable LAPACK interface")
 
     def install(self, spec, prefix):
 
@@ -36,12 +37,16 @@ class Openblas(Package):
             openmp=1
         else:
             openmp=0
+        if spec.satisfies('+lapack'):
+            lapack=0
+        else:
+            lapack=1
 
         # build
-        make('USE_THREAD=%s'%thread, 'USE_OPENMP=%s'%openmp)
+        make('USE_THREAD=%s' % thread, 'USE_OPENMP=%s' % openmp, 'NO_LAPACK=%s' % lapack)
 
         # install
-        make('install', 'PREFIX=%s' % prefix)
+        make('PREFIX=%s' % prefix, 'install')
 
     # to use the existing version available in the environment: BLAS_DIR environment variable must be set
     @when('@exist')
