@@ -101,6 +101,7 @@ class Openmpi(Package):
     variant('mxm', default=False, description='Build Mellanox Messaging support')
 
     variant('thread_multiple', default=False, description='Enable MPI_THREAD_MULTIPLE support')
+    variant('cuda', default=False, description='Enable CUDA support')
 
     # TODO : variant support for alps, loadleveler  is missing
     variant('tm', default=False, description='Build TM (Torque, PBSPro, and compatible) support')
@@ -112,15 +113,14 @@ class Openmpi(Package):
 
     variant('debug', default=False, description='Enable debug symbols')
 
-    # TODO : support for CUDA is missing
-
     provides('mpi@:2.2', when='@1.6.5')
     provides('mpi@:3.0', when='@1.7.5:')
     provides('mpi', when='@exist')
 
     depends_on('hwloc')
     depends_on('sqlite', when='+sqlite3')
-
+    depends_on('cuda', when='+cuda')
+    
     def url_for_version(self, version):
         return "http://www.open-mpi.org/software/ompi/v%s/downloads/openmpi-%s.tar.bz2" % (version.up_to(2), version)
 
@@ -164,7 +164,8 @@ class Openmpi(Package):
             '--enable-mpi-thread-multiple' if '+thread_multiple' in spec else '--disable-mpi-thread-multiple',
             '--with-pmi' if '+pmi' in spec else '--without-pmi',
             '--with-sqlite3' if '+sqlite3' in spec else '--without-sqlite3',
-            '--enable-vt' if '+vt' in spec else '--disable-vt'
+            '--enable-vt' if '+vt' in spec else '--disable-vt',
+            '--with-cuda=%s' % spec['cuda'].prefix if '+cuda' in spec else '--without-cuda'
         ])
         if '+verbs' in spec:
             path = _verbs_dir()
