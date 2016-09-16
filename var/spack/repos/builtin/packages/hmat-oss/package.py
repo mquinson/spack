@@ -40,6 +40,7 @@ class HmatOss(Package):
 
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DBUILD_EXAMPLES:BOOL=ON"])
+                cmake_args.extend(["-DINSTALL_EXAMPLES:BOOL=ON"])
 
             if spec.satisfies('+context'):
                 cmake_args.extend(["-DHMAT_CONTEXT:BOOL=ON"])
