@@ -81,3 +81,5 @@ class HmatOss(Package):
 
             make()
             make("install")
+            if spec.satisfies('+examples'):
+                make("test", "ARGS=-VV")
