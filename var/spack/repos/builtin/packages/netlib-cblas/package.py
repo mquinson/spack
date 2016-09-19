@@ -3,6 +3,7 @@ import os
 import platform
 import spack
 import shutil
+from shutil import copyfile
 
 class NetlibCblas(Package):
     """Netlib reference CBLAS"""
@@ -44,6 +45,8 @@ class NetlibCblas(Package):
         if spec.satisfies('%xl'):
             # patch to fix mangling with xl compiler, detection is not working
             mf.filter('#ADD_DEFINITIONS\( \"-D\$\{CDEFS\}\"\)','ADD_DEFINITIONS(-DNOCHANGE)')
+        # patch to ensure we include the internal cblas.h
+        copyfile('CBLAS/include/cblas.h', 'CBLAS/src/cblas.h')
 
         # Disable the building of lapack in CMakeLists.txt
         mf = FileFilter('CMakeLists.txt')
