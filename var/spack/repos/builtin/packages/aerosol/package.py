@@ -10,7 +10,7 @@ class Aerosol(Package):
 
        As there is no publically released version of aerosol yet, this package
        requires the user has access to Aerosol's repository on gforge.
-          PLEASE MAKE SURE YOUR USERNAME MATCHES YOUR GFORGE ACCOUNT NAME 
+          PLEASE MAKE SURE YOUR USERNAME MATCHES YOUR GFORGE ACCOUNT NAME
           OR SET SHELL VAR "GFORGE_USERNAME" TO YOUR GFORGE ACCOUNT NAME"""
 
     homepage = "https://gforge.inria.fr/projects/aerosol-p/"
@@ -21,6 +21,7 @@ class Aerosol(Package):
         username = getpass.getuser()
 
     version('svn-head', svn='https://scm.gforge.inria.fr/authscm/' + username + '/svn/aerosol-p/trunk')
+    version('trunk',    svn='https://scm.gforge.inria.fr/authscm/' + username + '/svn/aerosol-p/trunk')
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
@@ -33,7 +34,7 @@ class Aerosol(Package):
     depends_on('cmake')
     depends_on('mpi')
     depends_on('libxml2')
-    depends_on('blas')
+    depends_on('cblas')
     depends_on('papi', when="+papi")
     depends_on('hdf5+mpi', when="+hdf5")
 
