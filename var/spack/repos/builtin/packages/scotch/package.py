@@ -48,11 +48,13 @@ class Scotch(Package):
     variant('shared', default=True, description='Build shared libraries')
     variant('idx64', default=False, description='to use 64 bits integers')
     variant('grf', default=False, description='Install grf examples files')
-    variant('simgrid', default=False, description='Build Scotch with smpi from Simgrid')
+    #variant('simgrid', default=False, description='Build Scotch with smpi from Simgrid')
 
-    depends_on('mpi', when='+mpi~simgrid')
-    depends_on('simgrid', when='+simgrid')
-    depends_on('simgrid+smpi', when='+simgrid+mpi')
+
+    #depends_on('mpi', when='+mpi~simgrid')
+    #depends_on('simgrid', when='+simgrid')
+    #depends_on('simgrid+smpi', when='+simgrid+mpi')
+    depends_on('mpi', when='+mpi')
     depends_on('zlib', when='+compression')
     #depends_on('flex')
     #depends_on('bison')
@@ -61,9 +63,9 @@ class Scotch(Package):
 
         spec = self.spec
 
-        if spec.satisfies('+mpi') and spec.satisfies('+simgrid'):
-            raise RuntimeError('You cannot use mpi and simgrid at the same'
-             ' time because these variants are mutually exclusive')
+        #if spec.satisfies('+mpi') and spec.satisfies('+simgrid'):
+        #    raise RuntimeError('You cannot use mpi and simgrid at the same'
+        #     ' time because these variants are mutually exclusive')
 
         if self.compiler.name == 'gcc':
             defines.append('-Drestrict=__restrict')
@@ -78,16 +80,17 @@ class Scotch(Package):
                     'CCD       = $(CCP)'
                     ])
 
-        if spec.satisfies('+simgrid'):
-            makefile_inc.extend([
-                'CCP       = %s' % spec['simgrid'].smpicc,
-                'CCD       = cc -I'+spec['simgrid'].prefix+'/include/smpi'
-                ])
-            filter_file('static MPI_Datatype         dgraphstattypetab\[2\] = \{ GNUM_MPI, MPI_DOUBLE \};', '', 'src/libscotch/library_dgraph_stat.c')
-            # Beware: dirty code
-            filter_file('velolocdlt = 0.0L;', 'velolocdlt = 0.0L;MPI_Datatype         dgraphstattypetab[2] = { GNUM_MPI, MPI_DOUBLE };', 'src/libscotch/library_dgraph_stat.c')
+        #if spec.satisfies('+simgrid'):
+        #    makefile_inc.extend([
+        #        'CCP       = %s' % spec['simgrid'].smpicc,
+        #        'CCD       = cc -I'+spec['simgrid'].prefix+'/include/smpi'
+        #        ])
+        #    filter_file('static MPI_Datatype         dgraphstattypetab\[2\] = \{ GNUM_MPI, MPI_DOUBLE \};', '', 'src/libscotch/library_dgraph_stat.c')
+        #    # Beware: dirty code
+        #    filter_file('velolocdlt = 0.0L;', 'velolocdlt = 0.0L;MPI_Datatype         dgraphstattypetab[2] = { GNUM_MPI, MPI_DOUBLE };', 'src/libscotch/library_dgraph_stat.c')
 
-        if not spec.satisfies('+mpi') and not spec.satisfies('+simgrid'):
+        #if not spec.satisfies('+mpi') and not spec.satisfies('+simgrid'):
+        if not spec.satisfies('+mpi'):
             makefile_inc.extend([
                 'CCP       = $(CCS)'
                 'CCD       = $(CCS)'
