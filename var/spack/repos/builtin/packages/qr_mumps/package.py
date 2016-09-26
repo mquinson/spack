@@ -52,6 +52,8 @@ class QrMumps(Package):
             stagedir=self.stage.path+'/qr_mumps-2.0'
         elif spec.satisfies('@trunk'):
             stagedir=self.stage.path+'/trunk'
+        elif spec.satisfies('@src'):
+            stagedir=self.stage.path
 
         copyfile('makeincs/Make.inc.gnu', 'makeincs/Make.inc.spack')
         mf = FileFilter('makeincs/Make.inc.spack')
@@ -143,7 +145,9 @@ class QrMumps(Package):
             stagedir=self.stage.path+'/qr_mumps-2.0'
         elif spec.satisfies('@trunk'):
             stagedir=self.stage.path+'/trunk'
-        
+        elif spec.satisfies('@src'):
+            stagedir=self.stage.path
+
         make('setup', 'BUILD=build', 'PLAT=spack')
         with working_dir('build'):
 
