@@ -22,12 +22,15 @@ class Elasticus(Package):
     except KeyError:
         username = getpass.getuser()
 
-    version('master', git='https://' + username + '@scm.gforge.inria.fr/authscm/' + username + '/git/wavepropaglib/wavepropaglib.git')
+    version('master',
+            git='https://' + username + '@scm.gforge.inria.fr/authscm/' + username + '/git/wavepropaglib/wavepropaglib.git')
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+
+    variant('debug', default=False, description='Use the CMake Debug configuration')
 
     depends_on('cmake')
     depends_on('metis')
@@ -42,6 +45,12 @@ class Elasticus(Package):
                 "-Wno-dev",
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
+
+            if spec.satisfies("+debug"):
+                cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
+            else:
+                cmake_args.extend(["-DCMAKE_BUILD_TYPE=Release"])
+
             cmake(*cmake_args)
 
             # build
