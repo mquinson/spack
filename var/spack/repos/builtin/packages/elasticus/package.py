@@ -36,6 +36,9 @@ class Elasticus(Package):
     depends_on('metis')
     depends_on('lapack')
 
+    # Doesn't always build correctly in parallel
+    parallel = False
+
     def install(self, spec, prefix):
         with working_dir('build', create=True):
             # configure
