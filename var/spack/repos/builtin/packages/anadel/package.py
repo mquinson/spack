@@ -25,6 +25,7 @@ class Anadel(Package):
 
     variant('shared', default=True, description='Build ANADEL as a shared library')
     variant('mpf', default=False, description='Link with mpf to have memory and performance profiler')
+    variant('toymesher', default=False, description='Build tools to generate simple UNV mesh files')
 
     depends_on('cmake')
     depends_on('mpf', when='+mpf')
@@ -61,6 +62,11 @@ class Anadel(Package):
                                    "-DCMAKE_Fortran_FLAGS=-openmp",
                                    "-DULM_FORCE_DISABLED=ON"])
 
+            if spec.satisfies('+toymesher'):
+                cmake_args.extend(['-DBUILD_TOY_MESHER=ON'])
+            else:
+                cmake_args.extend(['-DBUILD_TOY_MESHER=OFF'])
+
             if spec.satisfies('+shared'):
                 cmake_args.extend(['-DBUILD_SHARED_LIBS=ON'])
             else:
@@ -73,6 +79,8 @@ class Anadel(Package):
             cmake(*cmake_args)
             make()
             make("install")
+            if spec.satisfies('+toymesher'):
+                make("test")
 
     def install(self, spec, prefix):
         if self.spec.satisfies('@src') and os.path.exists('spack-build'):

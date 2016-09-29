@@ -84,6 +84,7 @@ class Starpu(Package):
 
         if not os.path.isfile("./configure"):
             if os.path.isfile("./autogen.sh"):
+                subprocess.call(['libtoolize', '--copy', '--force'], shell=False)
                 subprocess.check_call("./autogen.sh")
             else:
                 raise RuntimeError('Neither configure nor autogen.sh script exist. StarPU Cannot configure.')
