@@ -97,7 +97,7 @@ class Hmat(Package):
             if spec.satisfies('+toyrt'):
                 cmake_args.extend(['-DTOYRT_ENABLE=ON'])
             else:
-                cmake_args.extend(['-DRUNTIME_ENABLE=OFF'])
+                cmake_args.extend(['-DTOYRT_ENABLE=OFF'])
 
             if spec.satisfies('+examples'):
                 cmake_args.extend(["-DBUILD_EXAMPLES:BOOL=ON"])
