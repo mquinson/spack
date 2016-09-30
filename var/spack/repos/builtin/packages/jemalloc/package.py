@@ -29,8 +29,10 @@ class Jemalloc(Package):
     homepage = "http://www.canonware.com/jemalloc/"
     url      = "https://github.com/jemalloc/jemalloc/releases/download/4.0.4/jemalloc-4.0.4.tar.bz2"
 
+    version('4.2.1', '094b0a7b8c77c464d0dc8f0643fd3901')
     version('4.1.0', 'c4e53c947905a533d5899e5cc3da1f94')
     version('4.0.4', '687c5cc53b9a7ab711ccd680351ff988')
+    version('3.6.0', 'e76665b63a8fddf4c9f26d2fa67afdf2')
 
     variant('stats', default=False, description='Enable heap statistics')
     variant('prof', default=False, description='Enable heap profiling')
