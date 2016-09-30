@@ -33,6 +33,7 @@ class Hmat(Package):
     variant('shared',   default=True , description='Build HMAT as a shared library')
     variant('toyrt' , default=True , description='Use integrated toy runtime')
     variant('context' , default=False , description='Use context timers')
+    variant('jemalloc' , default=False , description='Use jemalloc memory allocator')
 
     depends_on("mpi")
     depends_on("starpu+mpi", when='+starpu')
@@ -41,6 +42,7 @@ class Hmat(Package):
     depends_on("lapack")
     depends_on("scotch", when="@nd")
     depends_on('cmake')
+    depends_on('jemalloc+mangle', when='+jemalloc')
 
     if os.getenv("LOCAL_PATH"):
         project_local_path = os.environ["LOCAL_PATH"] + "/hmat"
@@ -104,6 +106,9 @@ class Hmat(Package):
 
             if spec.satisfies('+context'):
                 cmake_args.extend(["-DHMAT_CONTEXT:BOOL=ON"])
+
+            if spec.satisfies('+jemalloc'):
+                cmake_args.extend(["-DHMAT_JEMALLOC:BOOL=ON"])
 
             if spec.satisfies('%gcc'):
                 cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug",

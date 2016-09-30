@@ -19,12 +19,14 @@ class HmatOss(Package):
 
     variant('examples', default=True, description='Build examples at installation')
     variant('context' , default=False , description='Use context timers')
+    variant('jemalloc' , default=False , description='Use jemalloc memory allocator')
 
     depends_on("cmake")
     depends_on("blas")
     depends_on("cblas")
     depends_on("lapack")
     depends_on("scotch", when="@nd")
+    depends_on('jemalloc+mangle', when='+jemalloc')
 
     def install(self, spec, prefix):
         with working_dir('spack-build', create=True):
@@ -44,6 +46,9 @@ class HmatOss(Package):
 
             if spec.satisfies('+context'):
                 cmake_args.extend(["-DHMAT_CONTEXT:BOOL=ON"])
+
+            if spec.satisfies('+jemalloc'):
+                cmake_args.extend(["-DHMAT_JEMALLOC:BOOL=ON"])
 
             cmake_args.extend(["-DMKL_DETECT=OFF"])
 
