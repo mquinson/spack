@@ -80,7 +80,7 @@ class Anadel(Package):
             make()
             make("install")
             if spec.satisfies('+toymesher'):
-                make("test")
+                make("test", "ARGS=-VV")
 
     def install(self, spec, prefix):
         if self.spec.satisfies('@src') and os.path.exists('spack-build'):
