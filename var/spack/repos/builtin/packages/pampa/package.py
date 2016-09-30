@@ -8,18 +8,27 @@ class Pampa(Package):
        users to write parallel solver codes without having to bother about
        data exchange, data redistribution, remeshing and load balancing.
 
-       As there is no publically released version of pampa yet, this package
-       requires that the user has access to Pampa's repository on gforge.
-          PLEASE MAKE SURE YOUR USERNAME MATCHES YOUR GFORGE ACCOUNT NAME 
-          OR SET SHELL VAR "GFORGE_USERNAME" TO YOUR GFORGE ACCOUNT NAME"""
+       The release 1.0.0 requires to set the "PAMPA_TARBALL_100"
+       environment variable to the absolute path of the PaMPA tarball,
+       e.g. /home/doe/pampa-1.0.0.tar.gz. To use the SVN HEAD state,
+       the user must have access to Pampa's repository on gforge.
+       PLEASE MAKE SURE YOUR USERNAME MATCHES YOUR GFORGE ACCOUNT NAME
+       OR SET SHELL VAR "GFORGE_USERNAME" TO YOUR GFORGE ACCOUNT NAME
+
+    """
 
     homepage = "http://gforge.inria.fr/projects/pampa-p/"
+
+    try:
+        repo=os.environ['PAMPA_TARBALL_100']
+        version('1.0.0', '4b40e981f205f9acc712728f7feadd62', url='file://'+repo)
+    except KeyError:
+        pass
 
     try:
         username = os.environ['GFORGE_USERNAME']
     except KeyError:
         username = getpass.getuser()
-
     version('svn-head', svn='https://scm.gforge.inria.fr/authscm/' + username + '/svn/pampa-p/trunk')
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
@@ -28,9 +37,12 @@ class Pampa(Package):
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
+    variant('idx64', default=False, description='to use 64 bits integers')
+
     depends_on('cmake')
     depends_on('mpi')
     depends_on('scotch@6.0.0:6.0.3 +mpi ~pthread')
+    depends_on('scotch@6.0.0:6.0.3 +mpi ~pthread +idx64', when='+idx64')
 
     def install(self, spec, prefix):
         with working_dir('spack-build', create=True):
@@ -41,6 +53,8 @@ class Pampa(Package):
             cmake_args.extend(["-DCMAKE_BUILD_TYPE=Release"])
             cmake_args.extend(["-DCOMM_TYPE=Point-to-point"])
             cmake_args.extend(["-DPTHREAD=None"])
+            if spec.satisfies('+idx64'):
+                cmake_args.extend(["-DINT_SIZE=64bits"])
             cmake(*cmake_args)
 
             # build
