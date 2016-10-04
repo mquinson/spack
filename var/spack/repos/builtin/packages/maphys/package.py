@@ -10,13 +10,17 @@ class Maphys(Package):
     """a Massively Parallel Hybrid Solver."""
     homepage = "https://project.inria.fr/maphys/"
 
-    version('0.9.3', 'f52ff32079991163c8905307ce8b8a79',
-            url='http://maphys.gforge.inria.fr/maphys_0.9.3.tar.gz')
-
     svnroot  = "https://scm.gforge.inria.fr/anonscm/svn/maphys/"
+
+    version('0.9.4',
+            svn=svnroot+'tags/maphys-0.9.4')
+
     version('maphys-dev',
             svn=svnroot+"branches/maphys-dev")
-
+    
+    version('0.9.3', 'f52ff32079991163c8905307ce8b8a79',
+            svn=svnroot+'tags/maphys-0.9.3', default=True)
+        
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
         url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
