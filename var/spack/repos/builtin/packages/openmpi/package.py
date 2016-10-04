@@ -188,6 +188,10 @@ class Openmpi(Package):
         if '+debug' in spec :
             config_args.append("--enable-debug")
 
+        # With intel 16, the 'deprecated' warnings in mpi.h triggers compilation error when building user application, so we disable...
+        if '%intel' in spec :
+            config_args.append("--disable-mpi-interface-warning")
+
         configure(*config_args)
         make()
         make("install")
