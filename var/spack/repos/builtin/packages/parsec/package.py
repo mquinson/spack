@@ -6,7 +6,7 @@ class Parsec(Package):
     homepage = "http://icl.cs.utk.edu/parsec/index.html"
 
     version('last-rel', '3c09cc8bd413a435254d6cc0e2e5f663',
-            url='http://icl.cs.utk.edu/projectsfiles/parsec/pubs/parsec-b9861d3a818f.tgz')
+            url='http://icl.cs.utk.edu/projectsfiles/parsec/pubs/parsec-b9861d3a818f.tgz', preferred=True)
     version ('master', git='https://bitbucket.org/icldistcomp/parsec.git', branch='master')
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed

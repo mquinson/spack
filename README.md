@@ -1,8 +1,11 @@
 ![image](share/spack/logo/spack-logo-text-64.png "Spack")
+<img src="share/spack/logo/INRIA_SCIENTIFIQUE_UK_CMJN.jpg" height="152" width="420">
 ============
 
-[![Build Status](https://travis-ci.org/LLNL/spack.svg?branch=develop)](https://travis-ci.org/LLNL/spack)
-[![Coverage Status](https://coveralls.io/repos/github/LLNL/spack/badge.svg?branch=develop)](https://coveralls.io/github/LLNL/spack?branch=develop)
+This is the "MORSE" fork of
+[Spack](https://github.com/scalability-llnl/spack), more detail on
+this dedicated page [How to install HiePACS solvers using
+Spack](http://morse.gforge.inria.fr/spack/spack.html).
 
 Spack is a package management tool designed to support multiple
 versions and configurations of software on a wide variety of platforms
@@ -25,15 +28,19 @@ for examples and highlights.
 
 To install spack and install your first package:
 
-    $ git clone https://github.com/llnl/spack.git
+    $ git clone https://github.com/fpruvost/spack.git
     $ cd spack/bin
-    $ ./spack install libelf
+    $ ./spack install hwloc
 
 Documentation
 ----------------
 
 [**Full documentation**](http://software.llnl.gov/spack) for Spack is
 the first place to look.
+
+[**How to install HiePACS solvers using Spack**](http://morse.gforge.inria.fr/spack/spack.html)
+gives details about MORSE fork specificities and show how to install HiePACS
+solver stacks.
 
 See also:
   * [Technical paper](http://www.computer.org/csdl/proceedings/sc/2015/3723/00/2807623.pdf) and
@@ -55,6 +62,11 @@ join the mailing list.  We're using a Google Group for this, and you
 can join it here:
 
   * [Spack Google Group](https://groups.google.com/d/forum/spack)
+
+For contributing specificaly to this "morse" fork, or get support,
+please contact the MORSE mailing list
+
+  * [MORSE mailing list](morse-devel@lists.gforge.inria.fr)
 
 ### Contributions
 
