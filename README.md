@@ -1,10 +1,11 @@
 ![image](share/spack/logo/spack-logo-text-64.png "Spack")
+![image](share/spack/logo/INRIA_SCIENTIFIQUE_UK_CMJN.jpg "Spack")
 ============
 
 This is the "MORSE" fork of
 [Spack](https://github.com/scalability-llnl/spack), more detail on
 this dedicated page [How to install HiePACS solvers using
-Spack](http://morse.gforge.inria.fr/spack/spack.html)
+Spack](http://morse.gforge.inria.fr/spack/spack.html).
 
 Spack is a package management tool designed to support multiple
 versions and configurations of software on a wide variety of platforms
