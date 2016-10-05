@@ -3,8 +3,8 @@
 
 This is the "MORSE" fork of
 [Spack](https://github.com/scalability-llnl/spack), more detail on
-this dedicated page
-[![How to install HiePACS solvers using Spack](http://morse.gforge.inria.fr/spack/spack.html)
+this dedicated page [How to install HiePACS solvers using
+Spack](http://morse.gforge.inria.fr/spack/spack.html)
 
 Spack is a package management tool designed to support multiple
 versions and configurations of software on a wide variety of platforms
