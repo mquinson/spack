@@ -1,5 +1,5 @@
 ![image](share/spack/logo/spack-logo-text-64.png "Spack")
-![image](share/spack/logo/INRIA_SCIENTIFIQUE_UK_CMJN.jpg "Spack")
+![image](share/spack/logo/INRIA_SCIENTIFIQUE_UK_CMJN.jpg "Inria")
 ============
 
 This is the "MORSE" fork of
