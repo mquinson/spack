@@ -19,7 +19,7 @@ class Maphys(Package):
             svn=svnroot+"branches/maphys-dev")
     
     version('0.9.3', 'f52ff32079991163c8905307ce8b8a79',
-            svn=svnroot+'tags/maphys-0.9.3', default=True)
+            svn=svnroot+'tags/maphys-0.9.3', preferred=True)
         
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
