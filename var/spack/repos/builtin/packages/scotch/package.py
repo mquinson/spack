@@ -27,12 +27,14 @@ class Scotch(Package):
     # url      = "http://gforge.inria.fr/frs/download.php/file/34099/scotch_6.0.3.tar.gz"
     list_url = "http://gforge.inria.fr/frs/?group_id=248"
 
-    version('6.0.3', '10b0cc0f184de2de99859eafaca83cfc',
-            url='http://gforge.inria.fr/frs/download.php/file/34099/scotch_6.0.3.tar.gz')
     version('6.0.4', 'd58b825eb95e1db77efe8c6ff42d329f',
             url='https://gforge.inria.fr/frs/download.php/file/34618/scotch_6.0.4.tar.gz')
-    version('5.1.11', 'c00a886895b3895529814303afe0d74e',
-            url='https://gforge.inria.fr/frs/download.php/28044/scotch_5.1.11_esmumps.tar.gz')
+    version('6.0.3', '10b0cc0f184de2de99859eafaca83cfc',
+            url='http://gforge.inria.fr/frs/download.php/file/34099/scotch_6.0.3.tar.gz')
+    version('6.0.2b', '0da7429120177ca075ee0da248ffd7c2',
+            url='https://gforge.inria.fr/frs/download.php/file/34089/scotch_6.0.2b.tar.gz')
+    version('6.0.1', 'e22a664f66cfb2ddeab307245acc8f8c',
+            url='https://gforge.inria.fr/frs/download.php/file/34078/scotch_6.0.1.tar.gz')
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
@@ -48,12 +50,7 @@ class Scotch(Package):
     variant('shared', default=True, description='Build shared libraries')
     variant('idx64', default=False, description='to use 64 bits integers')
     variant('grf', default=False, description='Install grf examples files')
-    #variant('simgrid', default=False, description='Build Scotch with smpi from Simgrid')
 
-
-    #depends_on('mpi', when='+mpi~simgrid')
-    #depends_on('simgrid', when='+simgrid')
-    #depends_on('simgrid+smpi', when='+simgrid+mpi')
     depends_on('mpi', when='+mpi')
     depends_on('zlib', when='+compression')
     #depends_on('flex')
@@ -62,10 +59,6 @@ class Scotch(Package):
     def compiler_specifics(self, makefile_inc, defines):
 
         spec = self.spec
-
-        #if spec.satisfies('+mpi') and spec.satisfies('+simgrid'):
-        #    raise RuntimeError('You cannot use mpi and simgrid at the same'
-        #     ' time because these variants are mutually exclusive')
 
         if self.compiler.name == 'gcc':
             defines.append('-Drestrict=__restrict')
@@ -80,16 +73,6 @@ class Scotch(Package):
                     'CCD       = $(CCP)'
                     ])
 
-        #if spec.satisfies('+simgrid'):
-        #    makefile_inc.extend([
-        #        'CCP       = %s' % spec['simgrid'].smpicc,
-        #        'CCD       = cc -I'+spec['simgrid'].prefix+'/include/smpi'
-        #        ])
-        #    filter_file('static MPI_Datatype         dgraphstattypetab\[2\] = \{ GNUM_MPI, MPI_DOUBLE \};', '', 'src/libscotch/library_dgraph_stat.c')
-        #    # Beware: dirty code
-        #    filter_file('velolocdlt = 0.0L;', 'velolocdlt = 0.0L;MPI_Datatype         dgraphstattypetab[2] = { GNUM_MPI, MPI_DOUBLE };', 'src/libscotch/library_dgraph_stat.c')
-
-        #if not spec.satisfies('+mpi') and not spec.satisfies('+simgrid'):
         if not spec.satisfies('+mpi'):
             makefile_inc.extend([
                 'CCP       = $(CCS)'
@@ -136,10 +119,6 @@ class Scotch(Package):
         if spec.satisfies('+idx64'):
             defines.append('-DINTSIZE64')
             defines.append('-DIDXSIZE64')
-
-        # all Scotch versions of the Metis routines are prefixed with SCOTCH_
-        # to avoid compatibility problems when both Scotch and Metis are used
-        #defines.append('-DSCOTCH_METIS_PREFIX')
 
         if platform.system() == 'Darwin':
             ldflags.append('-lm -pthread')
@@ -194,8 +173,7 @@ class Scotch(Package):
         if spec.satisfies('+mpi'):
             targets.append('ptscotch')
 
-        if spec.satisfies('+esmumps') and spec.satisfies('@6:'):
-            # No 'make esmumps ptesmumps' in scotch_5.1.11_esmumps.tar.gz
+        if spec.satisfies('+esmumps'):
             targets.append('esmumps')
             if spec.satisfies('+mpi'):
                 targets.append('ptesmumps')
@@ -203,17 +181,13 @@ class Scotch(Package):
         with working_dir('src'):
             for app in targets:
                 make(app, parallel=0)
+            make('prefix=%s' % prefix, 'install')
 
-        install_tree('bin', prefix.bin)
-        install_tree('lib', prefix.lib)
-        install_tree('include', prefix.include)
-        install_tree('man/man1', prefix.share_man1)
         if spec.satisfies('+grf'):
             with working_dir('grf'):
                 for f in os.listdir('.'):
                     gunzip(f)
             install_tree('grf', prefix + '/grf')
-
 
     # to use the existing version available in the environment: SCOTCH_DIR environment variable must be set
     @when('@exist')

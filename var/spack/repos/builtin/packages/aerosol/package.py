@@ -20,7 +20,6 @@ class Aerosol(Package):
     except KeyError:
         username = getpass.getuser()
 
-    version('svn-head', svn='https://scm.gforge.inria.fr/authscm/' + username + '/svn/aerosol-p/trunk')
     version('trunk',    svn='https://scm.gforge.inria.fr/authscm/' + username + '/svn/aerosol-p/trunk')
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
@@ -32,11 +31,13 @@ class Aerosol(Package):
     variant('hdf5', default=True, description='Enable IO using parallel HDF5')
 
     depends_on('cmake')
-    depends_on('mpi')
     depends_on('libxml2')
+    depends_on('mpi')
     depends_on('cblas')
     depends_on('papi', when="+papi")
     depends_on('hdf5+mpi', when="+hdf5")
+    depends_on('pampa@trunk')
+    depends_on('scotch@6.0.3~pthread')
 
     parallel = False # parallel builds might require too much RAM (ie >8gb for 4c)
 

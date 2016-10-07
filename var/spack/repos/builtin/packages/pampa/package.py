@@ -21,7 +21,9 @@ class Pampa(Package):
 
     try:
         repo=os.environ['PAMPA_TARBALL_100']
-        version('1.0.0', '4b40e981f205f9acc712728f7feadd62', url='file://'+repo)
+        version('1.0.0',
+                '15d50fe872d7ab862988481764323167',
+                url='file://'+repo, preferred=True)
     except KeyError:
         pass
 
@@ -29,7 +31,7 @@ class Pampa(Package):
         username = os.environ['GFORGE_USERNAME']
     except KeyError:
         username = getpass.getuser()
-    version('svn-head', svn='https://scm.gforge.inria.fr/authscm/' + username + '/svn/pampa-p/trunk')
+    version('trunk', svn='https://scm.gforge.inria.fr/authscm/' + username + '/svn/pampa-p/trunk')
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
@@ -41,8 +43,10 @@ class Pampa(Package):
 
     depends_on('cmake')
     depends_on('mpi')
-    depends_on('scotch@6.0.0:6.0.3 +mpi ~pthread')
-    depends_on('scotch@6.0.0:6.0.3 +mpi ~pthread +idx64', when='+idx64')
+    depends_on('scotch +mpi')
+    depends_on('scotch +mpi +idx64', when='+idx64')
+    depends_on('scotch@6.0.4 +mpi', when='@1.0.0')
+    depends_on('scotch@6.0.4 +mpi +idx64', when='@1.0.0+idx64')
 
     def install(self, spec, prefix):
         with working_dir('spack-build', create=True):
