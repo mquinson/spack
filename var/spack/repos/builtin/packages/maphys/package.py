@@ -15,9 +15,9 @@ class Maphys(Package):
     version('0.9.4',
             svn=svnroot+'tags/maphys-0.9.4')
 
-    version('maphys-dev',
-            svn=svnroot+"branches/maphys-dev")
-    
+    #version('maphys-dev',
+    #        svn=svnroot+"branches/maphys-dev")
+
     version('0.9.3', 'f52ff32079991163c8905307ce8b8a79',
             svn=svnroot+'tags/maphys-0.9.3', preferred=True)
         
