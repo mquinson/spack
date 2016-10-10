@@ -20,7 +20,7 @@ class QrMumps(Package):
 
     variant('debug', default=False, description='Enable debug symbols')
     variant('colamd', default=True, description='Enable COLAMD ordering')
-    variant('metis', default=False, description='Enable Metis ordering')
+    variant('metis', default=True, description='Enable Metis ordering')
     variant('scotch', default=True, description='Enable Scotch ordering')
     variant('starpu', default=True, description='Enable StarPU runtime system support')
     variant('fxt', default=False, description='Enable FxT tracing support to be used through StarPU')
@@ -42,11 +42,6 @@ class QrMumps(Package):
 
     def setup(self):
         spec = self.spec
-
-        if spec.satisfies('+metis') and spec.satisfies('+scotch'):
-            raise RuntimeError('You cannot use Metis and Scotch at the same'
-             ' time because they are incompatible (Scotch provides a metis.h'
-             ' which is not the same as the one providen by Metis)')
 
         if spec.satisfies('@2.0'):
             stagedir=self.stage.path+'/qr_mumps-2.0'

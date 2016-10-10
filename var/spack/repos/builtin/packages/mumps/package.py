@@ -48,9 +48,9 @@ class Mumps(Package):
     variant('blasmt', default=False, description='Enable Multithreaded Blas/Lapack if providen by the vendor')
     variant('mpi', default=True, description='Sequential version (no MPI)')
     variant('scotch', default=True, description='Enable Scotch')
-    variant('ptscotch', default=False, description='Enable PT-Scotch')
-    variant('metis', default=False, description='Enable Metis')
-    variant('parmetis', default=False, description='Activate Parmetis as a possible ordering library')
+    variant('ptscotch', default=True, description='Enable PT-Scotch')
+    variant('metis', default=True, description='Enable Metis')
+    variant('parmetis', default=True, description='Activate Parmetis as a possible ordering library')
     variant('double', default=True, description='Activate the compilation of dmumps')
     variant('float', default=True, description='Activate the compilation of smumps')
     variant('complex', default=True, description='Activate the compilation of cmumps and/or zmumps')
@@ -61,8 +61,8 @@ class Mumps(Package):
 
     depends_on('scotch + esmumps', when='~ptscotch+scotch')
     depends_on('scotch + esmumps + mpi', when='+ptscotch')
-    depends_on('scotch + idx64', when='+scotch+idx64')
-    depends_on('scotch + idx64', when='+ptscotch+idx64')
+    depends_on('scotch + esmumps + idx64', when='+scotch+idx64')
+    depends_on('scotch + esmumps + mpi +idx64', when='+ptscotch+idx64')
     depends_on('metis + idx64', when='+metis+idx64')
     depends_on('metis + idx64', when='+parmetis+idx64')
     depends_on("metis@5:", when='@src+metis')
@@ -81,17 +81,6 @@ class Mumps(Package):
     # def patch(self):
     def write_makefile_inc(self):
         spec = self.spec
-        if ('+parmetis' in spec or '+ptscotch' in spec) and '+mpi' not in spec:
-            raise RuntimeError('You cannot use the variants parmetis or ptscotch without mpi')
-        if (
-            ( spec.satisfies('+metis')    and spec.satisfies('+scotch')   ) or
-            ( spec.satisfies('+metis')    and spec.satisfies('+ptscotch') ) or
-            ( spec.satisfies('+parmetis') and spec.satisfies('+scotch')   ) or
-            ( spec.satisfies('+parmetis') and spec.satisfies('+ptscotch') )
-           ):
-            raise RuntimeError('You cannot use Metis and Scotch at the same'
-             ' time because they are incompatible (Scotch provides a metis.h'
-             ' which is not the same as the one providen by Metis)')
 
         blas_libs = spec['blas'].fc_link
         if spec.satisfies('+blasmt'):
@@ -259,26 +248,26 @@ class Mumps(Package):
             # be aware that it must come after the actual MPI library during the link phase
             spec.fc_link  += ' -lmpiseq'
         ## mumps dependencies
-#         if spec.satisfies('+metis'):
-#             # metis
-#             spec.fc_link += ' '+spec['metis'].cc_link
-#         if spec.satisfies('+parmetis'):
-#             # parmetis
-#             spec.fc_link += ' '+spec['parmetis'].cc_link
-#         if spec.satisfies('+scotch'):
-#             # scotch and ptscotch
-#             spec.fc_link += ' '+spec['scotch'].cc_link
-#         # scalapack, blacs
-#         spec.fc_link += ' %s %s' % (spec['scalapack'].cc_link, spec['blacs'].cc_link)
-#         if spec.satisfies('+blasmt'):
-#             # lapack and blas
-#             if '^mkl' in spec or '^essl' in spec:
-#                 spec.fc_link += ' %s' % spec['lapack'].fc_link_mt
-#             else:
-#                 spec.fc_link += ' %s' % spec['lapack'].fc_link
-#             spec.fc_link += ' %s' % spec['blas'].fc_link_mt
-#         else:
-#             spec.fc_link += ' %s %s' % (spec['lapack'].fc_link, spec['blas'].fc_link)
+        if spec.satisfies('+parmetis'):
+            # parmetis
+            spec.fc_link += ' '+spec['parmetis'].cc_link
+        if spec.satisfies('+metis'):
+            # metis
+            spec.fc_link += ' '+spec['metis'].cc_link
+        if spec.satisfies('+scotch'):
+            # scotch and ptscotch
+            spec.fc_link += ' '+spec['scotch'].cc_link
+        # scalapack, blacs
+        spec.fc_link += ' %s %s' % (spec['scalapack'].cc_link, spec['blacs'].cc_link)
+        if spec.satisfies('+blasmt'):
+            # lapack and blas
+            if '^mkl' in spec or '^essl' in spec:
+                spec.fc_link += ' %s' % spec['lapack'].fc_link_mt
+            else:
+                spec.fc_link += ' %s' % spec['lapack'].fc_link
+            spec.fc_link += ' %s' % spec['blas'].fc_link_mt
+        else:
+            spec.fc_link += ' %s %s' % (spec['lapack'].fc_link, spec['blas'].fc_link)
 
-        # there is a bug with the hash calculation of mumps
+       # there is a bug with the hash calculation of mumps
         spec.mumpsprefix=spec.prefix
