@@ -100,7 +100,7 @@ class Openmpi(Package):
     variant('verbs', default=_verbs_dir() is not None, description='Build support for OpenFabrics verbs.')
     variant('mxm', default=False, description='Build Mellanox Messaging support')
 
-    variant('thread_multiple', default=False, description='Enable MPI_THREAD_MULTIPLE support')
+    variant('thread_multiple', default=True, description='Enable MPI_THREAD_MULTIPLE support')
     variant('cuda', default=False, description='Enable CUDA support')
 
     # TODO : variant support for alps, loadleveler  is missing
@@ -120,7 +120,7 @@ class Openmpi(Package):
     depends_on('hwloc')
     depends_on('sqlite', when='+sqlite3')
     depends_on('cuda', when='+cuda')
-    
+
     def url_for_version(self, version):
         return "http://www.open-mpi.org/software/ompi/v%s/downloads/openmpi-%s.tar.bz2" % (version.up_to(2), version)
 
