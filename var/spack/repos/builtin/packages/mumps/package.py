@@ -82,6 +82,11 @@ class Mumps(Package):
     def write_makefile_inc(self):
         spec = self.spec
 
+        if spec.satisfies('~mpi') and spec.satisfies('+parmetis') or \
+        spec.satisfies('~mpi') and spec.satisfies('+ptscotch'):
+            raise RuntimeError('MUMPS variant ~mpi means that MUMPS will not depend on MPI, please'
+            ' disable variants +parmetis and/or +ptscotch')
+
         blas_libs = spec['blas'].fc_link
         if spec.satisfies('+blasmt'):
             if '^mkl' in spec or '^essl' in spec or '^openblas+mt' in spec:
@@ -97,7 +102,6 @@ class Mumps(Package):
         orderings = ['-Dpord']
 
         if '+ptscotch' in spec or '+scotch' in spec:
-            join_lib = ' -l%s' % ('pt' if '+ptscotch' in spec else '')
             makefile_conf.extend(
                 ["ISCOTCH = -I%s" % spec['scotch'].prefix.include,
                  "LSCOTCH = %s" % spec['scotch'].cc_link])
@@ -105,12 +109,10 @@ class Mumps(Package):
             if '+ptscotch' in spec:
                 orderings.append('-Dptscotch')
 
-        if '+parmetis' in spec and '+metis' in spec:
-            libname = 'parmetis' if '+parmetis' in spec else 'metis'
+        if '+parmetis' in spec and '+mpi' in spec:
             makefile_conf.extend(
                 ["IMETIS = -I%s -I%s" % (spec['metis'].prefix.include, spec['parmetis'].prefix.include),
                  "LMETIS = -L%s -l%s -L%s -l%s" % (spec['parmetis'].prefix.lib, 'parmetis',spec['metis'].prefix.lib, 'metis')])
-
             orderings.append('-Dparmetis')
         elif '+metis' in spec:
             makefile_conf.extend(
