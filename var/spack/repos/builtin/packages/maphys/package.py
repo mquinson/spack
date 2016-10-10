@@ -12,22 +12,17 @@ class Maphys(Package):
 
     svnroot  = "https://scm.gforge.inria.fr/anonscm/svn/maphys/"
 
-    version('0.9.4',
-            svn=svnroot+'tags/maphys-0.9.4')
+    version('trunk', svn=svnroot+'trunk')
+    version('0.9.4', svn=svnroot+'tags/maphys-0.9.4')
+    version('0.9.3', svn=svnroot+'tags/maphys-0.9.3', preferred=True)
 
-    #version('maphys-dev',
-    #        svn=svnroot+"branches/maphys-dev")
-
-    version('0.9.3', 'f52ff32079991163c8905307ce8b8a79',
-            svn=svnroot+'tags/maphys-0.9.3', preferred=True)
-        
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
         url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
     version('src')
 
     variant('debug', default=False, description='Enable debug symbols')
-    #variant('shared', default=True, description='Build chameleon as a shared library')
+    #variant('shared', default=True, description='Build MaPHyS as a shared library')
     variant('blasmt', default=False, description='Enable to use MPI+Threads version of MaPHyS, a multithreaded Blas/Lapack library is required (MKL, ESSL, OpenBLAS)')
     variant('mumps', default=True, description='Enable MUMPS direct solver')
     variant('pastix', default=True, description='Enable PASTIX direct solver')
@@ -39,8 +34,8 @@ class Maphys(Package):
     depends_on("scotch+mpi~esmumps", when='~mumps')
     depends_on("blas")
     depends_on("lapack")
-    depends_on("pastix+mpi", when='+pastix')
-    depends_on("pastix+mpi+blasmt", when='+pastix+blasmt')
+    depends_on("pastix+mpi~metis", when='+pastix')
+    depends_on("pastix+mpi+blasmt~metis", when='+pastix+blasmt')
     depends_on("mumps+mpi", when='+mumps')
     depends_on("mumps+mpi+blasmt", when='+mumps+blasmt')
 
@@ -221,82 +216,80 @@ class Maphys(Package):
         if platform.system() == 'Darwin':
             mf.filter('-lrt', '');
 
-    # Use the Makefile.inc to configure
+
     def install(self, spec, prefix):
 
-        self.setup()
-        make()
-        if spec.satisfies('+examples'):
-            make('examples')
-        make("install", parallel=False)
-        if spec.satisfies('+examples'):
-            # examples are not installed by default
-            install_tree('examples', prefix + '/examples')
+        if spec.satisfies('@trunk'):
+            # CMake version is now available on the trunk branch
+            with working_dir('spack-build', create=True):
+                cmake_args = [".."]
+                cmake_args.extend(std_cmake_args)
+                cmake_args.extend([
+                    "-Wno-dev",
+                    "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
+                    "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
 
-    # CMake version is now available in the dev branch
-    @when('@maphys-dev')
-    def install(self, spec, prefix):
+                #if spec.satisfies('+shared'):
+                    # Enable build shared libs.
+                    #cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
 
-        with working_dir('spack-build', create=True):
+                if spec.satisfies('+debug'):
+                    # Enable Debug here.
+                    cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
+                    if spec.satisfies('%gcc'):
+                        cflags = '-g3 -O0 -Wall'
+                        fflags = '-g3 -O0 -Wall -fcheck=bounds -fbacktrace'
+                    elif spec.satisfies('%intel'):
+                        cflags = '-g3 -O0 -w3 -diag-disable:remark -check bounds -traceback'
+                        fflags = '-g3 -O0 -w3 -diag-disable:remark -check bounds -traceback'
+                    else:
+                        cflags = '-g -O0'
+                        fflags = '-g -O0'
+                    cmake_args.extend(["-DCMAKE_C_FLAGS=%s" % cflags])
+                    cmake_args.extend(["-DCMAKE_Fortran_FLAGS=%s" % fflags])
 
-            cmake_args = [".."]
-            cmake_args.extend(std_cmake_args)
-            cmake_args.extend([
-                "-Wno-dev",
-                "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
-                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
-
-            #if spec.satisfies('+shared'):
-                # Enable build shared libs.
-                #cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
-
-            if spec.satisfies('+debug'):
-                # Enable Debug here.
-                cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
-                if spec.satisfies('%gcc'):
-                    cflags = '-g3 -O0 -Wall'
-                    fflags = '-g3 -O0 -Wall -fcheck=bounds -fbacktrace'
-                elif spec.satisfies('%intel'):
-                    cflags = '-g3 -O0 -w3 -diag-disable:remark -check bounds -traceback'
-                    fflags = '-g3 -O0 -w3 -diag-disable:remark -check bounds -traceback'
+                if spec.satisfies('+examples'):
+                    cmake_args.extend(["-DMAPHYS_BUILD_EXAMPLES=ON"])
+                    cmake_args.extend(["-DMAPHYS_BUILD_TESTS=ON"])
                 else:
-                    cflags = '-g -O0'
-                    fflags = '-g -O0'
-                cmake_args.extend(["-DCMAKE_C_FLAGS=%s" % cflags])
-                cmake_args.extend(["-DCMAKE_Fortran_FLAGS=%s" % fflags])
+                    cmake_args.extend(["-DMAPHYS_BUILD_EXAMPLES=OFF"])
+                    cmake_args.extend(["-DMAPHYS_BUILD_TESTS=OFF"])
 
-            if spec.satisfies('+examples'):
-                cmake_args.extend(["-DMAPHYS_BUILD_EXAMPLES=ON"])
-                cmake_args.extend(["-DMAPHYS_BUILD_TESTS=ON"])
-            else:
-                cmake_args.extend(["-DMAPHYS_BUILD_EXAMPLES=OFF"])
-                cmake_args.extend(["-DMAPHYS_BUILD_TESTS=OFF"])
+                blas_libs = spec['blas'].cc_link
+                if spec.satisfies('+blasmt'):
+                    cmake_args.extend(["-DMAPHYS_BLASMT=ON"])
+                    if '^mkl' in spec or '^essl' in spec or '^openblas+mt' in spec:
+                        blas_libs = spec['blas'].cc_link_mt
+                    else:
+                        raise RuntimeError('Only ^openblas+mt, ^mkl and ^essl provide multithreaded blas.')
+                cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
+                try:
+                    blas_flags = spec['blas'].cc_flags
+                except AttributeError:
+                    blas_flags = ''
+                cmake_args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
 
-            blas_libs = spec['blas'].cc_link
-            if spec.satisfies('+blasmt'):
-                cmake_args.extend(["-DMAPHYS_BLASMT=ON"])
-                if '^mkl' in spec or '^essl' in spec or '^openblas+mt' in spec:
-                    blas_libs = spec['blas'].cc_link_mt
-                else:
-                    raise RuntimeError('Only ^openblas+mt, ^mkl and ^essl provide multithreaded blas.')
-            cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
-            try:
-                blas_flags = spec['blas'].cc_flags
-            except AttributeError:
-                blas_flags = ''
-            cmake_args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
+                lapack_libs = spec['lapack'].cc_link
+                if spec.satisfies('+blasmt'):
+                    if '^mkl' in spec:
+                        lapack_libs = spec['lapack'].cc_link_mt
+                    else:
+                        raise RuntimeError('Only ^mkl provide multithreaded lapack.')
+                cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
 
-            lapack_libs = spec['lapack'].cc_link
-            if spec.satisfies('+blasmt'):
-                if '^mkl' in spec:
-                    lapack_libs = spec['lapack'].cc_link_mt
-                else:
-                    raise RuntimeError('Only ^mkl provide multithreaded lapack.')
-            cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
-
-            cmake(*cmake_args)
+                cmake(*cmake_args)
+                make()
+                make("install")
+        else:
+            # Use the Makefile.inc to configure
+            self.setup()
             make()
-            make("install")
+            if spec.satisfies('+examples'):
+                make('examples')
+            make("install", parallel=False)
+            if spec.satisfies('+examples'):
+                # examples are not installed by default
+                install_tree('examples', prefix + '/examples')
 
 
     # to use the existing version available in the environment: MAPHYS_DIR environment variable must be set
