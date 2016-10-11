@@ -58,10 +58,10 @@ class Mumps(Package):
     variant('shared', default=True, description='Build MUMPS as a shared library')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
 
-
     depends_on('scotch + esmumps',              when='+scotch')
     depends_on('scotch + esmumps + idx64',      when='+scotch+idx64')
     depends_on('scotch + esmumps ~mpi',         when='+scotch~ptscotch')
+    depends_on('scotch + esmumps ~mpi',         when='+scotch~mpi')
     depends_on('scotch + esmumps + mpi',        when='+ptscotch+mpi')
     depends_on('scotch + esmumps + mpi +idx64', when='+ptscotch+mpi+idx64')
     depends_on('metis + idx64', when='+metis+idx64')
