@@ -41,14 +41,13 @@ class Pastix(Package):
     depends_on("mpi", when='+mpi')
     depends_on("blas")
     depends_on("scotch", when='+scotch')
-    depends_on("scotch+mpi", when='+scotch+mpi')
+    depends_on("scotch~mpi", when='+scotch~mpi')
     depends_on("scotch+idx64", when='+scotch+idx64')
     depends_on("metis@:4", when='+metis')
     depends_on("metis@:4+idx64", when='+metis+idx64')
     depends_on("starpu", when='+starpu')
-    depends_on("starpu+mpi", when='+starpu+mpi')
+    depends_on("starpu~mpi", when='+starpu~mpi')
     depends_on("starpu+cuda", when='+starpu+cuda')
-
 
     def patch_5_2_2_22(self):
         mf = FileFilter('example/src/makefile')
