@@ -19,9 +19,8 @@ class Scalfmm(Package):
     version('src')
 
     variant('sse', default=True, description='Enable vectorization with SSE')
-    #variant('blas', default=False, description='Enable BLAS')
-    variant('fft', default=False, description='Enable FFT')
-    variant('mpi', default=False, description='Enable MPI')
+    variant('fft', default=True, description='Enable FFT')
+    variant('mpi', default=True, description='Enable MPI')
     variant('starpu', default=False, description='Enable StarPU')
     variant('debug', default=False, description='Enable debug symbols')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
@@ -29,8 +28,6 @@ class Scalfmm(Package):
     variant('shared', default=True, description='Build scalfmm as a shared library')
 
     depends_on("cmake")
-    # Does not compile without blas!
-    #depends_on("blas", when='+blas')
     depends_on("blas")
     depends_on("lapack")
     depends_on("fft", when='+fft')
