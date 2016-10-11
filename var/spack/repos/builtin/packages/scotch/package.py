@@ -182,6 +182,12 @@ class Scotch(Package):
             for app in targets:
                 make(app, parallel=0)
             make('prefix=%s' % prefix, 'install')
+            # esmumps libs are not installed by default (is it a mistake?)
+            if spec.satisfies('+esmumps'):
+                install('../include/esmumps.h',   prefix.include)
+                install('../lib/libesmumps.so',   prefix.lib)
+                if spec.satisfies('+mpi'):
+                    install('../lib/libptesmumps.so', prefix.lib)
 
         if spec.satisfies('+grf'):
             with working_dir('grf'):
@@ -212,6 +218,8 @@ class Scotch(Package):
         ptscotchlibname=os.path.join(libdir, "libptscotch%s") % libext
         ptscotcherrlibname=os.path.join(libdir, "libptscotcherr%s") % libext
         ptscotcherrexitlibname=os.path.join(libdir, "libptscotcherrexit%s") % libext
+        esmumpslibname=os.path.join(libdir, "libesmumps%s") % libext
+        ptesmumpslibname=os.path.join(libdir, "libptesmumps%s") % libext
 
         otherlibs=' -lm'
         if spec.satisfies('+pthread'):
@@ -222,9 +230,17 @@ class Scotch(Package):
             otherlibs+=' -lrt'
 
         spec.cc_link = '-L%s' % libdir
-        if spec.satisfies('+mpi'):
-            spec.cc_link+=' -lptscotch'
-            spec.cc_link+=' -lptscotcherr'
+        if spec.satisfies('+esmumps'):
+            if spec.satisfies('+mpi'):
+                spec.cc_link+=' -lptesmumps'
+                spec.cc_link+=' -lptscotch'
+                spec.cc_link+=' -lptscotcherr'
+        else:
+            if spec.satisfies('+mpi'):
+                spec.cc_link+=' -lptscotch'
+                spec.cc_link+=' -lptscotcherr'
+        if spec.satisfies('+esmumps'):
+            spec.cc_link+=' -lesmumps'
         spec.cc_link+=' -lscotch'
         spec.cc_link+=' -lscotcherr'
         spec.cc_link+=otherlibs
