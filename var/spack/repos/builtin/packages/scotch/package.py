@@ -212,8 +212,6 @@ class Scotch(Package):
         ptscotchlibname=os.path.join(libdir, "libptscotch%s") % libext
         ptscotcherrlibname=os.path.join(libdir, "libptscotcherr%s") % libext
         ptscotcherrexitlibname=os.path.join(libdir, "libptscotcherrexit%s") % libext
-        esmumpslibname=os.path.join(libdir, "libesmumps%s") % libext
-        ptesmumpslibname=os.path.join(libdir, "libptesmumps%s") % libext
 
         otherlibs=' -lm'
         if spec.satisfies('+pthread'):
@@ -224,17 +222,9 @@ class Scotch(Package):
             otherlibs+=' -lrt'
 
         spec.cc_link = '-L%s' % libdir
-        if spec.satisfies('+esmumps'):
-            if spec.satisfies('+mpi'):
-                spec.cc_link+=' -lptesmumps'
-                spec.cc_link+=' -lptscotch'
-                spec.cc_link+=' -lptscotcherr'
-        else:
-            if spec.satisfies('+mpi'):
-                spec.cc_link+=' -lptscotch'
-                spec.cc_link+=' -lptscotcherr'
-        if spec.satisfies('+esmumps'):
-            spec.cc_link+=' -lesmumps'
+        if spec.satisfies('+mpi'):
+            spec.cc_link+=' -lptscotch'
+            spec.cc_link+=' -lptscotcherr'
         spec.cc_link+=' -lscotch'
         spec.cc_link+=' -lscotcherr'
         spec.cc_link+=otherlibs
