@@ -43,10 +43,10 @@ class Scotch(Package):
     version('src', '7b878b76545ef9ddb6f2b61d4c4be833',
         url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
 
-    variant('mpi', default=False, description='Activate the compilation of PT-Scotch')
+    variant('mpi', default=True, description='Activate the compilation of PT-Scotch')
     variant('pthread', default=True, description='Enable multithread with pthread')
     variant('compression', default=False, description='Activate the possibility to use compressed files')
-    variant('esmumps', default=False, description='Activate the compilation of the lib esmumps needed by mumps')
+    variant('esmumps', default=True, description='Activate the compilation of the lib esmumps needed by mumps')
     variant('shared', default=True, description='Build shared libraries')
     variant('idx64', default=False, description='to use 64 bits integers')
     variant('grf', default=False, description='Install grf examples files')
