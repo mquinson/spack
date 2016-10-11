@@ -61,6 +61,7 @@ class Mumps(Package):
 
     depends_on('scotch + esmumps',              when='+scotch')
     depends_on('scotch + esmumps + idx64',      when='+scotch+idx64')
+    depends_on('scotch + esmumps ~mpi',         when='+scotch~ptscotch')
     depends_on('scotch + esmumps + mpi',        when='+ptscotch+mpi')
     depends_on('scotch + esmumps + mpi +idx64', when='+ptscotch+mpi+idx64')
     depends_on('metis + idx64', when='+metis+idx64')
@@ -85,7 +86,7 @@ class Mumps(Package):
         if spec.satisfies('~mpi') and spec.satisfies('+parmetis') or \
         spec.satisfies('~mpi') and spec.satisfies('+ptscotch'):
             raise RuntimeError('MUMPS variant ~mpi means that MUMPS will not depend on MPI, please'
-            ' disable variants +parmetis and/or +ptscotch')
+            ' disable variants parmetis and/or ptscotch')
 
         blas_libs = spec['blas'].fc_link
         if spec.satisfies('+blasmt'):
