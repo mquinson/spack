@@ -31,11 +31,11 @@ class QrMumps(Package):
     depends_on("hwloc")
     # optional dependencies
     depends_on("metis", when='+metis')
-    depends_on("scotch", when='+scotch')
+    depends_on("scotch~mpi", when='+scotch')
     depends_on("colamd", when='+colamd')
-    depends_on("starpu", when='+starpu')
-    depends_on("fxt", when='+fxt')
-    depends_on("starpu+fxt", when='+fxt')
+    depends_on("starpu~mpi", when='+starpu')
+    #depends_on("fxt", when='+starpu+fxt')
+    depends_on("starpu+fxt", when='+starpu+fxt')
 
     # Don't build correctly in parallel
     parallel = False
