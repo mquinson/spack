@@ -7,7 +7,8 @@ class EigenBlas(Package):
     """Eigen BLAS"""
     homepage = "http://eigen.tuxfamily.org/index.php?title=Main_Page"
 
-
+    version('3.3-rc1', '4ad437f8b77827a3e1271210c2a9468b',
+            url = "http://bitbucket.org/eigen/eigen/get/3.3-rc1.tar.bz2")
     version('3.3-beta2', '109d4ae021e5f7143651850370659c0d',
             url = "http://bitbucket.org/eigen/eigen/get/3.3-beta2.tar.bz2")
     version('3.2.9', 'de11bfbfe2fd2dc4b32e8f416f58ee98',
@@ -43,9 +44,13 @@ class EigenBlas(Package):
             if spec.satisfies('+opti'):
                 opt_ass=" -Wa,-q" if platform.system() == "Darwin" else ""
 
-            if (spec.satisfies('@3.3:') or spec.satisfies('@hg-default')) and not spec.satisfies("arch=ppc64"):
-                if spec.satisfies('+opti'):
+            if spec.satisfies('+opti'):
+                if (spec.satisfies('@3.3:') or spec.satisfies('@hg-default')) and not spec.satisfies("arch=ppc64"):
                     cmake_args.extend(["-DCMAKE_CXX_FLAGS=-march=native"+opt_ass])
+                if spec.satisfies("%xl"):
+                    cmake_args.extend(["-DCMAKE_CXX_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
+                    cmake_args.extend(["-DCMAKE_C_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
+                    cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-O3 -qpic -qhot -qtune=auto -qarch=auto"])
 
             cmake(*cmake_args)
             make('blas')
