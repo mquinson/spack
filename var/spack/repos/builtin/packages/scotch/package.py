@@ -183,11 +183,18 @@ class Scotch(Package):
                 make(app, parallel=0)
             make('prefix=%s' % prefix, 'install')
             # esmumps libs are not installed by default (is it a mistake?)
+            if spec.satisfies('+shared'):
+                if platform.system() == 'Darwin':
+                    libext = ".dylib"
+                else:
+                    libext = ".so"
+            else:
+                libext = ".a"
             if spec.satisfies('+esmumps'):
                 install('../include/esmumps.h',   prefix.include)
-                install('../lib/libesmumps.so',   prefix.lib)
+                install('../lib/libesmumps%s' % libext,   prefix.lib)
                 if spec.satisfies('+mpi'):
-                    install('../lib/libptesmumps.so', prefix.lib)
+                    install('../lib/libptesmumps%s' % libext, prefix.lib)
 
         if spec.satisfies('+grf'):
             with working_dir('grf'):
