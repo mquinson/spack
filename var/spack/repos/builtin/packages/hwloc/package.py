@@ -68,6 +68,8 @@ class Hwloc(Package):
 
     variant('cuda', default=False, description='Build support for CUDA.')
 
+    depends_on('cuda', when='+cuda')
+
     def url_for_version(self, version):
         return "http://www.open-mpi.org/software/hwloc/v%s/downloads/hwloc-%s.tar.gz" % (version.up_to(2), version)
 

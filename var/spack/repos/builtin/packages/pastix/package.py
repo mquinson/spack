@@ -13,7 +13,6 @@ class Pastix(Package):
             url='https://gforge.inria.fr/frs/download.php/file/35070/pastix_5.2.2.22.tar.bz2')
     version('5.2.3', '31a1c3ea708ff2dc73280e4b85a82ca8',
             url='https://gforge.inria.fr/frs/download.php/file/36212/pastix_5.2.3.tar.bz2')
-    version('master', git='https://scm.gforge.inria.fr/anonscm/git/ricar/ricar.git', branch='master')
     version('develop', git='https://scm.gforge.inria.fr/anonscm/git/ricar/ricar.git', branch='develop')
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
@@ -56,7 +55,7 @@ class Pastix(Package):
         mf = FileFilter('Makefile')
         mf.filter('^DYLIB_OPT=', 'DYLIB_OPT=${LDFLAGS} -L__LIBDIR__ -lpastix')
 
-    def setup(self):
+    def config_file(self):
 
         copyfile('config/LINUX-GNU.in', 'config.in')
 
@@ -220,10 +219,28 @@ class Pastix(Package):
 
         with working_dir('src'):
 
+            if spec.satisfies('@5.2.2.22'):
 
-            if spec.satisfies('@develop') or spec.satisfies('@src'):
+                # use the native Makefile system with config.in
+                self.patch_5_2_2_22()
+                self.config_file()
+                if spec.satisfies('+debug'):
+                    make('debug')
+                else:
+                    make()
+                if spec.satisfies('+examples'):
+                    make('examples')
+                make("install")
+                # examples are not installed by default
+                if spec.satisfies('+examples'):
+                    install_tree('example/bin', prefix + '/examples')
+                    install_tree('matrix', prefix + '/matrix')
 
-                # some dumb pre-processing due to the dependency to murge (git)
+            else:
+
+                # use the cmake config
+
+                # pre-processing due to the dependency to murge (git)
                 copyfile('config/LINUX-GNU.in', 'config.in')
                 if spec.satisfies('+murgeup'):
                     # required to get murge sources "make murge_up"
@@ -330,23 +347,6 @@ class Pastix(Package):
                     cmake(*cmake_args)
                     make()
                     make("install")
-
-            else:
-
-                self.patch_5_2_2_22()
-                self.setup()
-                if spec.satisfies('+debug'):
-                    make('debug')
-                else:
-                    make()
-                if spec.satisfies('+examples'):
-                    make('examples')
-                make("install")
-                # examples are not installed by default
-                if spec.satisfies('+examples'):
-                    install_tree('example/bin', prefix + '/examples')
-                    install_tree('matrix', prefix + '/matrix')
-
 
     # to use the existing version available in the environment: PASTIX_DIR environment variable must be set
     @when('@exist')
