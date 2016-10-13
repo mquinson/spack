@@ -49,8 +49,10 @@ class QrMumps(Package):
             stagedir=self.stage.path+'/trunk'
         elif spec.satisfies('@src'):
             stagedir=self.stage.path
-
-        copyfile('makeincs/Make.inc.gnu', 'makeincs/Make.inc.spack')
+        if spec.satisfies("%xl"):
+            copyfile('makeincs/Make.inc.ibm', 'makeincs/Make.inc.spack')
+        else:
+            copyfile('makeincs/Make.inc.gnu', 'makeincs/Make.inc.spack')
         mf = FileFilter('makeincs/Make.inc.spack')
 
         mf.filter('topdir=\$\(HOME\)/path/to/here', 'topdir=%s/' % stagedir)
