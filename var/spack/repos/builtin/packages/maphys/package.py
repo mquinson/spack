@@ -13,8 +13,12 @@ class Maphys(Package):
     svnroot  = "https://scm.gforge.inria.fr/anonscm/svn/maphys/"
 
     version('trunk', svn=svnroot+'trunk')
-    version('0.9.4', svn=svnroot+'tags/maphys-0.9.4')
-    version('0.9.3', svn=svnroot+'tags/maphys-0.9.3', preferred=True)
+    version('0.9.4.0', 'a7d88a78675c97cf98a0c00216b17e43',
+            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.0.tar.gz')
+    version('0.9.4', 'a7d88a78675c97cf98a0c00216b17e43',
+            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.0.tar.gz')
+    version('0.9.3', 'aa03c07c6a9c6337875fbd56bf499b1a',
+            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.3.tar.gz' , preferred=True)
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
