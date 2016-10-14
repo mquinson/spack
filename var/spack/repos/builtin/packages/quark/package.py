@@ -22,8 +22,9 @@ class Quark(Package):
     def install(self, spec, prefix):
         mf = FileFilter('make.inc')
         mf.filter('prefix=./install', 'prefix=%s' % prefix)
+        mf.filter('^CFLAGS=.*', 'CFLAGS=-O2 -fPIC')
         if spec.satisfies('+debug'):
-            mf.filter('^CFLAGS=.*', 'CFLAGS=-g')
+            mf.filter('^CFLAGS=.*', 'CFLAGS=-O0 -fPIC -g')
 
         make()
         make("install")
