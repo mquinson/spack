@@ -44,7 +44,7 @@ class Chameleon(Package):
     depends_on("starpu+cuda", when='+starpu+cuda')
     depends_on("starpu+fxt", when='+starpu+fxt')
     depends_on("starpu+simgrid", when='+starpu+simu')
-    depends_on("starpu~shared+simgrid", when='+starpu+simu')
+    depends_on("starpu+mpi~shared+simgrid", when='+starpu+simu+mpi')
     depends_on("quark", when='+quark')
     depends_on("mpi", when='+mpi~simu')
     depends_on("cuda", when='+cuda~simu')
