@@ -13,10 +13,12 @@ class Maphys(Package):
     svnroot  = "https://scm.gforge.inria.fr/anonscm/svn/maphys/"
 
     version('trunk', svn=svnroot+'trunk')
+    version('0.9.4.1', '399c2c20234e74fa6d31460d50618272',
+            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.1.tar.gz')
     version('0.9.4.0', 'a7d88a78675c97cf98a0c00216b17e43',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.0.tar.gz')
-    version('0.9.4', 'a7d88a78675c97cf98a0c00216b17e43',
-            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.0.tar.gz')
+    version('0.9.4', '399c2c20234e74fa6d31460d50618272',
+            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.1.tar.gz')
     version('0.9.3', 'aa03c07c6a9c6337875fbd56bf499b1a',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.3.tar.gz' , preferred=True)
 
@@ -223,7 +225,18 @@ class Maphys(Package):
 
     def install(self, spec, prefix):
 
-        if spec.satisfies('@trunk'):
+        # Check if makefile and/or cmake is available
+        makefile_avail = False
+        cmake_avail = False
+        if os.path.isfile("Makefile") and os.path.isfile("Makefile.inc.example"):
+            makefile_avail = True
+        if os.path.isfile("CMakeLists.txt"):
+            cmake_avail = True
+
+        if spec.satisfies('@0.9.4.0'): #cmake not working for this version
+            cmake_avail = False
+
+        if cmake_avail:
             # CMake version is now available on the trunk branch
             with working_dir('spack-build', create=True):
                 cmake_args = [".."]
@@ -284,7 +297,7 @@ class Maphys(Package):
                 cmake(*cmake_args)
                 make()
                 make("install")
-        else:
+        elif makefile_avail:
             # Use the Makefile.inc to configure
             self.setup()
             make()
@@ -294,7 +307,8 @@ class Maphys(Package):
             if spec.satisfies('+examples'):
                 # examples are not installed by default
                 install_tree('examples', prefix + '/examples')
-
+        else:
+            raise RuntimeError('Cannot file Makefile or CMake setup ')
 
     # to use the existing version available in the environment: MAPHYS_DIR environment variable must be set
     @when('@exist')
