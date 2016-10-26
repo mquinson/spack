@@ -57,6 +57,7 @@ class Pampa(Package):
             cmake_args.extend(["-DCMAKE_BUILD_TYPE=Release"])
             cmake_args.extend(["-DCOMM_TYPE=Point-to-point"])
             cmake_args.extend(["-DPTHREAD=None"])
+            cmake_args.extend(["-DPAMPA_MULTILEVEL=True"])
             if spec.satisfies('+idx64'):
                 cmake_args.extend(["-DINT_SIZE=64bits"])
             cmake(*cmake_args)
