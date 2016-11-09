@@ -52,11 +52,17 @@ class PyNumpy(Package):
         library_dirs = []
 
         if '+blas' in spec:
-            libraries.append('blas')
-            library_dirs.append(spec['blas'].prefix.lib)
+            if 'netlib' in spec or 'netlib-blas' in spec or 'openblas' in spec:
+                libraries.append('blas')
+                library_dirs.append(spec['blas'].prefix.lib)
+            else:
+                raise RuntimeError('py-numpy blas must be one of: netlib, netlib-blas, openblas.')
         if '+lapack' in spec:
-            libraries.append('lapack')
-            library_dirs.append(spec['lapack'].prefix.lib)
+            if 'netlib' in spec or 'netlib-lapack' in spec or 'openblas+lapack' in spec:
+                libraries.append('lapack')
+                library_dirs.append(spec['lapack'].prefix.lib)
+            else:
+                raise RuntimeError('py-scipy lapack must be one of: netlib, netlib-lapack, openblas+lapack.')
 
         if '+blas' in spec or '+lapack' in spec:
             with open('site.cfg', 'w') as f:
@@ -65,4 +71,3 @@ class PyNumpy(Package):
                 f.write('library_dirs=%s\n' % ':'.join(library_dirs))
 
         python('setup.py', 'install', '--prefix=%s' % prefix)
-

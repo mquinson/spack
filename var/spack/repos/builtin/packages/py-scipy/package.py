@@ -36,6 +36,8 @@ class PyScipy(Package):
     extends('python')
     depends_on('py-nose')
     depends_on('py-numpy+blas+lapack')
+    depends_on('blas')
+    depends_on('lapack')
 
     def install(self, spec, prefix):
         if 'atlas' in spec:
@@ -43,7 +45,13 @@ class PyScipy(Package):
             # seems to make the build autodetect things correctly.
             env['ATLAS'] = join_path(spec['atlas'].prefix.lib, 'libatlas.' + dso_suffix)
         else:
-            env['BLAS']   = spec['blas'].blas_shared_lib
-            env['LAPACK'] = spec['lapack'].lapack_shared_lib
+            if 'netlib' in spec or 'netlib-blas' in spec or 'openblas' in spec:
+                env['BLAS']   = join_path(spec['blas'].prefix.lib, 'libblas.' + dso_suffix)
+            else:
+                raise RuntimeError('py-scipy blas must be one of: netlib, netlib-blas, openblas, atlas.')
+            if 'netlib' in spec or 'netlib-lapack' in spec or 'openblas+lapack' in spec:
+                env['LAPACK']   = join_path(spec['lapack'].prefix.lib, 'liblapack.' + dso_suffix)
+            else:
+                raise RuntimeError('py-scipy lapack must be one of: netlib, netlib-lapack, openblas+lapack, atlas.')
 
         python('setup.py', 'install', '--prefix=%s' % prefix)
