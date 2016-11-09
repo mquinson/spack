@@ -44,14 +44,10 @@ class PyScipy(Package):
             # libatlas.so actually isn't always installed, but this
             # seems to make the build autodetect things correctly.
             env['ATLAS'] = join_path(spec['atlas'].prefix.lib, 'libatlas.' + dso_suffix)
+        elif 'openblas' in spec:
+            env['BLAS']   = join_path(spec['blas'].prefix.lib, 'libblas.' + dso_suffix)
+            env['LAPACK']   = join_path(spec['lapack'].prefix.lib, 'liblapack.' + dso_suffix)
         else:
-            if 'netlib' in spec or 'netlib-blas' in spec or 'openblas' in spec:
-                env['BLAS']   = join_path(spec['blas'].prefix.lib, 'libblas.' + dso_suffix)
-            else:
-                raise RuntimeError('py-scipy blas must be one of: netlib, netlib-blas, openblas, atlas.')
-            if 'netlib' in spec or 'netlib-lapack' in spec or 'openblas+lapack' in spec:
-                env['LAPACK']   = join_path(spec['lapack'].prefix.lib, 'liblapack.' + dso_suffix)
-            else:
-                raise RuntimeError('py-scipy lapack must be one of: netlib, netlib-lapack, openblas+lapack, atlas.')
+            raise RuntimeError('py-scipy blas/lapack must come from openblas or atlas.')
 
         python('setup.py', 'install', '--prefix=%s' % prefix)

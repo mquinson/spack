@@ -52,11 +52,13 @@ class PyNumpy(Package):
         library_dirs = []
 
         if '+blas' in spec:
+            library_dirs.append(spec['blas'].prefix.lib)
             if 'netlib' in spec or 'netlib-blas' in spec or 'openblas' in spec:
                 libraries.append('blas')
-                library_dirs.append(spec['blas'].prefix.lib)
+            elif 'eigen-blas' in spec:
+                libraries.append('eigen_blas')
             else:
-                raise RuntimeError('py-numpy blas must be one of: netlib, netlib-blas, openblas.')
+                raise RuntimeError('py-numpy blas must be one of: netlib, netlib-blas, openblas, eigen-blas.')
         if '+lapack' in spec:
             if 'netlib' in spec or 'netlib-lapack' in spec or 'openblas+lapack' in spec:
                 libraries.append('lapack')
