@@ -65,7 +65,7 @@ class PyNumpy(Package):
             if 'netlib' in spec or 'netlib-lapack' in spec:
                 library_dirs.append(spec['lapack'].prefix.lib)
                 libraries.append('lapack')
-            elif:
+            elif 'openblas' in spec:
                 # do nothing here, openblas already provide lapack symbols
                 pass
             else:
