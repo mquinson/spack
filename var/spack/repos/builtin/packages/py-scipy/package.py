@@ -40,13 +40,14 @@ class PyScipy(Package):
     depends_on('lapack')
 
     def install(self, spec, prefix):
+        # restrict to a blas that contains cblas symbols
         if 'atlas' in spec:
             # libatlas.so actually isn't always installed, but this
             # seems to make the build autodetect things correctly.
             env['ATLAS'] = join_path(spec['atlas'].prefix.lib, 'libatlas.' + dso_suffix)
         elif 'openblas' in spec:
-            env['BLAS']   = join_path(spec['blas'].prefix.lib, 'libblas.' + dso_suffix)
-            env['LAPACK']   = join_path(spec['lapack'].prefix.lib, 'liblapack.' + dso_suffix)
+            env['BLAS']   = join_path(spec['blas'].prefix.lib, 'libopenblas.' + dso_suffix)
+            env['LAPACK']   = join_path(spec['lapack'].prefix.lib, 'libopenblas.' + dso_suffix)
         else:
             raise RuntimeError('py-scipy blas/lapack must come from openblas or atlas.')
 

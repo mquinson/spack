@@ -53,8 +53,10 @@ class PyNumpy(Package):
 
         if '+blas' in spec:
             library_dirs.append(spec['blas'].prefix.lib)
-            if 'netlib' in spec or 'netlib-blas' in spec or 'openblas' in spec:
+            if 'netlib' in spec or 'netlib-blas' in spec:
                 libraries.append('blas')
+            elif 'openblas' in spec:
+                libraries.append('openblas')
             elif 'eigen-blas' in spec:
                 libraries.append('eigen_blas')
             else:
