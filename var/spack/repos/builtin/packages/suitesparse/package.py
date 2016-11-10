@@ -1,75 +1,75 @@
 from spack import *
-from subprocess import call
-import platform
-import spack
-from shutil import copyfile
 
 class Suitesparse(Package):
-    """a suite of sparse matrix algorithms."""
-    homepage = "http://faculty.cse.tamu.edu/davis/suitesparse.html"
+    """
+    SuiteSparse is a suite of sparse matrix algorithms
+    """
+    homepage = 'http://faculty.cse.tamu.edu/davis/suitesparse.html'
+    url = 'http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.5.1.tar.gz'
 
-    version('4.4.6', '131a3a5e2dee784cd946284e44ce9af2',
-            url = "http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.6.tar.gz")
-    version('4.4.5', 'a2926c27f8a5285e4a10265cc68bbc18',
-            url = "http://faculty.cse.tamu.edu/davis/SuiteSparse/SuiteSparse-4.4.5.tar.gz")
+    version('4.5.3', '8ec57324585df3c6483ad7f556afccbd')
+    version('4.5.1', 'f0ea9aad8d2d1ffec66a5b6bfeff5319')
 
-    pkg_dir = spack.repo.dirname_for_package_name("fake")
-    # fake tarball because we consider it is already installed
-    version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
-            url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
-    version('src')
+    variant('tbb', default=True, description='Build with Intel TBB')
+    variant('fpic', default=True, description='Build position independent code (required to link with shared libraries)')
 
-    depends_on("blas")
-    depends_on("lapack")
-    depends_on("metis@4.0.1:4.0.3")
+    depends_on('blas')
+    depends_on('lapack')
 
-    def setup(self):
-        spec = self.spec
-        with working_dir('SuiteSparse_config'):
-            if platform.system() == 'Darwin':
-                copyfile('SuiteSparse_config_Mac.mk', 'SuiteSparse_config.mk')
-            mf = FileFilter('SuiteSparse_config.mk')
-            mf.filter('^INSTALL_LIB =.*', 'INSTALL_LIB = %s' % spec.prefix.lib)
-            mf.filter('^INSTALL_INCLUDE =.*', 'INSTALL_INCLUDE = %s' % spec.prefix.include)
+    depends_on('metis@5.1.0', when='@4.5.1:')
+    # in @4.5.1. TBB support in SPQR seems to be broken as TBB-related linkng
+    # flags does not seem to be used, which leads to linking errors on Linux.
+    depends_on('tbb', when='@4.5.3:+tbb')
 
-            blas_libs = spec['blas'].fc_link
-            mf.filter('  BLAS = -lopenblas', '#  BLAS = -lopenblas')
-            mf.filter('# BLAS = -lblas -lgfortran', '  BLAS = %s' % blas_libs)
-
-            lapack_libs = spec['lapack'].fc_link
-            mf.filter('  LAPACK = -llapack', '  LAPACK = %s' % lapack_libs)
-
-            if platform.system() == 'Darwin':
-                mf.filter('  BLAS = -framework Accelerate', '')
-                mf.filter('  LAPACK = -framework Accelerate', '')
-
-            metis = spec['metis'].prefix
-            metis_libs = spec['metis'].cc_link
-            mf.filter('^METIS_PATH =.*', 'METIS_PATH = %s' % metis)
-            mf.filter('^METIS =.*', 'METIS = %s' % metis_libs)
-
-        with working_dir('CHOLMOD/Demo'):
-            mf = FileFilter('Makefile')
-            mf.filter('\( cd \$\(METIS_PATH\) && \$\(MAKE\) \)', '#( cd $(METIS_PATH) && $(MAKE) )')
+    patch('tbb_453.patch', when='@4.5.3')
 
     def install(self, spec, prefix):
+        # The build system of SuiteSparse is quite old-fashioned.
+        # It's basically a plain Makefile which include an header
+        # (SuiteSparse_config/SuiteSparse_config.mk)with a lot of convoluted
+        # logic in it. Any kind of customization will need to go through
+        # filtering of that file
 
-        self.setup()
-        make('library', parallel=False)
-        mkdirp(prefix.include)
-        mkdirp(prefix.lib)
-        make("install")
+        make_args = ['INSTALL=%s' % prefix]
 
-    # to use the existing version available in the environment: SUITESPARSE_DIR environment variable must be set
-    @when('@exist')
-    def install(self, spec, prefix):
-        if os.getenv('SUITESPARSE_DIR'):
-            suitesparseroot=os.environ['SUITESPARSE_DIR']
-            if os.path.isdir(suitesparseroot):
-                os.symlink(suitesparseroot+"/bin", prefix.bin)
-                os.symlink(suitesparseroot+"/include", prefix.include)
-                os.symlink(suitesparseroot+"/lib", prefix.lib)
-            else:
-                raise RuntimeError(suitesparseroot+' directory does not exist.'+' Do you really have openmpi installed in '+suitesparseroot+' ?')
-        else:
-            raise RuntimeError('SUITESPARSE_DIR is not set, you must set this environment variable to the installation path of your suitesparse')
+        # inject Spack compiler wrappers
+        make_args.extend([
+            'AUTOCC=no',
+            'CC=cc',
+            'CXX=c++',
+            'F77=f77',
+        ])
+        if '+fpic' in spec:
+            make_args.extend(['CFLAGS=-fPIC', 'FFLAGS=-fPIC'])
+
+        # use Spack's metis in CHOLMOD/Partition module,
+        # otherwise internal Metis will be compiled
+        make_args.extend([
+            'MY_METIS_LIB=-L%s -lmetis' % spec['metis'].prefix.lib,
+            'MY_METIS_INC=%s' % spec['metis'].prefix.include,
+        ])
+
+        # Intel TBB in SuiteSparseQR
+        if 'tbb' in spec:
+            make_args.extend([
+                'SPQR_CONFIG=-DHAVE_TBB',
+                'TBB=-L%s -ltbb' % spec['tbb'].prefix.lib,
+            ])
+
+        # Make sure Spack's Blas/Lapack is used. Otherwise System's
+        # Blas/Lapack might be picked up.
+        blas = spec['blas'].cc_link
+        lapack = spec['lapack'].cc_link
+        if '@4.5.1' in spec:
+            # adding -lstdc++ is clearly an ugly way to do this, but it follows
+            # with the TCOV path of SparseSuite 4.5.1's Suitesparse_config.mk
+            blas += ' -lstdc++'
+
+        make_args.extend([
+            'BLAS=%s' % blas,
+            'LAPACK=%s' % lapack
+        ])
+
+        make_args.extend(['CUDA=no'])
+
+        make('install', *make_args)
