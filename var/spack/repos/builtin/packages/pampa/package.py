@@ -13,9 +13,7 @@ class Pampa(Package):
        e.g. /home/doe/pampa-1.0.0.tar.gz. To use the SVN HEAD state,
        the user must have access to Pampa's repository on gforge.
        PLEASE MAKE SURE YOUR USERNAME MATCHES YOUR GFORGE ACCOUNT NAME
-       OR SET SHELL VAR "GFORGE_USERNAME" TO YOUR GFORGE ACCOUNT NAME
-
-    """
+       OR SET SHELL VAR "GFORGE_USERNAME" TO YOUR GFORGE ACCOUNT NAME"""
 
     homepage = "http://gforge.inria.fr/projects/pampa-p/"
 
