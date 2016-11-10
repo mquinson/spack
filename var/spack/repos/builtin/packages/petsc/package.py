@@ -40,6 +40,7 @@ class Petsc(Package):
     version('3.5.2', 'ad170802b3b058b5deb9cd1f968e7e13')
     version('3.5.1', 'a557e029711ebf425544e117ffa44d8f')
     version('3.4.4', '7edbc68aa6d8d6a3295dd5f6c2f6979d')
+    version('3.3',   '7eed2e1d67be6039fd56686e779d6601')
 
     variant('shared',  default=True,  description='Enables the build of shared libraries')
     variant('mpi',     default=True,  description='Activates MPI support')
@@ -108,8 +109,13 @@ class Petsc(Package):
             '--with-precision=%s' % ('double' if '+double' in spec else 'single'),
             '--with-scalar-type=%s' % ('complex' if '+complex' in spec else 'real'),
             '--with-shared-libraries=%s' % ('1' if '+shared' in spec else '0'),
-            '--with-debugging=%s' % ('1' if '+debug' in spec else '0'),
-            '--with-blas-lapack-dir=%s' % spec['lapack'].prefix
+            '--with-debugging=%s' % ('1' if '+debug' in spec else '0')
+        ])
+        # Make sure we use exactly the same Blas/Lapack libraries
+        # across the DAG. To that end list them explicitly
+        lapack_blas = spec['lapack'].cc_link + ' ' + spec['blas'].cc_link
+        options.extend([
+            '--with-blas-lapack-lib=%s' % lapack_blas
         ])
         # Activates library support if needed
         for library in ('metis', 'boost', 'hdf5', 'hypre', 'parmetis','mumps','scalapack'):
