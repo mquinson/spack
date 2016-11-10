@@ -48,33 +48,20 @@ class PyNumpy(Package):
     depends_on('lapack', when='+lapack')
 
     def install(self, spec, prefix):
-        libraries    = []
-        library_dirs = []
-
-        if '+blas' in spec:
-            library_dirs.append(spec['blas'].prefix.lib)
-            if 'netlib' in spec or 'netlib-blas' in spec:
-                libraries.append('blas')
-            elif 'openblas' in spec:
-                libraries.append('openblas')
-            elif 'eigen-blas' in spec:
-                libraries.append('eigen_blas')
-            else:
-                raise RuntimeError('py-numpy blas must be one of: netlib, netlib-blas, openblas, eigen-blas.')
-        if '+lapack' in spec:
-            if 'netlib' in spec or 'netlib-lapack' in spec:
-                library_dirs.append(spec['lapack'].prefix.lib)
-                libraries.append('lapack')
-            elif 'openblas' in spec:
-                # do nothing here, openblas already provide lapack symbols
-                pass
-            else:
-                raise RuntimeError('py-scipy lapack must be one of: netlib, netlib-lapack, openblas+lapack.')
 
         if '+blas' in spec or '+lapack' in spec:
-            with open('site.cfg', 'w') as f:
-                f.write('[DEFAULT]\n')
-                f.write('libraries=%s\n'    % ','.join(libraries))
-                f.write('library_dirs=%s\n' % ':'.join(library_dirs))
+            # restrict to a blas that contains cblas symbols
+            if 'openblas+lapack' in spec:
+                with open('site.cfg', 'w') as f:
+                    f.write('[DEFAULT]\n')
+                    f.write('library_dirs=%s\n' % spec['blas'].prefix.lib)
+            #elif 'mkl' in spec:
+            #    with open('site.cfg', 'w') as f:
+            #        f.write('[mkl]\n')
+            #        f.write('library_dirs=%s\n' % spec['blas'].prefix.lib)
+            #        f.write('include_dirs=%s\n' % spec['blas'].prefix.include)
+            #        f.write('mkl_libs=mkl_intel_lp64,mkl_intel_thread,mkl_core')
+            else:
+                raise RuntimeError('py-numpy blas/lapack must be one of: openblas+lapack')
 
         python('setup.py', 'install', '--prefix=%s' % prefix)

@@ -41,14 +41,17 @@ class PyScipy(Package):
 
     def install(self, spec, prefix):
         # restrict to a blas that contains cblas symbols
-        if 'atlas' in spec:
-            # libatlas.so actually isn't always installed, but this
-            # seems to make the build autodetect things correctly.
-            env['ATLAS'] = join_path(spec['atlas'].prefix.lib, 'libatlas.' + dso_suffix)
-        elif 'openblas' in spec:
-            env['BLAS']   = join_path(spec['blas'].prefix.lib, 'libopenblas.' + dso_suffix)
-            env['LAPACK']   = join_path(spec['lapack'].prefix.lib, 'libopenblas.' + dso_suffix)
+        if 'openblas+lapack' in spec:
+            with open('site.cfg', 'w') as f:
+                f.write('[DEFAULT]\n')
+                f.write('library_dirs=%s\n' % spec['blas'].prefix.lib)
+        #elif 'mkl' in spec:
+        #    with open('site.cfg', 'w') as f:
+        #        f.write('[mkl]\n')
+        #        f.write('library_dirs=%s\n' % spec['blas'].prefix.lib)
+        #        f.write('include_dirs=%s\n' % spec['blas'].prefix.include)
+        #        f.write('mkl_libs=mkl_intel_lp64,mkl_intel_thread,mkl_core')
         else:
-            raise RuntimeError('py-scipy blas/lapack must come from openblas or atlas.')
+            raise RuntimeError('py-numpy blas/lapack must be one of: openblas+lapack')
 
         python('setup.py', 'install', '--prefix=%s' % prefix)
