@@ -26,18 +26,31 @@ class Aerosol(Package):
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
             url = "file:"+join_path(pkg_dir, "empty.tar.gz"))
+    version('src')
 
-    variant('papi', default=True, description='Enable PAPI usage')
+    variant('papi', default=False, description='Enable PAPI usage')
     variant('hdf5', default=True, description='Enable IO using parallel HDF5')
+    variant('umfpack', default=True, description='Enable UMFPACK linear solver')
+    variant('petsc', default=True, description='Enable PETSc linear solvers')
+    variant('mumps', default=False, description='Enable MUMPS linear solver')
+    variant('pastix', default=False, description='Enable PaStix linear solver')
 
+    # required dependencies
     depends_on('cmake')
     depends_on('libxml2')
     depends_on('mpi')
-    depends_on('cblas')
-    depends_on('papi', when="+papi")
-    depends_on('hdf5+mpi', when="+hdf5")
+    depends_on('blas')
+    depends_on('lapack')
     depends_on('pampa@trunk')
     depends_on('scotch@6.0.3~pthread')
+
+    # optional dependencies
+    depends_on('papi', when="+papi")
+    depends_on('hdf5+mpi', when="+hdf5")
+    depends_on('suitesparse', when="+umfpack")
+    depends_on('petsc@3.3+hypre~mumps~superlu-dist', when="+petsc")
+    depends_on('mumps+scotch+ptscotch+metis+parmetis', when="+mumps")
+    depends_on('pastix~metis', when="+pastix")
 
     parallel = False # parallel builds might require too much RAM (ie >8gb for 4c)
 
@@ -46,20 +59,37 @@ class Aerosol(Package):
             # configure
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
-            cmake_args.extend(["-DWITH_BLOCKDIAGONALSOLVER=True"])
-            cmake_args.extend(["-DWITH_DIAGONALSOLVER=True"])
-#FIXME NIKOS add the rest of the lin solvers: MUMPS, UMFPACK, PETSC/PETSC-hypre
             cmake_args.extend(["-DWITH_XML2=True"])
             if spec.satisfies('+papi'):
                 cmake_args.extend(["-DWITH_PAPI=True"])
             if spec.satisfies('+hdf5'):
                 cmake_args.extend(["-DWITH_HDF5=True"])
-#FIXME NIKOS            if spec['blas'] == eigen-blas:
-#FIXME NIKOS                cmake_args.extend(["-DWITH_LINEAR_ALGEBRA_PACKAGE=EIGEN"])
-#FIXME NIKOS            else if spec['blas'] == imkl:
-#FIXME NIKOS                cmake_args.extend(["-DWITH_LINEAR_ALGEBRA_PACKAGE=IMKL"])
-#FIXME NIKOS            else :
-#FIXME NIKOS                cmake_args.extend(["-DWITH_LINEAR_ALGEBRA_PACKAGE=BLAS"])
+            # configure dense linear solver
+            cmake_args.extend(['-DBLAS_DIR=%s' % spec['blas'].prefix])
+            cmake_args.extend(['-DLAPACK_DIR=%s' % spec['lapack'].prefix])
+            if 'eigen-blas' in spec:
+                cmake_args.extend(["-DLINEAR_ALGEBRA_PACKAGE=EIGENBLAS"])
+            elif 'mkl' in spec:
+                cmake_args.extend(["-DLINEAR_ALGEBRA_PACKAGE=MKL"])
+            elif 'openblas' in spec:
+                cmake_args.extend(["-DLINEAR_ALGEBRA_PACKAGE=OPENBLAS"])
+            elif 'netlib' in spec or 'netlib-blas' in spec:
+                cmake_args.extend(["-DLINEAR_ALGEBRA_PACKAGE=NETLIBBLAS"])
+            else:
+                cmake_args.extend(["-DLINEAR_ALGEBRA_PACKAGE=NOTHING"])
+            # configure sparse linear solvers
+            cmake_args.extend(["-DWITH_BLOCKDIAGONALSOLVER=True"])
+            cmake_args.extend(["-DWITH_DIAGONALSOLVER=True"])
+            if spec.satisfies('+umfpack'):
+                cmake_args.extend(["-DWITH_UMFPACK=True"])
+            if spec.satisfies('+petsc'):
+                cmake_args.extend(["-DWITH_PETSC=True"])
+                if spec.satisfies('+petsc+hypre'):
+                    cmake_args.extend(["-DWITH_PETSC_HYPRE=True"])
+            if spec.satisfies('+mumps'):
+                cmake_args.extend(["-DWITH_MUMPS=True"])
+            if spec.satisfies('+pastix'):
+                cmake_args.extend(["-DWITH_PASTIX=True"])
             cmake(*cmake_args)
 
             # build
