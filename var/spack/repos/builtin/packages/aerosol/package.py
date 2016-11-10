@@ -34,6 +34,8 @@ class Aerosol(Package):
     variant('petsc', default=True, description='Enable PETSc linear solvers')
     variant('mumps', default=False, description='Enable MUMPS linear solver')
     variant('pastix', default=False, description='Enable PaStix linear solver')
+    variant('simu', default=False, description='Enable simulation drivers')
+    variant('test', default=False, description='Enable tests')
 
     # required dependencies
     depends_on('cmake')
@@ -59,11 +61,11 @@ class Aerosol(Package):
             # configure
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
-            cmake_args.extend(["-DWITH_XML2=True"])
+            cmake_args.extend(["-DWITH_XML2=ON"])
             if spec.satisfies('+papi'):
-                cmake_args.extend(["-DWITH_PAPI=True"])
+                cmake_args.extend(["-DWITH_PAPI=ON"])
             if spec.satisfies('+hdf5'):
-                cmake_args.extend(["-DWITH_HDF5=True"])
+                cmake_args.extend(["-DWITH_HDF5=ON"])
             # configure dense linear solver
             cmake_args.extend(['-DBLAS_DIR=%s' % spec['blas'].prefix])
             cmake_args.extend(['-DLAPACK_DIR=%s' % spec['lapack'].prefix])
@@ -76,20 +78,27 @@ class Aerosol(Package):
             elif 'netlib' in spec or 'netlib-blas' in spec:
                 cmake_args.extend(["-DLINEAR_ALGEBRA_PACKAGE=NETLIBBLAS"])
             else:
-                cmake_args.extend(["-DLINEAR_ALGEBRA_PACKAGE=NOTHING"])
+                raise RuntimeError('BLAS vendor not supported. Should be one of eigen-blas, mkl, netlib, openblas.')
             # configure sparse linear solvers
-            cmake_args.extend(["-DWITH_BLOCKDIAGONALSOLVER=True"])
-            cmake_args.extend(["-DWITH_DIAGONALSOLVER=True"])
+            cmake_args.extend(["-DWITH_BLOCKDIAGONALSOLVER=ON"])
+            cmake_args.extend(["-DWITH_DIAGONALSOLVER=ON"])
             if spec.satisfies('+umfpack'):
-                cmake_args.extend(["-DWITH_UMFPACK=True"])
+                cmake_args.extend(["-DWITH_UMFPACK=ON"])
             if spec.satisfies('+petsc'):
-                cmake_args.extend(["-DWITH_PETSC=True"])
-                if spec.satisfies('+petsc+hypre'):
-                    cmake_args.extend(["-DWITH_PETSC_HYPRE=True"])
+                cmake_args.extend(["-DWITH_PETSC=ON"])
+                if 'petsc+hypre' in spec:
+                    cmake_args.extend(["-DWITH_PETSC_HYPRE=ON"])
             if spec.satisfies('+mumps'):
-                cmake_args.extend(["-DWITH_MUMPS=True"])
+                cmake_args.extend(["-DWITH_MUMPS=ON"])
             if spec.satisfies('+pastix'):
-                cmake_args.extend(["-DWITH_PASTIX=True"])
+                cmake_args.extend(["-DWITH_PASTIX=ON"])
+
+            # configure tests adn simu drivers
+            if spec.satisfies('+simu'):
+                cmake_args.extend(["-DWITH_SIMULATIONS=ON"])
+            if spec.satisfies('+test'):
+                cmake_args.extend(["-DWITH_TEST=ON"])
+
             cmake(*cmake_args)
 
             # build
