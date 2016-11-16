@@ -51,10 +51,10 @@ class Scotch(Package):
     variant('idx64', default=False, description='to use 64 bits integers')
     variant('grf', default=False, description='Install grf examples files')
 
+    depends_on('flex')
+    depends_on('bison')
     depends_on('mpi', when='+mpi')
     depends_on('zlib', when='+compression')
-    #depends_on('flex')
-    #depends_on('bison')
 
     def compiler_specifics(self, makefile_inc, defines):
 
@@ -156,8 +156,8 @@ class Scotch(Package):
             'MV        = mv',
             'CP        = cp',
             'CFLAGS    = -O3 %s' % (' '.join(defines)),
-            #'LEX       = %s -Pscotchyy -olex.yy.c' % os.path.join(spec['flex'].prefix.bin , 'flex'),
-            #'YACC      = %s -pscotchyy -y -b y' %    os.path.join(spec['bison'].prefix.bin, 'bison'),
+            'LEX       = %s -Pscotchyy -olex.yy.c' % os.path.join(spec['flex'].prefix.bin , 'flex'),
+            'YACC      = %s -pscotchyy -y -b y' %    os.path.join(spec['bison'].prefix.bin, 'bison'),
             'prefix    = %s' % self.prefix,
             ''
             ])
