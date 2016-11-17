@@ -14,7 +14,7 @@ class Maphys(Package):
 
     version('trunk', svn=svnroot+'trunk')
     version('0.9.4.2', '69d260f62f126d468d988d7faba9755f',
-            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.2.tar.gz')
+            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.2.tar.gz' , preferred=True)
     version('0.9.4.1', 'b735c3fc590239c8f725b46b5e7dd351',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.1.tar.gz')
     version('0.9.4.0', 'a7d88a78675c97cf98a0c00216b17e43',
@@ -24,7 +24,7 @@ class Maphys(Package):
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.2.tar.gz')
 
     version('0.9.3', 'aa03c07c6a9c6337875fbd56bf499b1a',
-            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.3.tar.gz' , preferred=True)
+            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.3.tar.gz')
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
