@@ -31,7 +31,7 @@ class Aerosol(Package):
     variant('papi', default=False, description='Enable PAPI usage')
     variant('hdf5', default=True, description='Enable IO using parallel HDF5')
     variant('umfpack', default=True, description='Enable UMFPACK linear solver')
-    variant('petsc', default=True, description='Enable PETSc linear solvers')
+    variant('petsc', default=False, description='Enable PETSc linear solvers')
     variant('mumps', default=False, description='Enable MUMPS linear solver')
     variant('pastix', default=False, description='Enable PaStix linear solver')
     variant('simu', default=False, description='Enable simulation drivers')
@@ -50,7 +50,7 @@ class Aerosol(Package):
     depends_on('papi', when="+papi")
     depends_on('hdf5+mpi', when="+hdf5")
     depends_on('suitesparse', when="+umfpack")
-    depends_on('petsc@3.3+hypre~mumps~superlu-dist', when="+petsc")
+    depends_on('petsc+hypre~mumps~superlu-dist', when="+petsc")
     depends_on('mumps+scotch+ptscotch+metis+parmetis', when="+mumps")
     depends_on('pastix~metis', when="+pastix")
 
