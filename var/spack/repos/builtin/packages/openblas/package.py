@@ -66,7 +66,7 @@ class Openblas(Package):
         """Dependencies of this package will get the link for openblas."""
         self.spec.cc_link="-L%s -lopenblas" % self.spec.prefix.lib
         if self.spec.satisfies('+mt'):
-            self.spec.cc_link+=[" -lpthread"]
+            self.spec.cc_link+= " -lpthread"
         self.spec.fc_link=self.spec.cc_link
         self.spec.cc_link_mt = self.spec.cc_link
         self.spec.fc_link_mt = self.spec.fc_link
