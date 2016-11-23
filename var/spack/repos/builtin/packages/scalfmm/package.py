@@ -3,14 +3,23 @@ import os
 import spack
 
 class Scalfmm(Package):
-    """a software library to simulate N-body interactions using the Fast Multipole Method."""
+    """a software library to simulate N-body interactions using the Fast Multipole Method.
+       The private version requires the user has access to scalfmm's repository on gforge.
+          PLEASE MAKE SURE YOUR USERNAME MATCHES YOUR GFORGE ACCOUNT NAME
+          OR SET SHELL VAR "GFORGE_USERNAME" TO YOUR GFORGE ACCOUNT NAME"""
+
     homepage = "http://scalfmm-public.gforge.inria.fr/doc/"
 
     version('1.4-148', '26ee5f58103992be9080b74377f095ff',
             url="https://gforge.inria.fr/frs/download.php/file/35369/SCALFMM-1.4-148.tar.gz")
     version('1.3-56', '666ba8fef226630a2c22df8f0f93ff9c',
             url="https://gforge.inria.fr/frs/download.php/file/34672/SCALFMM-1.3-56.tar.gz")
-    version('master', git='https://scm.gforge.inria.fr/anonscm/git/scalfmm-public/scalfmm-public.git')
+    version('master',  git='https://scm.gforge.inria.fr/anonscm/git/scalfmm-public/scalfmm-public.git')
+    try:
+        username = os.environ['GFORGE_USERNAME']
+    except KeyError:
+        username = getpass.getuser()
+    version('private', git='https://' + username + '@scm.gforge.inria.fr/authscm/' + username + '/git/scalfmm/scalfmm.git')
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
