@@ -3,6 +3,7 @@ import os
 import platform
 import spack
 import sys
+import re
 from shutil import copyfile
 
 class Pastix(Package):
@@ -34,6 +35,8 @@ class Pastix(Package):
     variant('dynsched', default=False, description='Enable dynamic thread scheduling support')
     variant('memory', default=True, description='Enable memory usage statistics')
     variant('murgeup', default=False, description='Pull git murge source code (internet connection required), useful for the develop branch')
+    variant('pypastix', default=False, description='Create a python wrapper for pastix called pypastix')
+    variant('pypastix3', default=False, description='Create a python 3 wrapper for pastix called pypastix')
 
     depends_on("hwloc")
     depends_on("hwloc+cuda", when='+cuda')
@@ -48,6 +51,8 @@ class Pastix(Package):
     depends_on("starpu~mpi", when='+starpu~mpi')
     depends_on("starpu+cuda", when='+starpu+cuda')
 
+    mf_config = False
+    
     def patch_5_2_2_22(self):
         mf = FileFilter('example/src/makefile')
         mf.filter('^EXTRALIB       :=.*', 'EXTRALIB       :=  ${DST}/mem_trace.o ${EXTRALIB}')
@@ -57,6 +62,11 @@ class Pastix(Package):
 
     def config_file(self):
 
+        # Avoid multiple configurations
+        if self.mf_config:
+            return
+        self.mf_config = True
+        
         copyfile('config/LINUX-GNU.in', 'config.in')
 
         mf = FileFilter('config.in')
@@ -224,12 +234,14 @@ class Pastix(Package):
                 # use the native Makefile system with config.in
                 self.patch_5_2_2_22()
                 self.config_file()
+
                 if spec.satisfies('+debug'):
                     make('debug')
                 else:
                     make()
                 if spec.satisfies('+examples'):
                     make('examples')
+                    
                 make("install")
                 # examples are not installed by default
                 if spec.satisfies('+examples'):
@@ -341,12 +353,20 @@ class Pastix(Package):
                         cmake_args.extend(["-DCMAKE_C_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
                         cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-qstrict -qsmp -qarch=auto -qhot -qtune=auto"])
                         cmake_args.extend(["-DCMAKE_CXX_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
-                        cmake_args.extend(["-DPASTIX_FM_NOCHANGE=ON"])
-
+                        cmake_args.extend(["-DPASTIX_FM_NOCHANGE=ON"])                        
 
                     cmake(*cmake_args)
                     make()
+                    
                     make("install")
+
+            if spec.satisfies('+pypastix'):
+                self.config_file()
+                make('pypastix')
+
+            if spec.satisfies('+pypastix3'):
+                self.config_file()
+                make('pypastix-3')
 
     # to use the existing version available in the environment: PASTIX_DIR environment variable must be set
     @when('@exist')
@@ -355,3 +375,33 @@ class Pastix(Package):
         os.symlink("bin", prefix.bin)
         os.symlink("include", prefix.include)
         os.symlink("lib", prefix.lib)
+
+    def setup_environment(self, spack_env, run_env):
+        """Find python package path and add to PYTHONPATH"""
+        spec = self.spec
+        
+        def get_pythonpath(substr):
+
+            if not os.path.isfile("spack-build.out"):
+                return None
+            
+            path_regex = re.compile("^creating\s(\S+" + substr + "\S+site-packages$)")
+            with open("spack-build.out", 'r') as out_f:
+                l = out_f.readline()
+                while l and ('running install_lib' not in l):
+                    l = out_f.readline()
+                while l:
+                    m = re.search(path_regex, l)
+                    if m:
+                        return m.group(1)
+                    l = out_f.readline()
+
+        if spec.satisfies('+pypastix'):
+            path = get_pythonpath('python2')
+            if path:
+                run_env.prepend_path('PYTHONPATH', path)
+            
+        if spec.satisfies('+pypastix3'):
+            path = get_pythonpath('python3')
+            if path:
+                run_env.prepend_path('PYTHONPATH', path)
