@@ -1,5 +1,6 @@
 from spack import *
 import os
+import getpass
 import spack
 
 class Scalfmm(Package):
