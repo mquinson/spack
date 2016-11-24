@@ -35,7 +35,7 @@ class Pastix(Package):
     variant('dynsched', default=False, description='Enable dynamic thread scheduling support')
     variant('memory', default=True, description='Enable memory usage statistics')
     variant('murgeup', default=False, description='Pull git murge source code (internet connection required), useful for the develop branch')
-    variant('pypastix', default=False, description='Create a python wrapper for pastix called pypastix')
+    variant('pypastix', default=False, description='Create a python 2 wrapper for pastix called pypastix')
     variant('pypastix3', default=False, description='Create a python 3 wrapper for pastix called pypastix')
 
     depends_on("hwloc")
@@ -51,6 +51,17 @@ class Pastix(Package):
     depends_on("starpu~mpi", when='+starpu~mpi')
     depends_on("starpu+cuda", when='+starpu+cuda')
 
+    # Python dependencies for pypastix
+    depends_on("python@2:2.8", when='+pypastix')
+    depends_on("py-mpi4py", when='+pypastix')
+    depends_on("py-numpy", when='+pypastix')
+    depends_on("py-cython", when='+pypastix')
+    
+    depends_on("python@3:", when='+pypastix3')
+    depends_on("py-mpi4py", when='+pypastix3')
+    depends_on("py-numpy", when='+pypastix3')
+    depends_on("py-cython", when='+pypastix3')
+    
     mf_config = False
     
     def patch_5_2_2_22(self):
