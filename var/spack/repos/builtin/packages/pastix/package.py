@@ -38,6 +38,7 @@ class Pastix(Package):
     variant('pypastix', default=False, description='Create a python 2 wrapper for pastix called pypastix')
     variant('pypastix3', default=False, description='Create a python 3 wrapper for pastix called pypastix')
 
+    depends_on("cmake")
     depends_on("hwloc")
     depends_on("hwloc+cuda", when='+cuda')
     depends_on("mpi", when='+mpi')
@@ -56,14 +57,14 @@ class Pastix(Package):
     depends_on("py-mpi4py", when='+pypastix')
     depends_on("py-numpy", when='+pypastix')
     depends_on("py-cython", when='+pypastix')
-    
+
     depends_on("python@3:", when='+pypastix3')
     depends_on("py-mpi4py", when='+pypastix3')
     depends_on("py-numpy", when='+pypastix3')
     depends_on("py-cython", when='+pypastix3')
-    
+
     mf_config = False
-    
+
     def patch_5_2_2_22(self):
         mf = FileFilter('example/src/makefile')
         mf.filter('^EXTRALIB       :=.*', 'EXTRALIB       :=  ${DST}/mem_trace.o ${EXTRALIB}')
@@ -77,7 +78,7 @@ class Pastix(Package):
         if self.mf_config:
             return
         self.mf_config = True
-        
+
         copyfile('config/LINUX-GNU.in', 'config.in')
 
         mf = FileFilter('config.in')
@@ -252,7 +253,7 @@ class Pastix(Package):
                     make()
                 if spec.satisfies('+examples'):
                     make('examples')
-                    
+
                 make("install")
                 # examples are not installed by default
                 if spec.satisfies('+examples'):
@@ -364,11 +365,11 @@ class Pastix(Package):
                         cmake_args.extend(["-DCMAKE_C_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
                         cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-qstrict -qsmp -qarch=auto -qhot -qtune=auto"])
                         cmake_args.extend(["-DCMAKE_CXX_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
-                        cmake_args.extend(["-DPASTIX_FM_NOCHANGE=ON"])                        
+                        cmake_args.extend(["-DPASTIX_FM_NOCHANGE=ON"])
 
                     cmake(*cmake_args)
                     make()
-                    
+
                     make("install")
 
             if spec.satisfies('+pypastix'):
@@ -390,12 +391,12 @@ class Pastix(Package):
     def setup_environment(self, spack_env, run_env):
         """Find python package path and add to PYTHONPATH"""
         spec = self.spec
-        
+
         def get_pythonpath(substr):
 
             if not os.path.isfile("spack-build.out"):
                 return None
-            
+
             path_regex = re.compile("^creating\s(\S+" + substr + "\S+site-packages$)")
             with open("spack-build.out", 'r') as out_f:
                 l = out_f.readline()
@@ -411,7 +412,7 @@ class Pastix(Package):
             path = get_pythonpath('python2')
             if path:
                 run_env.prepend_path('PYTHONPATH', path)
-            
+
         if spec.satisfies('+pypastix3'):
             path = get_pythonpath('python3')
             if path:

@@ -19,7 +19,7 @@ class Maphys(Package):
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.1.tar.gz')
     version('0.9.4.0', 'a7d88a78675c97cf98a0c00216b17e43',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.0.tar.gz')
-    
+
     version('0.9.4', 'db6a508e53be2f8f54dc5a46d1043c05',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.2.tar.gz')
 
@@ -38,6 +38,7 @@ class Maphys(Package):
     variant('pastix', default=True, description='Enable PASTIX direct solver')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
 
+    depends_on("cmake")
     depends_on("mpi")
     depends_on("hwloc")
     depends_on("scotch+mpi+esmumps", when='+mumps')
