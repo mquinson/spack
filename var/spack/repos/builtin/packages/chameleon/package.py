@@ -48,7 +48,7 @@ class Chameleon(Package):
     depends_on("quark", when='+quark')
     depends_on("mpi", when='+mpi~simu')
     depends_on("cuda", when='+cuda~simu')
-    depends_on("magma@1.6.2", when='+magma~simu')
+    depends_on("magma@1.6.2", when='+magma+cuda~simu')
     depends_on("fxt", when='+fxt+starpu')
     depends_on("eztrace", when='+eztrace')
 
@@ -89,6 +89,8 @@ class Chameleon(Package):
             if spec.satisfies('+magma'):
                 # Enable MAGMA here.
                 cmake_args.extend(["-DCHAMELEON_USE_MAGMA=ON"])
+            if spec.satisfies('+magma') and spec.satisfies('~cuda'):
+                raise RuntimeError('variant +magma requires +cuda, please choose variant +cuda to use magma.')
             if spec.satisfies('+fxt'):
                 # Enable FxT here.
                 if spec.satisfies('chameleon@0.9.0:0.9.1'):
@@ -98,6 +100,9 @@ class Chameleon(Package):
             if spec.satisfies('+simu'):
                 # Enable SimGrid here.
                 cmake_args.extend(["-DCHAMELEON_SIMULATION=ON"])
+                if spec.satisfies('+magma'):
+                    # Enable CUDA/MAGMA here.
+                    cmake_args.extend(["-DCHAMELEON_SIMULATION_MAGMA=ON"])
             if spec.satisfies('+quark') and spec.satisfies('+starpu'):
                 raise RuntimeError('variant +quark and +starpu are mutually exclusive, please choose one.')
             if spec.satisfies('~quark') and spec.satisfies('~starpu'):
