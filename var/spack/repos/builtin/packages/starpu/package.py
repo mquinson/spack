@@ -67,6 +67,7 @@ class Starpu(Package):
     variant('cuda', default=False, description='Enable CUDA support')
     variant('opencl', default=False, description='Enable OpenCL support')
     variant('openmp', default=True, description='Enable OpenMP support')
+    variant('fortran', default=False, description='Enable Fortran interface and examples')
     variant('simgrid', default=False, description='Enable SimGrid support')
     variant('examples', default=True, description='Enable Examples')
     variant('blas', default=False, description='Enable BLAS related features')
@@ -138,6 +139,9 @@ class Starpu(Package):
             config_args.append("--enable-openmp=yes")
         else:
             config_args.append("--enable-openmp=no")
+
+        if not spec.satisfies('+fortran'):
+            config_args.append("--disable-fortran")
 
         configure(*config_args)
 

@@ -33,7 +33,7 @@ class QrMumps(Package):
     depends_on("metis", when='+metis')
     depends_on("scotch~mpi", when='+scotch')
     depends_on("colamd", when='+colamd')
-    depends_on("starpu~mpi", when='+starpu')
+    depends_on("starpu~mpi+fortran", when='+starpu')
     #depends_on("fxt", when='+starpu+fxt')
     depends_on("starpu+fxt", when='+starpu+fxt')
 
