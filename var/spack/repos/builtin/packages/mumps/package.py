@@ -57,6 +57,8 @@ class Mumps(Package):
     variant('idx64', default=False, description='Use int64_t/integer*8 as default index type')
     variant('shared', default=True, description='Build MUMPS as a shared library')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
+    variant('pymumps', default=False, description='Create a python wrapper for mumps called pymumps')
+    pypath = ''
 
     depends_on('scotch + esmumps',              when='+scotch')
     depends_on('scotch + esmumps + idx64',      when='+scotch+idx64')
@@ -196,10 +198,9 @@ class Mumps(Package):
                 makefile_inc = '\n'.join(makefile_conf)
                 fh.write(makefile_inc)
 
-
     def install(self, spec, prefix):
         make_libs = []
-
+        
         # the choice to compile ?examples is to have kind of a sanity
         # check on the libraries generated.
         if '+float' in spec:
@@ -239,6 +240,18 @@ class Mumps(Package):
                 if '+complex' in spec:
                     os.system('./zsimpletest < input_simpletest_cmplx')
 
+        if '+pymumps' in spec:
+            import urllib
+            import shutil
+            pypath = self.pypath
+            os.mkdir(pypath)
+            dl = urllib.URLopener()
+            dl.retrieve('http://morse.gforge.inria.fr/misc/pymumps/mumps_struct.py', 'mumps_struct.py')
+            shutil.move('mumps_struct.py', pypath)
+            dl.retrieve('http://morse.gforge.inria.fr/misc/pymumps/pymumps.py', 'pymumps.py')
+            shutil.move('pymumps.py', pypath)
+            shutil.copy('Makefile.inc', pypath)
+
     def setup_dependent_package(self, module, dep_spec):
         """Dependencies of this package will get the link for Mumps."""
         spec = self.spec
@@ -274,3 +287,11 @@ class Mumps(Package):
 
        # there is a bug with the hash calculation of mumps
         spec.mumpsprefix=spec.prefix
+
+    def setup_environment(self, spack_env, run_env):
+        spec = self.spec
+
+        self.pypath = os.path.join(self.prefix, 'python')
+                
+        if spec.satisfies('+pymumps'):
+            run_env.prepend_path('PYTHONPATH', self.pypath)
