@@ -86,9 +86,13 @@ class Chameleon(Package):
             if spec.satisfies('+cuda'):
                 # Enable CUDA here.
                 cmake_args.extend(["-DCHAMELEON_USE_CUDA=ON"])
+            else:
+                cmake_args.extend(["-DCHAMELEON_USE_CUDA=OFF"])
             if spec.satisfies('+magma'):
                 # Enable MAGMA here.
                 cmake_args.extend(["-DCHAMELEON_USE_MAGMA=ON"])
+            else:
+                cmake_args.extend(["-DCHAMELEON_USE_MAGMA=OFF"])
             if spec.satisfies('+magma') and spec.satisfies('~cuda'):
                 raise RuntimeError('variant +magma requires +cuda, please choose variant +cuda to use magma.')
             if spec.satisfies('+fxt'):
