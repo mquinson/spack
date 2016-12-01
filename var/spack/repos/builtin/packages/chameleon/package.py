@@ -100,9 +100,6 @@ class Chameleon(Package):
             if spec.satisfies('+simu'):
                 # Enable SimGrid here.
                 cmake_args.extend(["-DCHAMELEON_SIMULATION=ON"])
-                if spec.satisfies('+magma'):
-                    # Enable CUDA/MAGMA here.
-                    cmake_args.extend(["-DCHAMELEON_SIMULATION_MAGMA=ON"])
             if spec.satisfies('+quark') and spec.satisfies('+starpu'):
                 raise RuntimeError('variant +quark and +starpu are mutually exclusive, please choose one.')
             if spec.satisfies('~quark') and spec.satisfies('~starpu'):
