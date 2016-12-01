@@ -8,6 +8,10 @@ class Starpu(Package):
     """offers support for heterogeneous multicore architecture"""
     homepage = "http://starpu.gforge.inria.fr/"
 
+    version('nightly-1.2',
+            url="http://starpu.gforge.inria.fr/testing/branches/starpu-1.2/starpu-nightly-latest.tar.gz")
+    version('nightly-1.1',
+            url="http://starpu.gforge.inria.fr/testing/branches/starpu-1.1/starpu-nightly-latest.tar.gz")
     version('1.2.0', '0cc98ac39b9cb4083c6c51399029d33b',
             url="http://starpu.gforge.inria.fr/files/starpu-1.2.0.tar.gz")
     version('1.1.6', '005a3c15b25cb36df09e2492035b5aad',
