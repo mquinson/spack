@@ -29,6 +29,8 @@ class PyScipy(Package):
     homepage = "http://www.scipy.org/"
     url      = "https://pypi.python.org/packages/source/s/scipy/scipy-0.15.0.tar.gz"
 
+    version('0.18.1', '96d0dd6b0b584b2693fc7b08fdda48cd',
+            url='https://github.com/scipy/scipy/archive/v0.18.1.tar.gz')
     version('0.17.0', '5ff2971e1ce90e762c59d2cd84837224')
     version('0.15.1', 'be56cd8e60591d6332aac792a5880110')
     version('0.15.0', '639112f077f0aeb6d80718dc5019dc7a')
@@ -45,13 +47,13 @@ class PyScipy(Package):
             with open('site.cfg', 'w') as f:
                 f.write('[DEFAULT]\n')
                 f.write('library_dirs=%s\n' % spec['blas'].prefix.lib)
-        #elif 'mkl' in spec:
-        #    with open('site.cfg', 'w') as f:
-        #        f.write('[mkl]\n')
-        #        f.write('library_dirs=%s\n' % spec['blas'].prefix.lib)
-        #        f.write('include_dirs=%s\n' % spec['blas'].prefix.include)
-        #        f.write('mkl_libs=mkl_intel_lp64,mkl_intel_thread,mkl_core')
+        elif 'mkl' in spec:
+            with open('site.cfg', 'w') as f:
+                f.write('[mkl]\n')
+                f.write('library_dirs=%s\n' % spec['blas'].prefix.lib)
+                f.write('include_dirs=%s\n' % spec['blas'].prefix.include)
+                f.write('mkl_libs=mkl_intel_lp64,mkl_sequential,mkl_core,iomp5')
         else:
-            raise RuntimeError('py-numpy blas/lapack must be one of: openblas+lapack')
+            raise RuntimeError('py-numpy blas/lapack must be one of: openblas+lapack or mkl')
 
         python('setup.py', 'install', '--prefix=%s' % prefix)
