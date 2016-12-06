@@ -31,13 +31,10 @@ class PyNumpy(Package):
     Fortran code, and useful linear algebra, Fourier transform, and random
     number capabilities"""
     homepage = "http://www.numpy.org/"
-    url      = "https://pypi.python.org/packages/source/n/numpy/numpy-1.9.1.tar.gz"
+    url      = "https://github.com/numpy/numpy/archive/v1.11.2.tar.gz"
 
-    version('1.11.2', '90347ff0b20bd00f2547ef4950ab3523')
-    version('1.11.0', 'bc56fb9fc2895aa4961802ffbdb31d0b')
-    version('1.10.4', 'aed294de0aa1ac7bd3f9745f4f1968ad')
-    version('1.9.2',  'a1ed53432dbcd256398898d35bc8e645')
-    version('1.9.1',  '78842b73560ec378142665e712ae4ad9')
+    version('1.11.2', '90347ff0b20bd00f2547ef4950ab3523',
+            url='https://github.com/numpy/numpy/archive/v1.11.2.tar.gz')
 
     variant('blas',   default=True)
     variant('lapack', default=True)
