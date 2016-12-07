@@ -39,18 +39,4 @@ class PyScipy(Package):
     depends_on('lapack')
 
     def install(self, spec, prefix):
-        # restrict to a blas that contains cblas symbols
-        if 'openblas+lapack' in spec:
-            with open('site.cfg', 'w') as f:
-                f.write('[DEFAULT]\n')
-                f.write('library_dirs=%s\n' % spec['blas'].prefix.lib)
-        elif 'mkl' in spec:
-            with open('site.cfg', 'w') as f:
-                f.write('[mkl]\n')
-                f.write('library_dirs=%s\n' % spec['blas'].prefix.lib)
-                f.write('include_dirs=%s\n' % spec['blas'].prefix.include)
-                f.write('mkl_libs=mkl_intel_lp64,mkl_sequential,mkl_core,iomp5')
-        else:
-            raise RuntimeError('py-numpy blas/lapack must be one of: openblas+lapack or mkl')
-
         python('setup.py', 'install', '--prefix=%s' % prefix)
