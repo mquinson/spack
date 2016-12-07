@@ -42,6 +42,7 @@ class Python(Package):
 
     extendable = True
 
+    version('3.5.2', '8906efbacfcdc7c3c9198aeefafd159e')
     version('3.5.1', 'be78e48cdfc1a7ad90efff146dce6cfe')
     version('3.5.0', 'a56c0c0b45d75a0ec9c6dee933c41c36')
     version('2.7.11', '6b6076ec9e93f05dd63e47eb9c15728b', preferred=True)
