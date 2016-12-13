@@ -77,6 +77,12 @@ class Mumps(Package):
     depends_on('scalapack', when='+mpi')
     depends_on('mpi', when='+mpi')
 
+    # Python dependencies for pymumps
+    depends_on("python", when='+pymumps')
+    depends_on("py-mpi4py", when='+mpi +pymumps')
+    depends_on("py-numpy", when='+pymumps')
+    depends_on("py-scipy", when='+pymumps')
+    
     # this function is not a patch function because in case scalapack
     # is needed it uses self.spec['scalapack'].cc_link set by the
     # setup_dependent_environment in scalapack. This happen after patch
