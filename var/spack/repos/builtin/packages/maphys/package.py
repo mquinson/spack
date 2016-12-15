@@ -49,7 +49,10 @@ class Maphys(Package):
     depends_on("pastix+mpi+blasmt~metis", when='+pastix+blasmt')
     depends_on("mumps+mpi", when='+mumps')
     depends_on("mumps+mpi+blasmt", when='+mumps+blasmt')
+    depends_on('ib-bgmres-dr', when='@trunk')
+    depends_on('ib-bgmres-dr', when='@src')
 
+    
     def setup(self):
         spec = self.spec
 
@@ -298,6 +301,13 @@ class Maphys(Package):
                     else:
                         raise RuntimeError('Only ^mkl provide multithreaded lapack.')
                 cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
+
+                if spec.satisfies('@trunk') or spec.satisfies('@src'):
+                # IBGMRESDR (not integrated yet)
+                    ibgmresdr_libs = spec['ib-bgmres-dr'].cc_link
+                    cmake_args.extend(["-DIBBGMRESDR_LIBRARIES=%s" % ibgmresdr_libs])
+                    ibgmresdr_inc = spec['ib-bgmres-dr'].cc_inc
+                    cmake_args.extend(["-DIBBGMRESDR_INCLUDE_DIRS=%s" % ibgmresdr_inc])
 
                 cmake(*cmake_args)
                 make()
