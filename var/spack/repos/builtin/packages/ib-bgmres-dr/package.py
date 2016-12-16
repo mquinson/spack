@@ -56,11 +56,4 @@ class IbBgmresDr(Package):
         self.spec.cc_link="-L%s -libgmresdr" % self.spec.prefix.lib
         self.spec.fc_link=self.spec.cc_link
         # Dirty
-        self.spec.cc_inc="-L%s" % self.spec.prefix.include
-            
-    #@when('@exist')
-    #def install(self, spec, prefix):
-    #    os.chdir(self.get_env_dir(self.name.upper()+'_DIR'))
-    #    os.symlink(maphysroot+"/include", prefix.include)
-    #    os.symlink(maphysroot+"/lib", prefix.lib)
-                            
+        self.spec.cc_inc=self.spec.prefix.include
