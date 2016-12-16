@@ -37,18 +37,27 @@ from spack.util.environment import *
 
 class Python(Package):
     """The Python programming language."""
+
     homepage = "http://www.python.org"
-    url      = "http://www.python.org/ftp/python/2.7.8/Python-2.7.8.tgz"
+    url = "http://www.python.org/ftp/python/2.7.8/Python-2.7.8.tgz"
 
-    extendable = True
-
-    version('3.5.2', '8906efbacfcdc7c3c9198aeefafd159e')
+    version('3.5.2', '3fe8434643a78630c61c6464fe2e7e72')
     version('3.5.1', 'be78e48cdfc1a7ad90efff146dce6cfe')
     version('3.5.0', 'a56c0c0b45d75a0ec9c6dee933c41c36')
-    version('2.7.11', '6b6076ec9e93f05dd63e47eb9c15728b', preferred=True)
+    version('3.4.3', '4281ff86778db65892c05151d5de738d')
+    version('3.3.6', 'cdb3cd08f96f074b3f3994ccb51063e9')
+    version('3.2.6', '23815d82ae706e9b781ca65865353d39')
+    version('3.1.5', '02196d3fc7bc76bdda68aa36b0dd16ab')
+    version('2.7.12', '88d61f82e3616a4be952828b3694109d', preferred=True)
+    version('2.7.11', '6b6076ec9e93f05dd63e47eb9c15728b')
     version('2.7.10', 'd7547558fd673bd9d38e2108c6b42521')
     version('2.7.9', '5eebcaa0030dc4061156d3429657fb83')
     version('2.7.8', 'd4bca0159acb0b44a781292b5231936f')
+
+    extendable = True
+
+    variant('ucs4', default=False,
+            description='Enable UCS4 (wide) unicode strings')
 
     depends_on("openssl")
     depends_on("bzip2")
@@ -65,7 +74,7 @@ class Python(Package):
         # Rest of install is pretty standard except setup.py needs to
         # be able to read the CPPFLAGS and LDFLAGS as it scans for the
         # library and headers to build
-        configure_args= [
+        config_args= [
                   "--prefix=%s" % prefix,
                   "--with-threads",
                   "--enable-shared",
@@ -78,9 +87,20 @@ class Python(Package):
                        spec['readline'].prefix, spec['ncurses'].prefix,
                        spec['sqlite'].prefix, spec['zlib'].prefix)
                   ]
+
+        if '+ucs4' in spec:
+            if spec.satisfies('@:2.7'):
+                config_args.append('--enable-unicode=ucs4')
+            elif spec.satisfies('@3.0:3.2'):
+                config_args.append('--with-wide-unicode')
+            elif spec.satisfies('@3.3:'):
+                # https://docs.python.org/3.3/whatsnew/3.3.html
+                raise ValueError(
+                    '+ucs4 variant not compatible with Python 3.3 and beyond')
+        
         if spec.satisfies('@3:'):
-            configure_args.append('--without-ensurepip')
-        configure(*configure_args)
+            config_args.append('--without-ensurepip')
+        configure(*config_args)
         make()
         make("install")
 
