@@ -3,6 +3,10 @@ import os
 import sys
 import spack
 
+def get_submodules():
+    git = which('git')
+    git('submodule', 'update', '--init', '--recursive')
+
 class Chameleon(Package):
     """Dense Linear Algebra for Scalable Multi-core Architectures and GPGPUs"""
     homepage = "https://project.inria.fr/chameleon/"
@@ -11,6 +15,7 @@ class Chameleon(Package):
             url = "https://gforge.inria.fr/frs/download.php/file/34877/chameleon-0.9.0.tar.gz")
     version('0.9.1', 'fa21b7c44daf34e540ed837a9263772d',
             url = "https://gforge.inria.fr/frs/download.php/file/34884/chameleon-0.9.1.tar.gz")
+    version('master', git='https://gitlab.inria.fr/solverstack/chameleon.git', submodules=True)
     version('trunk', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/chameleon')
     version('clusters', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/chameleon-clusters')
     version('external-prio', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/chameleon-external-prio')
@@ -53,6 +58,9 @@ class Chameleon(Package):
     depends_on("eztrace", when='+eztrace')
 
     def install(self, spec, prefix):
+
+        if spec.satisfies('@master'):
+            get_submodules()
 
         with working_dir('spack-build', create=True):
 
