@@ -28,7 +28,8 @@ class IbBgmresDr(Package):
             cmake_args.extend([
                 "-Wno-dev",
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
-                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
+                "-DIBBGMRESDR_BUILD_WARNINGS=OFF"])
 
             if spec.satisfies('+shared'):
                 # Enable build shared libs
