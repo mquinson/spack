@@ -55,5 +55,3 @@ class IbBgmresDr(Package):
         """Dependencies of this package will get the link for ib-bgmres-dr."""        
         self.spec.cc_link="-L%s -libgmresdr" % self.spec.prefix.lib
         self.spec.fc_link=self.spec.cc_link
-        # Dirty
-        self.spec.cc_inc=self.spec.prefix.include

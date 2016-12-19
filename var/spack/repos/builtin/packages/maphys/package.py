@@ -306,7 +306,7 @@ class Maphys(Package):
                 # IBGMRESDR (not integrated yet)
                     ibgmresdr_libs = spec['ib-bgmres-dr'].cc_link
                     cmake_args.extend(["-DIBBGMRESDR_LIBRARIES=%s" % ibgmresdr_libs])
-                    ibgmresdr_inc = spec['ib-bgmres-dr'].cc_inc
+                    ibgmresdr_inc = spec['ib-bgmres-dr'].prefix.include
                     cmake_args.extend(["-DIBBGMRESDR_INCLUDE_DIRS=%s" % ibgmresdr_inc])
 
                 cmake(*cmake_args)
