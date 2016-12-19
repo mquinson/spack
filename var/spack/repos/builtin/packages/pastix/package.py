@@ -58,7 +58,7 @@ class Pastix(Package):
     depends_on("py-numpy", when='+pypastix')
     depends_on("py-cython", when='+pypastix')
 
-    depends_on("python@3:+ucs4", when='+pypastix3')
+    depends_on("python@3:", when='+pypastix3')
     depends_on("py-mpi4py", when='+pypastix3')
     depends_on("py-numpy", when='+pypastix3')
     depends_on("py-cython", when='+pypastix3')
@@ -82,8 +82,8 @@ class Pastix(Package):
         copyfile('config/LINUX-GNU.in', 'config.in')
 
         mf = FileFilter('config.in')
-        spec = self.spec
-
+        spec = self.spec        
+        
         # it seems we set CXXPROG twice but it is because in some
         # versions the line exists, and we can filter it, and in some
         # versions it does not
@@ -96,6 +96,11 @@ class Pastix(Package):
         mf.filter('CFPROG      = gfortran', 'CFPROG      = f77')
         mf.filter('CF90PROG    = gfortran', 'CF90PROG    = f90')
 
+        if spec.satisfies('+pypastix'):
+            mf.filter('PYTHONBIN   =.*', 'PYTHONBIN   = %s' % (join_path(spec['python'].prefix.bin,'python')))
+        elif spec.satisfies('+pypastix3'):
+            mf.filter('PYTHONBIN   =.*', 'PYTHONBIN   = %s' % (join_path(spec['python'].prefix.bin,'python3')))
+        
         if spec.satisfies('%xl'):
             mf.filter('CCPROG      = cc -Wall', 'CCPROG      = cc -O2 -fPIC -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=pwr8')
             mf.filter('CXXPROG     = c\+\+', 'CXXPROG     = c++ -O2 -qsmp -fPIC  -qlanglvl=extended -qarch=auto -qhot -qtune=pwr8')
@@ -366,19 +371,15 @@ class Pastix(Package):
                         cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-qstrict -qsmp -qarch=auto -qhot -qtune=auto"])
                         cmake_args.extend(["-DCMAKE_CXX_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
                         cmake_args.extend(["-DPASTIX_FM_NOCHANGE=ON"])
-
+                        
                     cmake(*cmake_args)
                     make()
 
                     make("install")
 
-            if spec.satisfies('+pypastix'):
+            if spec.satisfies('+pypastix') or spec.satisfies('+pypastix3'):
                 self.config_file()
                 make('pypastix')
-
-            if spec.satisfies('+pypastix3'):
-                self.config_file()
-                make('pypastix-3')
 
     # to use the existing version available in the environment: PASTIX_DIR environment variable must be set
     @when('@exist')
