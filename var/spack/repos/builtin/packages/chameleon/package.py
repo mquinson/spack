@@ -16,7 +16,6 @@ class Chameleon(Package):
     version('0.9.1', 'fa21b7c44daf34e540ed837a9263772d',
             url = "https://gforge.inria.fr/frs/download.php/file/34884/chameleon-0.9.1.tar.gz")
     version('master', git='https://gitlab.inria.fr/solverstack/chameleon.git', submodules=True)
-    version('trunk', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/trunk/chameleon')
     version('clusters', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/chameleon-clusters')
     version('external-prio', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/chameleon-external-prio')
     version('twosided', svn='https://scm.gforge.inria.fr/anonscm/svn/morse/branches/twosided')
