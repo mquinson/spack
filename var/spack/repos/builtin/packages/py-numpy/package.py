@@ -58,7 +58,7 @@ class PyNumpy(Package):
                     f.write('[mkl]\n')
                     f.write('library_dirs=%s\n' % spec['blas'].prefix.lib)
                     f.write('include_dirs=%s\n' % spec['blas'].prefix.include)
-                    f.write('mkl_libs=mkl_intel_lp64,mkl_sequential,mkl_core')
+                    f.write('mkl_libs=mkl_rt')
             else:
                 raise RuntimeError('py-numpy blas/lapack must be one of: openblas+lapack or mkl')
 
