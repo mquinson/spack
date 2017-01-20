@@ -31,9 +31,9 @@ class Zlib(Package):
     """
 
     homepage = "http://zlib.net"
-    url      = "http://www.zlib.net/zlib-1.2.10.tar.gz"
+    url      = "http://www.zlib.net/zlib-1.2.11.tar.gz"
 
-    version('1.2.10', 'd9794246f853d15ce0fcbf79b9a3cf13')
+    version('1.2.11', 'd9794246f853d15ce0fcbf79b9a3cf13')
 
     def install(self, spec, prefix):
         configure("--prefix=%s" % prefix)

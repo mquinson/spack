@@ -8,7 +8,7 @@ from shutil import copyfile
 
 class Maphys(Package):
     """a Massively Parallel Hybrid Solver."""
-    homepage = "https://project.inria.fr/maphys/"
+    homepage = "http://morse.gforge.inria.fr/maphys/maphys.html"
 
     svnroot  = "https://scm.gforge.inria.fr/anonscm/svn/maphys/"
 
