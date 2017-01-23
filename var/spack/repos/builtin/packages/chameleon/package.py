@@ -70,6 +70,11 @@ class Chameleon(Package):
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
 
+            if spec.satisfies('@0.9.0:0.9.1'):
+                mf = FileFilter('../CMakeLists.txt')
+                mf.filter('set\(CMAKE_REQUIRED_LIBRARIES "\$\{STARPU_SHM_LIBRARIES\}"\)', 'set(CMAKE_REQUIRED_LIBRARIES "${STARPU_LIBRARIES_DEP}")')
+                mf.filter('set\(CMAKE_REQUIRED_LIBRARIES "\$\{STARPU_MPI_LIBRARIES\}"\)', 'set(CMAKE_REQUIRED_LIBRARIES "${STARPU_LIBRARIES_DEP}")')
+
             if spec.satisfies('+shared'):
                 # Enable build shared libs.
                 cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
@@ -141,6 +146,7 @@ class Chameleon(Package):
                     blas_flags = spec['blas'].cc_flags
                 except AttributeError:
                     blas_flags = ''
+
                 cmake_args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
                 lapack_libs = spec['lapack'].cc_link
                 lapack_libs = lapack_libs.replace(' ', ';')
@@ -148,6 +154,7 @@ class Chameleon(Package):
                 cmake_args.extend(['-DCBLAS_DIR=%s' % cblas.prefix])
                 cmake_args.extend(['-DLAPACKE_DIR=%s' % lapacke.prefix])
                 cmake_args.extend(['-DTMG_DIR=%s' % lapack.prefix])
+
                 if spec.satisfies('%gcc'):
                     os.environ["LDFLAGS"] = "-lgfortran"
 
