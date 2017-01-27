@@ -11,7 +11,10 @@ class Maphys(Package):
     homepage = "http://morse.gforge.inria.fr/maphys/maphys.html"
 
     svnroot  = "https://scm.gforge.inria.fr/anonscm/svn/maphys/"
+    gitroot  = "git@gitlab.inria.fr:solverstack/maphys.git"
 
+    version('master', git=gitroot, branch='master')
+    version('develop', git=gitroot, branch='develop')
     version('trunk', svn=svnroot+'trunk')
     version('0.9.4.2', 'db6a508e53be2f8f54dc5a46d1043c05',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.2.tar.gz' , preferred=True)
@@ -19,10 +22,8 @@ class Maphys(Package):
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.1.tar.gz')
     version('0.9.4.0', 'a7d88a78675c97cf98a0c00216b17e43',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.0.tar.gz')
-
     version('0.9.4', 'db6a508e53be2f8f54dc5a46d1043c05',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.2.tar.gz')
-
     version('0.9.3', 'aa03c07c6a9c6337875fbd56bf499b1a',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.3.tar.gz')
 
@@ -37,6 +38,7 @@ class Maphys(Package):
     variant('mumps', default=True, description='Enable MUMPS direct solver')
     variant('pastix', default=True, description='Enable PASTIX direct solver')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
+    variant('ibbgmresdr', default=False, description='Enable IB-BGMRES-DR iterative solver')
 
     depends_on("cmake")
     depends_on("mpi")
@@ -49,10 +51,8 @@ class Maphys(Package):
     depends_on("pastix+mpi+blasmt~metis", when='+pastix+blasmt')
     depends_on("mumps+mpi", when='+mumps')
     depends_on("mumps+mpi+blasmt", when='+mumps+blasmt')
-    depends_on('ib-bgmres-dr', when='@trunk')
-    depends_on('ib-bgmres-dr', when='@src')
+    depends_on('ib-bgmres-dr', when='+ibbgmresdr')
 
-    
     def setup(self):
         spec = self.spec
 
@@ -302,12 +302,13 @@ class Maphys(Package):
                         raise RuntimeError('Only ^mkl provide multithreaded lapack.')
                 cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
 
-                if spec.satisfies('@trunk') or spec.satisfies('@src'):
-                # IBGMRESDR (not integrated yet)
-                    ibgmresdr_libs = spec['ib-bgmres-dr'].cc_link
-                    cmake_args.extend(["-DIBBGMRESDR_LIBRARIES=%s" % ibgmresdr_libs])
-                    ibgmresdr_inc = spec['ib-bgmres-dr'].prefix.include
-                    cmake_args.extend(["-DIBBGMRESDR_INCLUDE_DIRS=%s" % ibgmresdr_inc])
+                if spec.satisfies('+ibbgmresdr'):
+                    # IBGMRESDR (not integrated yet)
+                    cmake_args.extend(["-DMAPHYS_ITE_IBBGMRESDR=ON"])
+                    ibbgmresdr_libs = spec['ib-bgmres-dr'].cc_link
+                    cmake_args.extend(["-DIBBGMRESDR_LIBRARIES=%s" % ibbgmresdr_libs])
+                    ibbgmresdr_inc = spec['ib-bgmres-dr'].prefix.include
+                    cmake_args.extend(["-DIBBGMRESDR_INCLUDE_DIRS=%s" % ibbgmresdr_inc])
 
                 cmake(*cmake_args)
                 make()
