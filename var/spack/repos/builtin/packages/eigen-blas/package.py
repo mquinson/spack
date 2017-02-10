@@ -7,8 +7,12 @@ class EigenBlas(Package):
     """Eigen BLAS"""
     homepage = "http://eigen.tuxfamily.org/index.php?title=Main_Page"
 
+    version('3.3.2', '7a94c3280ae1961bc8df5e3bd304013a',
+            url = "http://bitbucket.org/eigen/eigen/get/3.3.2.tar.bz2")
     version('3.3.0', 'fd1ecefaacc9223958b6a66f9a348424',
             url = "http://bitbucket.org/eigen/eigen/get/3.3.0.tar.bz2")
+    version('3.2.10', 'cad3e2079d9d97e9a95f854a298e9c0e',
+            url = "http://bitbucket.org/eigen/eigen/get/3.2.10.tar.bz2")
     version('3.2.9', 'de11bfbfe2fd2dc4b32e8f416f58ee98',
             url = "http://bitbucket.org/eigen/eigen/get/3.2.9.tar.bz2")
     version('3.2.7', 'cc1bacbad97558b97da6b77c9644f184',

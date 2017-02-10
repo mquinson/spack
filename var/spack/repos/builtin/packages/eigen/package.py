@@ -30,14 +30,19 @@ class Eigen(Package):
     """
     Eigen is a C++ template library for linear algebra: matrices, vectors, numerical solvers, and related algorithms
     """
-
     homepage = 'http://eigen.tuxfamily.org/'
-    url = 'http://bitbucket.org/eigen/eigen/get/3.2.7.tar.bz2'
 
-
+    version('3.3.2', '7a94c3280ae1961bc8df5e3bd304013a',
+            url = "http://bitbucket.org/eigen/eigen/get/3.3.2.tar.bz2")
     version('3.3.0', 'fd1ecefaacc9223958b6a66f9a348424',
             url = "http://bitbucket.org/eigen/eigen/get/3.3.0.tar.bz2")
-    version('3.2.7', 'cc1bacbad97558b97da6b77c9644f184', url='http://bitbucket.org/eigen/eigen/get/3.2.7.tar.bz2')
+    version('3.2.10', 'cad3e2079d9d97e9a95f854a298e9c0e',
+            url = "http://bitbucket.org/eigen/eigen/get/3.2.10.tar.bz2")
+    version('3.2.9', 'de11bfbfe2fd2dc4b32e8f416f58ee98',
+            url = "http://bitbucket.org/eigen/eigen/get/3.2.9.tar.bz2")
+    version('3.2.7', 'cc1bacbad97558b97da6b77c9644f184',
+            url = "http://bitbucket.org/eigen/eigen/get/3.2.7.tar.bz2")
+    version('hg-default', hg='https://bitbucket.org/eigen/eigen/')
 
     variant('debug', default=False, description='Builds the library in debug mode')
 
@@ -52,7 +57,7 @@ class Eigen(Package):
     depends_on('metis@5:', when='+metis')
     depends_on('scotch', when='+scotch')
     depends_on('fftw', when='+fftw')
-    depends_on('suite-sparse', when='+suitesparse')
+    depends_on('suitesparse', when='+suitesparse')
     depends_on('mpfr@2.3.0:')  # Eigen 3.2.7 requires at least 2.3.0
     depends_on('gmp')
 
