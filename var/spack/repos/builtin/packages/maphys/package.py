@@ -265,7 +265,7 @@ class Maphys(Package):
                         cflags = '-g3 -O0 -Wall'
                         fflags = '-g3 -O0 -Wall -fcheck=bounds -fbacktrace'
                     elif spec.satisfies('%intel'):
-                        cflags = '-g3 -O0 -w3 -diag-disable:remark -check bounds -traceback'
+                        cflags = '-g3 -O0 -w3'
                         fflags = '-g3 -O0 -w3 -diag-disable:remark -check bounds -traceback'
                     else:
                         cflags = '-g -O0'
