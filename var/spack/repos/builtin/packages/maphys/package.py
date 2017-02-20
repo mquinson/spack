@@ -303,7 +303,7 @@ class Maphys(Package):
                         raise RuntimeError('Only ^mkl provide multithreaded lapack.')
                 cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
 
-                if spec.satisfies('+ibbgmresdr'):
+                if spec.satisfies('+ib-bgmres-dr'):
                     # IBGMRESDR (not integrated yet)
                     cmake_args.extend(["-DMAPHYS_ITE_IBBGMRESDR=ON"])
                     ibbgmresdr_libs = spec['ib-bgmres-dr'].cc_link
