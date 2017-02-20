@@ -38,7 +38,7 @@ class Maphys(Package):
     variant('mumps', default=True, description='Enable MUMPS direct solver')
     variant('pastix', default=True, description='Enable PASTIX direct solver')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
-    variant('ibbgmresdr', default=False, description='Enable IB-BGMRES-DR iterative solver')
+    variant('ib-bgmres-dr', default=False, description='Enable IB-BGMRES-DR iterative solver')
 
     depends_on("cmake")
     depends_on("mpi")
@@ -51,7 +51,7 @@ class Maphys(Package):
     depends_on("pastix+mpi+blasmt~metis", when='+pastix+blasmt')
     depends_on("mumps+mpi", when='+mumps')
     depends_on("mumps+mpi+blasmt", when='+mumps+blasmt')
-    depends_on('ib-bgmres-dr', when='+ibbgmresdr')
+    depends_on('ib-bgmres-dr', when='+ib-bgmres-dr')
 
     def setup(self):
         spec = self.spec
@@ -195,16 +195,17 @@ class Maphys(Package):
         if spec.satisfies('+debug'):
             if spec.satisfies('%gcc'):
                 fflags += ' -g3 -O0 -Wall -fcheck=bounds -fbacktrace'
-                cflags += ' -g3 -O0 -Wall -fcheck=bounds -fbacktrace'
+		cflags += ' -g3 -O0 -Wall'
             elif spec.satisfies('%intel'):
-                fflags += ' -g3 -O0 -w3 -diag-disable:remark -check bounds -traceback'
-                cflags += ' -g3 -O0 -w3 -diag-disable:remark -check bounds -traceback'
+                fflags += ' -g3 -O0 -warn all -diag-disable:remark -check bounds -traceback'
+                cflags += ' -g3 -O0 -w2'
             else:
                 fflags += ' -g -O0'
                 cflags += ' -g -O0'
         else:
             fflags += ' -O3'
             cflags += ' -O3'
+
         if '^mkl' in spec:
             fflags += ' -m64 -I${MKLROOT}/include'
             cflags += ' -m64 -I${MKLROOT}/include'
