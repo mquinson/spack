@@ -281,6 +281,12 @@ class Maphys(Package):
                     cmake_args.extend(["-DMAPHYS_BUILD_EXAMPLES=OFF"])
                     cmake_args.extend(["-DMAPHYS_BUILD_TESTS=OFF"])
 
+                if spec.satisfies('~mumps'):
+                    cmake_args.extend(["-DMAPHYS_SDS_MUMPS=OFF"])
+
+                if spec.satisfies('~pastix'):
+                    cmake_args.extend(["-DMAPHYS_SDS_PASTIX=OFF"])
+
                 blas_libs = spec['blas'].cc_link
                 if spec.satisfies('+blasmt'):
                     cmake_args.extend(["-DMAPHYS_BLASMT=ON"])
