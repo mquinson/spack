@@ -11,7 +11,7 @@ class Maphys(Package):
     homepage = "http://morse.gforge.inria.fr/maphys/maphys.html"
 
     svnroot  = "https://scm.gforge.inria.fr/anonscm/svn/maphys/"
-    gitroot  = "git@gitlab.inria.fr:solverstack/maphys.git"
+    gitroot  = "https://gitlab.inria.fr/solverstack/maphys.git"
 
     version('master', git=gitroot, branch='master')
     version('develop', git=gitroot, branch='develop')
