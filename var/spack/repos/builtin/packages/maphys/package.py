@@ -273,6 +273,8 @@ class Maphys(Package):
                         fflags = '-g -O0'
                     cmake_args.extend(["-DCMAKE_C_FLAGS=%s" % cflags])
                     cmake_args.extend(["-DCMAKE_Fortran_FLAGS=%s" % fflags])
+                else:
+                    cmake_args.extend(["-DCMAKE_BUILD_TYPE=Release"])
 
                 if spec.satisfies('+examples'):
                     cmake_args.extend(["-DMAPHYS_BUILD_EXAMPLES=ON"])
