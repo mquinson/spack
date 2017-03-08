@@ -32,6 +32,13 @@ class Cmake(Package):
     homepage  = 'https://www.cmake.org'
     url       = 'https://cmake.org/files/v3.4/cmake-3.4.3.tar.gz'
 
+    version('3.7.2',    '79bd7e65cd81ea3aa2619484ad6ff25a')
+    version('3.7.1',    'd031d5a06e9f1c5367cdfc56fbd2a1c8')
+    version('3.7.0',    '3801dc4e54c1c957a7378d8b0d4254ba')
+    version('3.6.3',    'b62fc10072cd906160865b9e74ce228f')
+    version('3.6.2',    '139d7affdd4e8ab1edfc9f4322d69e43')
+    version('3.6.1',    'd6dd661380adacdb12f41b926ec99545')
+    version('3.6.0',    'aa40fbecf49d99c083415c2411d12db9')
     version('3.5.2',    '701386a1b5ec95f8d1075ecf96383e02')
     version('3.5.1',    'ca051f4a66375c89d1a524e726da0296')
     version('3.5.0',    '33c5d09d4c33d4ffcc63578a6ba8777e')
