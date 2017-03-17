@@ -28,7 +28,7 @@ for examples and highlights.
 
 To install spack and install your first package:
 
-    $ git clone https://github.com/fpruvost/spack.git
+    $ git clone https://github.com/solverstack/spack.git
     $ cd spack/bin
     $ ./spack install hwloc
 
