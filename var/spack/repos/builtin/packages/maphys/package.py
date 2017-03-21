@@ -313,6 +313,7 @@ class Maphys(Package):
 
                 if spec.satisfies('+ib-bgmres-dr'):
                     # IBGMRESDR (not integrated yet)
+                    cmake_args.extend(["-DCMAKE_EXE_LINKER_FLAGS=-lstdc++"])
                     cmake_args.extend(["-DMAPHYS_ITE_IBBGMRESDR=ON"])
                     ibbgmresdr_libs = spec['ib-bgmres-dr'].cc_link
                     cmake_args.extend(["-DIBBGMRESDR_LIBRARIES=%s" % ibbgmresdr_libs])

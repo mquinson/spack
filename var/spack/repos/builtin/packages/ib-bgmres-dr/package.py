@@ -31,6 +31,8 @@ class IbBgmresDr(Package):
                 "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
                 "-DIBBGMRESDR_BUILD_WARNINGS=OFF"])
 
+            cmake_args.extend(["-DCMAKE_EXE_LINKER_FLAGS=-lstdc++"])
+
             if spec.satisfies('+shared'):
                 # Enable build shared libs
                 cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
@@ -41,11 +43,11 @@ class IbBgmresDr(Package):
 
             # Blas
             blas_libs = spec['blas'].cc_link
-            cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
+            cmake_args.extend(["-DBLAS_LIBRARIES=" + str(blas_libs).replace("-Wl,--no-as-needed ", "")])
 
             # Lapack
             lapack_libs = spec['lapack'].cc_link
-            cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
+            cmake_args.extend(["-DLAPACK_LIBRARIES=" + str(lapack_libs).replace("-Wl,--no-as-needed ", "")])
 
             cmake(*cmake_args)
             make()
