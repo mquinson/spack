@@ -7,6 +7,10 @@ class Fxt(Package):
     """This library provides efficient support for recording traces"""
     homepage = "http://savannah.nongnu.org/projects/fkt"
 
+    version('0.3.3' , '52055550a21655a30f0381e618081776',
+            url      = "http://download.savannah.gnu.org/releases/fkt/fxt-0.3.3.tar.gz")
+    version('0.3.2' , '12a0445eaf43b51ff2bd9979f84a7634',
+            url      = "http://download.savannah.gnu.org/releases/fkt/fxt-0.3.2.tar.gz")
     version('0.3.1' , '85b5829ecfe2754ba7213830c7d8f119',
             url      = "http://download.savannah.gnu.org/releases/fkt/fxt-0.3.1.tar.gz")
     version('0.3.0' , '1aeb6807bda817163d432087b27ef855',
