@@ -15,7 +15,11 @@ class Maphys(Package):
 
     version('master', git=gitroot, branch='master')
     version('develop', git=gitroot, branch='develop')
-    version('trunk', svn=svnroot+'trunk')
+
+    version('0.9.5', 'ec1fc153c32b4bef2989ee2fa2695a72',
+            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.5.0.tar.gz')
+    version('0.9.5.0', 'ec1fc153c32b4bef2989ee2fa2695a72',
+            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.5.0.tar.gz')
     version('0.9.4.2', 'db6a508e53be2f8f54dc5a46d1043c05',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.2.tar.gz' , preferred=True)
     version('0.9.4.1', 'b735c3fc590239c8f725b46b5e7dd351',
@@ -262,17 +266,19 @@ class Maphys(Package):
                 if spec.satisfies('+debug'):
                     # Enable Debug here.
                     cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
-                    if spec.satisfies('%gcc'):
-                        cflags = '-g3 -O0 -Wall'
-                        fflags = '-g3 -O0 -Wall -fcheck=bounds -fbacktrace'
-                    elif spec.satisfies('%intel'):
-                        cflags = '-g -O0 -w3 -diag-disable:remark'
-                        fflags = '-g -O0 -warn all -check bounds -traceback'
-                    else:
-                        cflags = '-g -O0'
-                        fflags = '-g -O0'
-                    cmake_args.extend(["-DCMAKE_C_FLAGS=%s" % cflags])
-                    cmake_args.extend(["-DCMAKE_Fortran_FLAGS=%s" % fflags])
+                    if spec.satisfies('@0.9.4'):
+                        if spec.satisfies('%gcc'):
+                            cflags = '-g3 -O0 -Wall'
+                            fflags = '-g3 -O0 -Wall -fcheck=bounds -fbacktrace'
+                        elif spec.satisfies('%intel'):
+                            cflags = '-g -O0 -w3 -diag-disable:remark'
+                            fflags = '-g -O0 -warn all -check bounds -traceback'
+                        else:
+                            cflags = '-g -O0'
+                            fflags = '-g -O0'
+                        cmake_args.extend(["-DCMAKE_C_FLAGS=%s" % cflags])
+                        cmake_args.extend(["-DCMAKE_Fortran_FLAGS=%s" % fflags])
+
                 else:
                     cmake_args.extend(["-DCMAKE_BUILD_TYPE=Release"])
 
