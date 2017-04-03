@@ -16,9 +16,9 @@ class Maphys(Package):
     version('master', git=gitroot, branch='master')
     version('develop', git=gitroot, branch='develop')
 
-    version('0.9.5', 'ec1fc153c32b4bef2989ee2fa2695a72',
+    version('0.9.5', '8bc00e6597ef5b780243a794c6f71700',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.5.0.tar.gz')
-    version('0.9.5.0', 'ec1fc153c32b4bef2989ee2fa2695a72',
+    version('0.9.5.0', '8bc00e6597ef5b780243a794c6f71700',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.5.0.tar.gz')
     version('0.9.4.2', 'db6a508e53be2f8f54dc5a46d1043c05',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.2.tar.gz' , preferred=True)
@@ -37,7 +37,7 @@ class Maphys(Package):
     version('src')
 
     variant('debug', default=False, description='Enable debug symbols')
-    #variant('shared', default=True, description='Build MaPHyS as a shared library')
+    variant('shared', default=True, description='Build MaPHyS as a shared library')
     variant('blasmt', default=False, description='Enable to use MPI+Threads version of MaPHyS, a multithreaded Blas/Lapack library is required (MKL, ESSL, OpenBLAS)')
     variant('mumps', default=True, description='Enable MUMPS direct solver')
     variant('pastix', default=True, description='Enable PASTIX direct solver')
@@ -259,9 +259,9 @@ class Maphys(Package):
                     "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
                     "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
 
-                #if spec.satisfies('+shared'):
+                if spec.satisfies('+shared'):
                     # Enable build shared libs.
-                    #cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
+                    cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
 
                 if spec.satisfies('+debug'):
                     # Enable Debug here.
