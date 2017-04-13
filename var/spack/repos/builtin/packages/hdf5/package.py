@@ -116,16 +116,16 @@ class Hdf5(Package):
             # this is not actually a problem.
             extra_args.extend([
                 "--enable-parallel",
-                "CC=%s" % join_path(spec['mpi'].prefix.bin, "mpicc"),
+                "CC=%s" % join_path(spec['mpi'].prefix.bin, spec['mpi'].mpicc),
             ])
 
             if '+cxx' in spec:
                 extra_args.append("CXX=%s" % join_path(spec['mpi'].prefix.bin,
-                                                       "mpic++"))
+                                                       spec['mpi'].mpicxx))
 
             if '+fortran' in spec:
                 extra_args.append("FC=%s" % join_path(spec['mpi'].prefix.bin,
-                                                      "mpifort"))
+                                                      spec['mpi'].mpifc))
 
         if '+szip' in spec:
             extra_args.append("--with-szlib=%s" % spec['szip'].prefix)
