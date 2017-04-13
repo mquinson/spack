@@ -41,6 +41,7 @@ class Petsc(Package):
     version('3.5.1', 'a557e029711ebf425544e117ffa44d8f')
     version('3.4.4', '7edbc68aa6d8d6a3295dd5f6c2f6979d')
     version('3.3',   '7eed2e1d67be6039fd56686e779d6601')
+    version('3.3-p7', 'a8a65ceee1e66c71128abd6baf5ca1c3')
 
     variant('shared',  default=True,  description='Enables the build of shared libraries')
     variant('mpi',     default=True,  description='Activates MPI support')
