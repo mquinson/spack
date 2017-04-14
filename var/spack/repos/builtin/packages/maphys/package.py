@@ -42,7 +42,7 @@ class Maphys(Package):
     variant('mumps', default=True, description='Enable MUMPS direct solver')
     variant('pastix', default=True, description='Enable PASTIX direct solver')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
-    variant('ib-bgmres-dr', default=False, description='Enable IB-BGMRES-DR iterative solver')
+    variant('fabulous', default=False, description='Enable FABuLOuS iterative solver')
 
     depends_on("cmake")
     depends_on("mpi")
@@ -55,7 +55,7 @@ class Maphys(Package):
     depends_on("pastix+mpi+blasmt~metis", when='+pastix+blasmt')
     depends_on("mumps+mpi", when='+mumps')
     depends_on("mumps+mpi+blasmt", when='+mumps+blasmt')
-    depends_on('ib-bgmres-dr', when='+ib-bgmres-dr')
+    depends_on('fabulous@ib', when='+fabulous')
 
     def setup(self):
         spec = self.spec
@@ -199,7 +199,7 @@ class Maphys(Package):
         if spec.satisfies('+debug'):
             if spec.satisfies('%gcc'):
                 fflags += ' -g3 -O0 -Wall -fcheck=bounds -fbacktrace'
-		cflags += ' -g3 -O0 -Wall'
+                cflags += ' -g3 -O0 -Wall'
             elif spec.satisfies('%intel'):
                 fflags += ' -g3 -O0 -warn all -diag-disable:remark -check bounds -traceback'
                 cflags += ' -g3 -O0 -w2'
@@ -317,14 +317,14 @@ class Maphys(Package):
                         raise RuntimeError('Only ^mkl provide multithreaded lapack.')
                 cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
 
-                if spec.satisfies('+ib-bgmres-dr'):
-                    # IBGMRESDR (not integrated yet)
+                if spec.satisfies('+fabulous'):
+                    # FABULOUS (IBGMRESDR) (not integrated yet)
                     cmake_args.extend(["-DCMAKE_EXE_LINKER_FLAGS=-lstdc++"])
                     cmake_args.extend(["-DMAPHYS_ITE_IBBGMRESDR=ON"])
-                    ibbgmresdr_libs = spec['ib-bgmres-dr'].cc_link
-                    cmake_args.extend(["-DIBBGMRESDR_LIBRARIES=%s" % ibbgmresdr_libs])
-                    ibbgmresdr_inc = spec['ib-bgmres-dr'].prefix.include
-                    cmake_args.extend(["-DIBBGMRESDR_INCLUDE_DIRS=%s" % ibbgmresdr_inc])
+                    fabulous_libs = spec['fabulous'].cc_link
+                    cmake_args.extend(["-DIBBGMRESDR_LIBRARIES=%s" % fabulous_libs])
+                    fabulous_inc = spec['fabulous'].prefix.include
+                    cmake_args.extend(["-DIBBGMRESDR_INCLUDE_DIRS=%s" % fabulous_inc])
 
                 cmake(*cmake_args)
                 make()
