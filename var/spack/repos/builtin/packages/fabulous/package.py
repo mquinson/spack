@@ -1,6 +1,10 @@
 from spack import *
 import spack
 
+def get_submodules():
+    git = which('git')
+    git('submodule', 'update', '--init', '--recursive')
+
 class Fabulous(Package):
     """FABuLOuS (Fast Accurate Block Linear krylOv Solver)
     Library implementing Block-GMres with Inexact Breakdown and Deflated Restarting"""
@@ -25,6 +29,9 @@ class Fabulous(Package):
     depends_on("chameleon", when="@develop+chameleon")
 
     def install(self, spec, prefix):
+
+        if spec.satisfies("@develop"):
+            get_submodules()
 
         with working_dir("spack-build", create=True):
             cmake_args = [".."]
