@@ -26,7 +26,7 @@ class Fabulous(Package):
     depends_on("cmake")
     depends_on("cblas")
     depends_on("lapacke")
-    depends_on("chameleon", when="@develop+chameleon")
+    depends_on("chameleon@master", when="@develop+chameleon")
 
     def install(self, spec, prefix):
 
@@ -47,7 +47,7 @@ class Fabulous(Package):
 
             if spec.satisfies("+shared"):
                 # Enable build shared libs
-                cmake_args.extend(["-DFABULOUS_BUILD_SHARED_LIBS=ON"])
+                cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
 
             if spec.satisfies("+debug"):
                 cmake_args.extend(["-DFABULOUS_DEBUG_MODE=ON"])
