@@ -121,11 +121,11 @@ class Starpu(Package):
             if spec.satisfies('~mlr'):
                 config_args.append("--disable-mlr")
 
-        configure(*config_args)
-
         # On OSX, deactivate glpk
         if platform.system() == 'Darwin':
-            filter_file('^#define.*GLPK.*', '', 'src/common/config.h', 'include/starpu_config.h')
+            config_args.append("--disable-glpk")
+
+        configure(*config_args)
 
         make()
         make("install", parallel=False)
