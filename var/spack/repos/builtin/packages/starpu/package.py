@@ -22,6 +22,7 @@ class Starpu(Package):
 
     variant('shared', default=True, description='Build STARPU as a shared library')
     variant('fast', default=True, description='Disable runtime assertions')
+    variant('verbose', default=True, description='Enable verbose debugging')
     variant('fxt', default=False, description='Enable FxT tracing support')
     variant('mpi', default=True, description='Enable MPI support')
     variant('cuda', default=False, description='Enable CUDA support')
@@ -64,6 +65,9 @@ class Starpu(Package):
 
         if spec.satisfies('+debug'):
             config_args.append("--enable-debug")
+
+        if spec.satisfies('+verbose'):
+            config_args.append("--enable-verbose")
 
         if not spec.satisfies('+shared'):
             config_args.append("--disable-shared")
