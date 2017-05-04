@@ -21,6 +21,7 @@ class Starpu(Package):
     version('svn-1.2', svn='https://scm.gforge.inria.fr/anonscm/svn/starpu/branches/starpu-1.2')
 
     variant('shared', default=True, description='Build STARPU as a shared library')
+    variant('fast', default=True, description='Disable runtime assertions')
     variant('fxt', default=False, description='Enable FxT tracing support')
     variant('mpi', default=True, description='Enable MPI support')
     variant('cuda', default=False, description='Enable CUDA support')
@@ -66,6 +67,9 @@ class Starpu(Package):
 
         if not spec.satisfies('+shared'):
             config_args.append("--disable-shared")
+
+        if not spec.satisfies('+fast'):
+            config_args.append("--enable-fast")
 
         if not spec.satisfies('+examples'):
             config_args.append("--disable-build-examples")
