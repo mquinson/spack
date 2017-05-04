@@ -9,8 +9,8 @@ class Simgrid(Package):
 
     version('3.15', 'e196d30e80350dce8cd41b0af468c4fc',
             url='https://gforge.inria.fr/frs/download.php/file/36621/SimGrid-3.15.tar.gz')
-    version('3.14', 'dc80632250412d765d815164a25aac4a',
-            url='https://gforge.inria.fr/frs/download.php/file/36382/SimGrid-3.14.tar.gz')
+    version('3.14.159', 'a23be064ceb59714055199167efa0828',
+            url='http://gforge.inria.fr/frs/download.php/file/36384/SimGrid-3.14.159.tar.gz')
     version('3.13', '8ace1684972a01429d5f1c5db8966709',
             url='http://gforge.inria.fr/frs/download.php/file/35817/SimGrid-3.13.tar.gz')
     version('3.12', 'd73faaf81d7a9eb0d309cfd72532c5f1',
