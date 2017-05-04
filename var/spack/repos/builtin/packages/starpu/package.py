@@ -54,7 +54,7 @@ class Starpu(Package):
             else:
                 raise RuntimeError('Neither configure nor autogen.sh script exist. StarPU Cannot configure.')
 
-        # add missing lib for simgrid static compilation
+        # add missing lib for simgrid static compilation, already fixed since StarPU 1.2.1
         if spec.satisfies('+fxt'):
             mf = FileFilter('configure')
             mf.filter('libfxt.a -lrt', 'libfxt.a -lrt -lbfd')
