@@ -72,7 +72,7 @@ class Starpu(Package):
         if not spec.satisfies('+shared'):
             config_args.append("--disable-shared")
 
-        if not spec.satisfies('+fast'):
+        if spec.satisfies('+fast'):
             config_args.append("--enable-fast")
 
         if not spec.satisfies('+examples'):
