@@ -23,6 +23,7 @@ class Simgrid(Package):
     variant('doc', default=False, description='Enable building documentation')
     variant('smpi', default=True, description='SMPI provides MPI')
     variant('examples', default=False, description='Install examples')
+    variant('mc', default=False, description='Model checker')
 
     depends_on('cmake')
 
@@ -42,6 +43,8 @@ class Simgrid(Package):
         cmake_args.extend(std_cmake_args)
         if not spec.satisfies('+doc'):
             cmake_args.extend(["-Denable_documentation=OFF"])
+        if spec.satisfies('+mc'):
+            cmake_args.extend(["-Denable_model-checking=ON"])
         cmake(*cmake_args)
         self.build(spec,prefix)
         if spec.satisfies('+examples'):
