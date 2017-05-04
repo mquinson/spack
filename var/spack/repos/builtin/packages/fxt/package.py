@@ -26,10 +26,6 @@ class Fxt(Package):
             mf = FileFilter('tools/fxt.h')
             mf.filter('#define FXT_MAX_PARAMS.*', '#define FXT_MAX_PARAMS 16')
 
-        # it seems that this patch is required after configure
-        mf = FileFilter('tools/fut.h')
-        mf.filter('extern pthread_spinlock_t fut_slot_lock;', '//extern pthread_spinlock_t fut_slot_lock;')
-
         make(parallel=False)
         # The mkdir commands in fxt's install can fail in parallel
         make("install", parallel=False)
