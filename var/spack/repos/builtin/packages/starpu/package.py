@@ -104,8 +104,10 @@ class Starpu(Package):
         else:
             config_args.append("--enable-cuda")
 
-        if not spec.satisfies('+opencl'):
+        if not spec.satisfies('+opencl') or spec.satisfies('+simgrid'):
             config_args.append("--disable-opencl")
+        else:
+            config_args.append("--enable-opencl")
 
         if spec.satisfies('+openmp'):
             config_args.append("--enable-openmp=yes")
