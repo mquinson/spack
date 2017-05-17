@@ -318,6 +318,9 @@ class Maphys(Package):
                     else:
                         raise RuntimeError('Only ^mkl provide multithreaded lapack.')
                 cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
+                if spec.satisfies('+mumps^mpi'):
+                    scalapack_libs = '%s' % (spec['scalapack'].cc_link)
+                    cmake_args.extend(["-DSCALAPACK_LIBRARIES=%s" % scalapack_libs])
 
                 if spec.satisfies('+fabulous'):
                     # FABULOUS (IBGMRESDR) (not integrated yet)
