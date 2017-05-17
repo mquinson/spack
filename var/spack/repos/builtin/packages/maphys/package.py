@@ -16,8 +16,10 @@ class Maphys(Package):
     version('master', git=gitroot, branch='master')
     version('develop', git=gitroot, branch='develop')
 
-    version('0.9.5', '8bc00e6597ef5b780243a794c6f71700',
-            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.5.0.tar.gz')
+    version('0.9.5', '0d987658c8c5b7206081a8e8d0c1b59f',
+            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.5.1.tar.gz')
+    version('0.9.5.1', '0d987658c8c5b7206081a8e8d0c1b59f',
+            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.5.1.tar.gz')
     version('0.9.5.0', '8bc00e6597ef5b780243a794c6f71700',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.5.0.tar.gz')
     version('0.9.4.2', 'db6a508e53be2f8f54dc5a46d1043c05',
