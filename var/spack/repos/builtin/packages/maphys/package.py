@@ -6,6 +6,10 @@ import sys
 import spack
 from shutil import copyfile
 
+def get_submodules():
+    git = which('git')
+    git('submodule', 'update', '--init', '--recursive')
+
 class Maphys(Package):
     """a Massively Parallel Hybrid Solver."""
     homepage = "http://morse.gforge.inria.fr/maphys/maphys.html"
@@ -239,6 +243,9 @@ class Maphys(Package):
 
 
     def install(self, spec, prefix):
+
+        if spec.satisfies('@develop') or spec.satisfies('@master'):
+            get_submodules()
 
         # Check if makefile and/or cmake is available
         makefile_avail = False
