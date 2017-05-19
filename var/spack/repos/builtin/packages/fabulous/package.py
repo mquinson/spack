@@ -21,12 +21,13 @@ class Fabulous(Package):
     version("src")
     variant("shared", default=True, description="Build as shared library")
     variant("debug", default=False, description="Enable debug symbols")
-    variant("chameleon", default=True, description="Add extra chameleon backend")
+    variant("chameleon", default=False, description="build extra chameleon backend")
+    variant("examples", default=False, description="build examples")
 
     depends_on("cmake")
     depends_on("cblas")
     depends_on("lapacke")
-    depends_on("chameleon@master", when="@develop+chameleon")
+    depends_on("chameleon@master", when="+chameleon")
 
     def install(self, spec, prefix):
 
@@ -45,18 +46,34 @@ class Fabulous(Package):
             # to link a C application with a C++ library:
             cmake_args.extend(["-DCMAKE_EXE_LINKER_FLAGS=-lstdc++"])
 
+            blas_libs = self.spec['blas'].cc_link
+            blas_libs = blas_libs.replace(' ', ';');
+            cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
+
             if spec.satisfies("+shared"):
                 # Enable build shared libs
                 cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
+            else:
+                cmake_args.extend(["-DBUILD_SHARED_LIBS=OFF"])
 
             if spec.satisfies("+debug"):
                 cmake_args.extend(["-DFABULOUS_DEBUG_MODE=ON"])
                 cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
+            else:
+                cmake_args.extend(["-DFABULOUS_DEBUG_MODE=OFF"])
+                cmake_args.extend(["-DCMAKE_BUILD_TYPE=RelWithDebInfo"])
 
-            if spec.satisfies("@develop+chameleon"):
+            if spec.satisfies("+chameleon"):
                 cham_prefix = spec["chameleon"].prefix
-                print(cham_prefix)
                 cmake_args.extend(["-DCHAMELEON_DIR="+cham_prefix])
+                cmake_args.extend(["-DFABULOUS_USE_CHAMELEON=ON"])
+            else:
+                cmake_args.extend(["-DFABULOUS_USE_CHAMELEON=OFF"])
+
+            if spec.satisfies("+examples"):
+                cmake_args.extend(["-DFABULOUS_BUILD_EXAMPLES=ON"])
+            else:
+                cmake_args.extend(["-DFABULOUS_BUILD_EXAMPLES=OFF"])
 
             cmake(*cmake_args)
             make()
