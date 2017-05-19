@@ -66,7 +66,7 @@ class Paddle(Package):
 
     
     variant("shared", default=True, description="Build a shared library")
-    variant("debug", default=True, description="Enable debug symbols")
+    variant("debug", default=False, description="Enable debug symbols")
     variant("parmetis", default=False, description="Enable ParMETIS ordering")
     variant("tests", default=False, description='Enable compilation and installation of testing executables')
     
