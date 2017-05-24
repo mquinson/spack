@@ -19,6 +19,7 @@ class Maphys(Package):
 
     version('master', git=gitroot, branch='master')
     version('develop', git=gitroot, branch='develop')
+    version('cg_modif', git=gitroot, branch='feature/cg_modif')
 
     version('0.9.5', '53289def2993d9882e724e3a659cd200',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.5.1.tar.gz')
