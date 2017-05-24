@@ -245,7 +245,7 @@ class Maphys(Package):
 
     def install(self, spec, prefix):
 
-        if spec.satisfies('@develop') or spec.satisfies('@master'):
+        if spec.satisfies('@develop') or spec.satisfies('@master') or spec.satisfies('@cg_modif'):
             get_submodules()
 
         # Check if makefile and/or cmake is available
