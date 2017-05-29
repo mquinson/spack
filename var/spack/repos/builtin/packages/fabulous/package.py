@@ -22,7 +22,7 @@ class Fabulous(Package):
     variant("shared", default=True, description="Build as shared library")
     variant("debug", default=False, description="Enable debug symbols")
     variant("chameleon", default=False, description="build extra chameleon backend")
-    variant("examples", default=False, description="build examples")
+    variant("examples", default=False, description="build examples and tests")
     variant("blasmt", default=False, description="use multi-threaded blas and lapack kernels")
 
     depends_on("cmake")
@@ -79,8 +79,10 @@ class Fabulous(Package):
 
             if spec.satisfies("+examples"):
                 cmake_args.extend(["-DFABULOUS_BUILD_EXAMPLES=ON"])
+                cmake_args.extend(["-DFABULOUS_BUILD_TESTS=ON"])
             else:
                 cmake_args.extend(["-DFABULOUS_BUILD_EXAMPLES=OFF"])
+                cmake_args.extend(["-DFABULOUS_BUILD_TESTS=OFF"])
 
             cmake(*cmake_args)
             make()
