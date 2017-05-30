@@ -156,7 +156,7 @@ class Chameleon(Package):
                 cmake_args.extend(['-DTMG_DIR=%s' % lapack.prefix])
 
                 if spec.satisfies('%gcc'):
-                    os.environ["LDFLAGS"] = "-lgfortran"
+                    cmake_args.extend(['-DCMAKE_EXE_LINKER_FLAGS=-lgfortran'])
 
             if spec.satisfies('@clusters'):
                 blas = self.spec['blas']
