@@ -36,6 +36,9 @@ class Scalasca(Package):
     homepage = "http://www.scalasca.org"
     url = "http://apps.fz-juelich.de/scalasca/releases/scalasca/2.1/dist/scalasca-2.1.tar.gz"
 
+    version('2.3.1', 'a83ced912b9d2330004cb6b9cefa7585',
+            url='http://apps.fz-juelich.de/scalasca/releases/scalasca/2.3/dist/scalasca-2.3.1.tar.gz')
+
     version('2.2.2', '2bafce988b0522d18072f7771e491ab9',
             url='http://apps.fz-juelich.de/scalasca/releases/scalasca/2.2/dist/scalasca-2.2.2.tar.gz')
 
@@ -46,6 +49,9 @@ class Scalasca(Package):
     ##########
     # Hard-code dependencies for Scalasca according to what stated in the release page
     # The OTF2 library path should be detected automatically from SCOREP
+    # SCALASCA 2.2.2
+    depends_on("scorep@3.1:", when='@2.3.1')
+    depends_on("cube@4.3:", when='@2.3.1')
     # SCALASCA 2.2.2
     depends_on("scorep@1.4:", when='@2.2.2')
     depends_on("cube@4.3:", when='@2.2.2')
