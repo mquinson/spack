@@ -17,8 +17,9 @@ class Maphys(Package):
     svnroot  = "https://scm.gforge.inria.fr/anonscm/svn/maphys/"
     gitroot  = "https://gitlab.inria.fr/solverstack/maphys.git"
 
-    version('master', git=gitroot, branch='master')
+    version('master' , git=gitroot, branch='master')
     version('develop', git=gitroot, branch='develop')
+    version('0.9.3'  , git=gitroot, branch='release/0.9.3')
 
     version('0.9.5', '53289def2993d9882e724e3a659cd200',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.5.1.tar.gz')
@@ -34,8 +35,6 @@ class Maphys(Package):
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.0.tar.gz')
     version('0.9.4', 'db6a508e53be2f8f54dc5a46d1043c05',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.2.tar.gz')
-    version('0.9.3', 'aa03c07c6a9c6337875fbd56bf499b1a',
-            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.3.tar.gz')
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
@@ -57,8 +56,8 @@ class Maphys(Package):
     depends_on("scotch+mpi~esmumps", when='~mumps')
     depends_on("blas")
     depends_on("lapack")
-    depends_on("pastix+mpi~metis", when='+pastix')
-    depends_on("pastix+mpi+blasmt~metis", when='+pastix+blasmt')
+    depends_on("pastix+mpi~metis@5.2.2.22", when='+pastix')
+    depends_on("pastix+mpi+blasmt~metis@5.2.2.22", when='+pastix+blasmt')
     depends_on("mumps+mpi", when='+mumps')
     depends_on("mumps+mpi+blasmt", when='+mumps+blasmt')
     depends_on('fabulous@ib', when='+fabulous')
@@ -139,8 +138,12 @@ class Maphys(Package):
 
         if spec.satisfies('+pastix'):
             pastix = spec['pastix'].prefix
-            mf.filter('PASTIX_topdir := \$\(3rdpartyPREFIX\)/pastix/32bits',
-                      'PASTIX_topdir := %s' % pastix)
+            if spec.satisfies('@0.9.3'):
+                mf.filter('PASTIX_prefix := /path/to/pastix',
+                          'PASTIX_prefix := %s' % pastix)
+            else:
+                mf.filter('PASTIX_topdir := \$\(3rdpartyPREFIX\)/pastix/32bits',
+                          'PASTIX_topdir := %s' % pastix)
             pastix_libs=subprocess.Popen([pastix+"/bin/pastix-conf", "--libs"], stdout=subprocess.PIPE).communicate()[0]
             mf.filter('PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I\$\{PASTIX_topdir\}/install',
                       'PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I${PASTIX_topdir}/include')
@@ -195,9 +198,16 @@ class Maphys(Package):
         if '^mkl' in spec:
             mf.filter('^LMKLPATH   :=.*',
                       'LMKLPATH   := %s' % blas.lib)
-        mf.filter('^DALGEBRA_PARALLEL_LIBS  :=.*',
+            
+        if spec.satisfies('@0.9.3'):
+            mf.filter('^DALGEBRA_BLAS_LIBS        :=.*',
+                  'DALGEBRA_BLAS_LIBS  := %s %s'  % (lapack_libs, blas_libs) )
+            mf.filter('^DALGEBRA_SCALAPACK_LIBS  :=.*',
+                  'DALGEBRA_PARALLEL_LIBS  :=')
+        else:
+            mf.filter('^DALGEBRA_PARALLEL_LIBS  :=.*',
                   'DALGEBRA_PARALLEL_LIBS  := %s %s'  % (lapack_libs, blas_libs) )
-        mf.filter('^DALGEBRA_SEQUENTIAL_LIBS :=.*',
+            mf.filter('^DALGEBRA_SEQUENTIAL_LIBS :=.*',
                   'DALGEBRA_SEQUENTIAL_LIBS := %s %s' % (lapack_libs, blas_libs) )
 
         fflags = ''
