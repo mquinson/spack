@@ -22,7 +22,8 @@ class Fabulous(Package):
     variant("shared", default=True, description="Build as shared library")
     variant("debug", default=False, description="Enable debug symbols")
     variant("chameleon", default=False, description="build extra chameleon backend")
-    variant("examples", default=False, description="build examples")
+    variant("examples", default=False, description="build examples and tests")
+    variant("blasmt", default=False, description="use multi-threaded blas and lapack kernels")
 
     depends_on("cmake")
     depends_on("cblas")
@@ -46,7 +47,13 @@ class Fabulous(Package):
             # to link a C application with a C++ library:
             cmake_args.extend(["-DCMAKE_EXE_LINKER_FLAGS=-lstdc++"])
 
-            blas_libs = self.spec['blas'].cc_link
+            if spec.satisfies('+blasmt~chameleon'):
+                blas_libs = self.spec['blas'].cc_link_mt
+            else:
+                if spec.satisfies('+blasmt'):
+                    print("Warning: +blasmt variant is ignored when +chameleon is given")
+                blas_libs = self.spec['blas'].cc_link
+
             blas_libs = blas_libs.replace(' ', ';');
             cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
 
@@ -72,8 +79,10 @@ class Fabulous(Package):
 
             if spec.satisfies("+examples"):
                 cmake_args.extend(["-DFABULOUS_BUILD_EXAMPLES=ON"])
+                cmake_args.extend(["-DFABULOUS_BUILD_TESTS=ON"])
             else:
                 cmake_args.extend(["-DFABULOUS_BUILD_EXAMPLES=OFF"])
+                cmake_args.extend(["-DFABULOUS_BUILD_TESTS=OFF"])
 
             cmake(*cmake_args)
             make()

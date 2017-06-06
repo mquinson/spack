@@ -20,6 +20,7 @@ class Maphys(Package):
     version('master' , git=gitroot, branch='master')
     version('develop', git=gitroot, branch='develop')
     version('0.9.3'  , git=gitroot, branch='release/0.9.3')
+    version('cg_modif', git=gitroot, branch='feature/cg_modif')
 
     version('0.9.5', '53289def2993d9882e724e3a659cd200',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.5.1.tar.gz')
@@ -254,7 +255,7 @@ class Maphys(Package):
 
     def install(self, spec, prefix):
 
-        if spec.satisfies('@develop') or spec.satisfies('@master'):
+        if spec.satisfies('@develop') or spec.satisfies('@master') or spec.satisfies('@cg_modif'):
             get_submodules()
 
         # Check if makefile and/or cmake is available
