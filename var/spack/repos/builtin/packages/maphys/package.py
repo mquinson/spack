@@ -139,20 +139,23 @@ class Maphys(Package):
 
         if spec.satisfies('+pastix'):
             pastix = spec['pastix'].prefix
+            pastix_libs=subprocess.Popen([pastix+"/bin/pastix-conf", "--libs"], stdout=subprocess.PIPE).communicate()[0]
             if spec.satisfies('@0.9.3'):
-                mf.filter('PASTIX_prefix := /path/to/pastix',
+                mf.filter('PASTIX_prefix :=.*',
                           'PASTIX_prefix := %s' % pastix)
+                mf.filter('PASTIX_FCFLAGS :=.*',
+                          'PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I${PASTIX_prefix}/include')
+                mf.filter('PASTIX_LIBS :=.*','PASTIX_LIBS := %s ' % pastix_libs)
             else:
                 mf.filter('PASTIX_topdir := \$\(3rdpartyPREFIX\)/pastix/32bits',
                           'PASTIX_topdir := %s' % pastix)
-            pastix_libs=subprocess.Popen([pastix+"/bin/pastix-conf", "--libs"], stdout=subprocess.PIPE).communicate()[0]
-            mf.filter('PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I\$\{PASTIX_topdir\}/install',
+                mf.filter('PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I\$\{PASTIX_topdir\}/install',
                       'PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I${PASTIX_topdir}/include')
-            mf.filter('PASTIX_LIBS := -L\$\{PASTIX_topdir\}/install -lpastix -lrt',
+                mf.filter('PASTIX_LIBS := -L\$\{PASTIX_topdir\}/install -lpastix -lrt',
                       'PASTIX_LIBS := %s ' % pastix_libs)
         else:
             mf.filter('PASTIX_topdir := \$\(3rdpartyPREFIX\)/pastix/32bits',
-                      '#PASTIX_topdir := %s')
+                      '#PASTIX_topdir := ')
             mf.filter('PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I\$\{PASTIX_topdir\}/install',
                       '#PASTIX_FCFLAGS := -DHAVE_LIBPASTIX -I${PASTIX_topdir}/include')
             mf.filter('PASTIX_LIBS := -L\$\{PASTIX_topdir\}/install -lpastix -lrt',
@@ -201,9 +204,9 @@ class Maphys(Package):
                       'LMKLPATH   := %s' % blas.lib)
             
         if spec.satisfies('@0.9.3'):
-            mf.filter('^DALGEBRA_BLAS_LIBS        :=.*',
+            mf.filter('DALGEBRA_BLAS_LIBS .*',
                   'DALGEBRA_BLAS_LIBS  := %s %s'  % (lapack_libs, blas_libs) )
-            mf.filter('^DALGEBRA_SCALAPACK_LIBS  :=.*',
+            mf.filter('DALGEBRA_SCALAPACK_LIBS .*',
                   'DALGEBRA_PARALLEL_LIBS  :=')
         else:
             mf.filter('^DALGEBRA_PARALLEL_LIBS  :=.*',
@@ -239,7 +242,11 @@ class Maphys(Package):
                   'FCFLAGS := %s' % cflags)
 
         hwloc = spec['hwloc'].prefix
-        mf.filter('HWLOC_prefix := /usr/share',
+        if spec.satisfies('@0.9.3'):
+            mf.filter('HWLOC_prefix .*',
+                  'HWLOC_prefix := %s' % hwloc)
+        else:
+            mf.filter('HWLOC_prefix := /usr/share',
                   'HWLOC_prefix := %s' % hwloc)
 
         mf.filter('ALL_FCFLAGS  :=  \$\(FCFLAGS\) -I\$\(abstopsrcdir\)/include -I. \$\(ALGO_FCFLAGS\) \$\(CHECK_FLAGS\)',
