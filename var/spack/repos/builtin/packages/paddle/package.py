@@ -54,9 +54,7 @@ class Paddle(Package):
     gitroot = "https://gitlab.inria.fr/solverstack/paddle.git"
     version('master', git=gitroot, branch='master')
     version('develop', git=gitroot, branch='develop')
-
-    url      = "http://morse.gforge.inria.fr/paddle/paddle-0.2.0.tar.gz"
-    version('0.2.0', '635016fe77b08a72e2945ce3b727fff1')
+    version('0.3', git=gitroot, branch='0.3')
 
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
@@ -76,8 +74,7 @@ class Paddle(Package):
     depends_on("parmetis",when="+parmetis")
     
     def install(self, spec, prefix):
-        if spec.satisfies('@develop') or spec.satisfies('@master'):
-            get_submodules()
+        get_submodules()
             
         os.chdir('src')
         with working_dir('spack-build', create=True):
@@ -101,14 +98,14 @@ class Paddle(Package):
                 cmake_args.extend(["-DCMAKE_BUILD_TYPE=Release"])
 
             if spec.satisfies('+tests'):
-                cmake_args.extend(["-DPADDLES_BUILD_TESTS=ON"])
+                cmake_args.extend(["-DPADDLE_BUILD_TESTS=ON"])
             else:
-                cmake_args.extend(["-DPADDLES_BUILD_TESTS=OFF"])
+                cmake_args.extend(["-DPADDLE_BUILD_TESTS=OFF"])
 
             if spec.satisfies('+parmetis'):
-                cmake_args.extend(["-DPADDLES_ORDERING_PARMETIS=ON"])
+                cmake_args.extend(["-DPADDLE_ORDERING_PARMETIS=ON"])
             else:
-                cmake_args.extend(["-DPADDLES_ORDERING_PARMETIS=OFF"])
+                cmake_args.extend(["-DPADDLE_ORDERING_PARMETIS=OFF"])
 
             cmake(*cmake_args)
             make()
