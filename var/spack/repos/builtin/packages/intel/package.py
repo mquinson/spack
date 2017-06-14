@@ -69,6 +69,7 @@ class IntelInstaller(Package):
         # https://software.intel.com/en-us/articles/free-mkl
         if (self.spec.satisfies("intel-mkl@2017.2:") or
             self.spec.satisfies("intel-daal@2017.2:") or
+            self.spec.satisfies("intel-mpi@2017.2:") or
             self.spec.satisfies("intel-ipp@2017.2:")):
             return False
         return True
@@ -103,6 +104,7 @@ COMPONENTS=%s
         # https://software.intel.com/en-us/articles/free-mkl
         if not (spec.satisfies("intel-mkl@2017.2:") or
                 spec.satisfies("intel-daal@2017.2:") or
+                spec.satisfies("intel-mpi@2017.2:") or
                 spec.satisfies("intel-ipp@2017.2:")):
             with open(silent_config_filename, 'a') as f:
                 f.write("""
@@ -120,6 +122,8 @@ class Intel(IntelInstaller):
 
     homepage = "https://software.intel.com/en-us/intel-parallel-studio-xe"
 
+    version('17.0.3', '691874735458d3e88fe0bcca4438b2a9',
+            url='http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/11460/parallel_studio_xe_2017_update3.tgz')
     version('17.0.2',     '2891ab1ece43eb61b6ab892f07c47f01',
             url='http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/11302/parallel_studio_xe_2017_update2_composer_edition.tgz')
     version('17.0.1',     '1f31976931ed8ec424ac7c3ef56f5e85',
