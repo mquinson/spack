@@ -38,9 +38,12 @@ class Extrae(Package):
        OpenMP, CUDA, OpenCL, pthread, OmpSs"""
     homepage = "http://www.bsc.es/computer-sciences/extrae"
     url      = "http://www.bsc.es/ssl/apps/performanceTools/files/extrae-3.0.1.tar.bz2"
+
+    version('3.4.3', '779a95aa9f498a658041f9c851ecb4f1', url="https://ftp.tools.bsc.es/extrae/extrae-3.4.3-src.tar.bz2")
     version('3.0.1', 'a6a8ca96cd877723cd8cc5df6bdb922b')
 
     depends_on("mpi")
+    depends_on("libxml2")
     depends_on("dyninst")
     depends_on("libunwind")
     depends_on("boost")
@@ -62,9 +65,10 @@ class Extrae(Package):
 	            "--with-boost=%s"			% spec['boost'].prefix,
 	            "--with-dwarf=%s"			% spec['libdwarf'].prefix,
 	            "--with-papi=%s"			% spec['papi'].prefix,
+	            "--with-elf=%s"	            % spec['libelf'].prefix,
+	            "--with-xml-prefix=%s"      % spec['libxml2'].prefix,
 	            "--with-dyninst-headers=%s"	% spec['dyninst'].prefix.include,
 	            "--with-dyninst-libs=%s"	% spec['dyninst'].prefix.lib)
 
         make()
         make("install", parallel=False)
-
