@@ -57,8 +57,8 @@ class Maphys(Package):
     depends_on("scotch+mpi~esmumps", when='~mumps')
     depends_on("blas")
     depends_on("lapack")
-    depends_on("pastix+mpi~metis@5.2.2.22", when='+pastix')
-    depends_on("pastix+mpi+blasmt~metis@5.2.2.22", when='+pastix+blasmt')
+    depends_on("pastix+mpi~metis", when='+pastix')
+    depends_on("pastix+mpi+blasmt~metis", when='+pastix+blasmt')
     depends_on("mumps+mpi", when='+mumps')
     depends_on("mumps+mpi+blasmt", when='+mumps+blasmt')
     depends_on('fabulous@ib', when='+fabulous')
@@ -202,7 +202,7 @@ class Maphys(Package):
         if '^mkl' in spec:
             mf.filter('^LMKLPATH   :=.*',
                       'LMKLPATH   := %s' % blas.lib)
-            
+
         if spec.satisfies('@0.9.3'):
             mf.filter('DALGEBRA_BLAS_LIBS .*',
                   'DALGEBRA_BLAS_LIBS  := %s %s'  % (lapack_libs, blas_libs) )
