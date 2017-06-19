@@ -4,9 +4,7 @@
 # Only build master and develop on push; do not build every branch.
 branches:
   only:
-    - master
-    - develop
-    - /^releases\/.*$/
+    - morse-develop
 
 #=============================================================================
 # Build matrix
@@ -14,55 +12,17 @@ branches:
 matrix:
   fast_finish: true
   include:
-    - python: '2.6'
-      os: linux
-      language: python
-      env: TEST_SUITE=unit
     - python: '2.7'
       os: linux
       language: python
-      env: [ TEST_SUITE=unit, COVERAGE=true ]
-    - python: '2.7'
-      os: linux
-      language: python
-      env: [ TEST_SUITE=build, COVERAGE=true, 'SPEC=hypre^mpich' ]
-    - python: '3.3'
-      os: linux
-      language: python
-      env: TEST_SUITE=unit
-    - python: '3.4'
-      os: linux
-      language: python
-      env: TEST_SUITE=unit
-    - python: '3.5'
-      os: linux
-      language: python
-      env: TEST_SUITE=unit
-    - python: '3.6'
-      os: linux
-      language: python
-      env: [ TEST_SUITE=unit, COVERAGE=true ]
-    - python: '3.6'
-      os: linux
-      language: python
-      env: [ TEST_SUITE=build, COVERAGE=true, 'SPEC=hypre^mpich' ]
-    - python: '2.7'
-      os: linux
-      language: python
-      env: TEST_SUITE=flake8
-    - python: '2.7'
-      os: linux
-      language: python
-      env: TEST_SUITE=doc
-    - os: osx
-      language: generic
-      env: [ TEST_SUITE=unit, PYTHON_VERSION=2.7, COVERAGE=true ]
+      env: SPEC='starpu'
 
 #=============================================================================
 # Environment
 #=============================================================================
 # Use new Travis infrastructure (Docker can't sudo yet)
 sudo: false
+dist: trusty
 
 # Docs need graphviz to build
 addons:
@@ -89,29 +49,24 @@ install:
   - pip install --upgrade setuptools
   - pip install --upgrade codecov
   - pip install --upgrade flake8
-  - if [[ "$TEST_SUITE" == "doc" ]]; then pip install --upgrade -r lib/spack/docs/requirements.txt; fi
 
 before_script:
-  # Need this for the git tests to succeed.
-  - git config --global user.email "spack@example.com"
-  - git config --global user.name "Test User"
-
   # Need this to be able to compute the list of changed files
-  - git fetch origin develop:develop
+  - git fetch origin morse-develop:morse-develop
 
 #=============================================================================
 # Building
 #=============================================================================
-script: share/spack/qa/run-$TEST_SUITE-tests
+script: share/spack/qa/run-build-morse
 
 after_success:
-  - codecov --env PY_VERSION
+  - #codecov --env PY_VERSION
 
 #=============================================================================
 # Notifications
 #=============================================================================
 notifications:
   email:
-    recipients: tgamblin@llnl.gov
+    recipients: florent.pruvost@inria.fr
     on_success: change
     on_failure: always
