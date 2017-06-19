@@ -30,7 +30,7 @@ class Starpu(Package):
     variant('openmp', default=True, description='Enable OpenMP support')
     variant('fortran', default=False, description='Enable Fortran interface and examples')
     variant('simgrid', default=False, description='Enable SimGrid support')
-    variant('simgrid-mc', default=False, description='Enable SimGrid model checker support')
+    variant('simgridmc', default=False, description='Enable SimGrid model checker support')
     variant('examples', default=True, description='Enable Examples')
     variant('blas', default=False, description='Enable BLAS related features')
     variant('mlr', default=True, description='Enable multiple linear regression models')
@@ -42,7 +42,7 @@ class Starpu(Package):
     depends_on("fxt", when='+fxt')
     depends_on("simgrid", when='+simgrid')
     depends_on("simgrid+smpi", when='+simgrid+mpi')
-    depends_on("simgrid+mc", when='+simgrid+mc')
+    depends_on("simgrid+mc", when='+simgridmc')
     depends_on("blas", when='+blas')
 
     def install(self, spec, prefix):
@@ -91,7 +91,7 @@ class Starpu(Package):
             config_args.append("--with-simgrid-dir=%s" % simgrid)
             if spec.satisfies('+mpi'):
                 config_args.append("--with-mpicc=%s/bin/smpicc" % simgrid)
-            if spec.satisfies('+sigmrid-mc'):
+            if spec.satisfies('+simgridmc'):
                 config_args.append("--enable-simgrid-mc")
 
         config_args.append("--with-hwloc=%s" % spec['hwloc'].prefix)
