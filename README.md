@@ -1,9 +1,7 @@
 ![image](share/spack/logo/spack-logo-text-64.png "Spack")
 ============
 
-[![Build Status](https://travis-ci.org/LLNL/spack.svg?branch=develop)](https://travis-ci.org/LLNL/spack)
-[![codecov](https://codecov.io/gh/LLNL/spack/branch/develop/graph/badge.svg)](https://codecov.io/gh/LLNL/spack)
-[![Read the Docs](https://readthedocs.org/projects/spack/badge/?version=latest)](https://spack.readthedocs.io)
+[![Build Status](https://travis-ci.org/solverstack/spack.svg?branch=morse-develop)](https://travis-ci.org/solverstack/spack)
 
 Spack is a package management tool designed to support multiple
 versions and configurations of software on a wide variety of platforms
