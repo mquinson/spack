@@ -10,10 +10,10 @@ class Fabulous(Package):
     Library implementing Block-GMres with Inexact Breakdown and Deflated Restarting"""
 
     homepage = "https://gforge.inria.fr/projects/ib-bgmres-dr/"
-    gitroot= "https://scm.gforge.inria.fr/anonscm/git/ib-bgmres-dr/ib-bgmres-dr.git"
+    gitroot="https://gitlab.inria.fr/solverstack/fabulous.git"
     version("develop", git=gitroot,  branch="develop", preferred=True)
     version("ib", git=gitroot, branch="ib")
-    version("0.3", git=gitroot, branch="release_v0.3")
+    version("0.3", git=gitroot, branch="release/0.3")
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     version("exist", "7b878b76545ef9ddb6f2b61d4c4be833",
