@@ -5,6 +5,7 @@ from spack import *
 class PyMumps(Package):
     """Description"""
 
+    homepage = "https://gitlab.inria.fr/gmarait/PYMUMPS"
     url = "https://gitlab.inria.fr/gmarait/PYMUMPS"
     gitlink = "https://gitlab.inria.fr/gmarait/PYMUMPS.git"
 

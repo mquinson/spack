@@ -6,6 +6,7 @@ from spack import *
 class PyMaphys(Package):
     """Description"""
 
+    homepage = "https://gitlab.inria.fr/gmarait/PYMAPHYS"
     url = "https://gitlab.inria.fr/gmarait/PYMAPHYS"
     gitlink = "https://gitlab.inria.fr/gmarait/PYMAPHYS.git"
 

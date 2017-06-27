@@ -32,6 +32,8 @@ class Eigen(Package):
     """
     homepage = 'http://eigen.tuxfamily.org/'
 
+    version('3.3.4', 'a7aab9f758249b86c93221ad417fbe18',
+            url = "http://bitbucket.org/eigen/eigen/get/3.3.4.tar.bz2")
     version('3.3.2', '7a94c3280ae1961bc8df5e3bd304013a',
             url = "http://bitbucket.org/eigen/eigen/get/3.3.2.tar.bz2")
     version('3.3.0', 'fd1ecefaacc9223958b6a66f9a348424',
