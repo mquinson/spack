@@ -47,15 +47,16 @@ class Fabulous(Package):
             # to link a C application with a C++ library:
             cmake_args.extend(["-DCMAKE_EXE_LINKER_FLAGS=-lstdc++"])
 
-            if spec.satisfies('+blasmt~chameleon'):
-                blas_libs = self.spec['blas'].cc_link_mt
-            else:
-                if spec.satisfies('+blasmt'):
-                    print("Warning: +blasmt variant is ignored when +chameleon is given")
-                blas_libs = self.spec['blas'].cc_link
+            cmake_args.extend(['-DCBLAS_DIR=%s' % spec['cblas'].prefix ])
+            cmake_args.extend(['-DLAPACKE_DIR=%s' % spec['lapacke'].prefix])
+            cmake_args.extend(['-DBLAS_DIR=%s' % spec['blas'].prefix ])
+            cmake_args.extend(['-DLAPACK_DIR=%s' % spec['lapack'].prefix])
 
-            blas_libs = blas_libs.replace(' ', ';');
-            cmake_args.extend(['-DBLAS_LIBRARIES=%s' % blas_libs])
+            if spec.satisfies("+blasmt"):
+                # Enable multithreaded blas
+                cmake_args.extend(["-DFABULOUS_BLASMT=ON"])
+            else:
+                cmake_args.extend(["-DFABULOUS_BLASMT=OFF"])
 
             if spec.satisfies("+shared"):
                 # Enable build shared libs
@@ -63,12 +64,17 @@ class Fabulous(Package):
             else:
                 cmake_args.extend(["-DBUILD_SHARED_LIBS=OFF"])
 
+            # This must stay like this until tpmqrt lapacke iface
+            # workspace bug is fixed in lapacke releases
+            # and COMMONLY DEPLOYED (Fixed in Lapack 3.7.1 (25 June 2017))
+            cmake_args.extend(["-DFABULOUS_LAPACKE_NANCHECK=OFF"])
+
             if spec.satisfies("+debug"):
                 cmake_args.extend(["-DFABULOUS_DEBUG_MODE=ON"])
                 cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
             else:
                 cmake_args.extend(["-DFABULOUS_DEBUG_MODE=OFF"])
-                cmake_args.extend(["-DCMAKE_BUILD_TYPE=RelWithDebInfo"])
+                cmake_args.extend(["-DCMAKE_BUILD_TYPE=Release"])
 
             if spec.satisfies("+chameleon"):
                 cham_prefix = spec["chameleon"].prefix
