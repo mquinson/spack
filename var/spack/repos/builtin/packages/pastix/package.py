@@ -253,6 +253,9 @@ class Pastix(Package):
 
         if spec.satisfies('@solverstack'):
 
+            if spec.satisfies('+mpi'):
+                raise RuntimeError('@solverstack version is not available with +mpi')
+
             get_submodules()
 
             with working_dir('spack-build', create=True):
@@ -326,6 +329,7 @@ class Pastix(Package):
 
         else:
             with working_dir('src'):
+
 
                 if spec.satisfies('@5.2.2.22'):
 
