@@ -54,7 +54,7 @@ class Paddle(Package):
     gitroot = "https://gitlab.inria.fr/solverstack/paddle.git"
     version('master', git=gitroot, branch='master')
     version('develop', git=gitroot, branch='develop')
-    version('0.3', git=gitroot, branch='0.3')
+    version('0.3', git=gitroot, branch='0.3.1', preferred=True)
 
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
@@ -119,3 +119,8 @@ class Paddle(Package):
         os.symlink(maphysroot+"/lib", prefix.lib)
         if spec.satisfies('+examples'):
             os.symlink(maphysroot+'/examples', prefix + '/examples')
+
+    def setup_dependent_package(self, module, dep_spec):
+        """Dependencies of this package will get the link for fabulous."""
+        self.spec.cc_link="-L%s -lpaddle" % self.spec.prefix.lib
+        self.spec.cc_flags="%s;%s" % (self.spec.prefix.include,self.spec.prefix.include + '/../modules')

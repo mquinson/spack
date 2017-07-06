@@ -13,7 +13,6 @@ def get_submodules():
 class Maphys(Package):
     """a Massively Parallel Hybrid Solver."""
     homepage = "http://morse.gforge.inria.fr/maphys/maphys.html"
-
     svnroot  = "https://scm.gforge.inria.fr/anonscm/svn/maphys/"
     gitroot  = "https://gitlab.inria.fr/solverstack/maphys.git"
 
@@ -21,6 +20,7 @@ class Maphys(Package):
     version('develop', git=gitroot, branch='develop')
     version('0.9.3'  , git=gitroot, branch='release/0.9.3')
     version('cg_modif', git=gitroot, branch='feature/cg_modif')
+    version('paddle', git=gitroot, branch='feature/paddle')
 
     version('0.9.5', '53289def2993d9882e724e3a659cd200',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.5.1.tar.gz')
@@ -49,6 +49,7 @@ class Maphys(Package):
     variant('pastix', default=True, description='Enable PASTIX direct solver')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
     variant('fabulous', default=False, description='Enable FABuLOuS iterative solver')
+    variant('paddle', default=False, description='Enable Paddle domain decomposer')
 
     depends_on("cmake")
     depends_on("mpi")
@@ -57,11 +58,12 @@ class Maphys(Package):
     depends_on("scotch+mpi~esmumps", when='~mumps')
     depends_on("blas")
     depends_on("lapack")
-    depends_on("pastix+mpi~metis@5.2.2.22", when='+pastix')
-    depends_on("pastix+mpi+blasmt~metis@5.2.2.22", when='+pastix+blasmt')
+    depends_on("pastix+mpi~metis", when='+pastix')
+    depends_on("pastix+mpi+blasmt~metis", when='+pastix+blasmt')
     depends_on("mumps+mpi", when='+mumps')
     depends_on("mumps+mpi+blasmt", when='+mumps+blasmt')
     depends_on('fabulous@ib', when='+fabulous')
+    depends_on('paddle', when='+paddle')
 
     def setup(self):
         spec = self.spec
@@ -262,7 +264,7 @@ class Maphys(Package):
 
     def install(self, spec, prefix):
 
-        if spec.satisfies('@develop') or spec.satisfies('@master') or spec.satisfies('@cg_modif'):
+        if spec.satisfies('@develop') or spec.satisfies('@master') or spec.satisfies('@cg_modif') or spec.satisfies('@paddle'):
             get_submodules()
 
         # Check if makefile and/or cmake is available
@@ -355,6 +357,13 @@ class Maphys(Package):
                     cmake_args.extend(["-DIBBGMRESDR_LIBRARIES=%s" % fabulous_libs])
                     fabulous_inc = spec['fabulous'].prefix.include
                     cmake_args.extend(["-DIBBGMRESDR_INCLUDE_DIRS=%s" % fabulous_inc])
+
+                if spec.satisfies('+paddle'):
+                    cmake_args.extend(["-DMAPHYS_ORDERING_PADDLE=ON"])
+                    paddle_lib = spec['paddle'].cc_link
+                    paddle_inc = spec['paddle'].cc_flags
+                    cmake_args.extend(["-DPADDLE_INCLUDE_DIRS=%s" % paddle_inc])
+                    cmake_args.extend(["-DPADDLE_LIBRARIES=%s" % paddle_lib])
 
                 cmake(*cmake_args)
                 make()
