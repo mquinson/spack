@@ -204,7 +204,7 @@ class Maphys(Package):
         if '^mkl' in spec:
             mf.filter('^LMKLPATH   :=.*',
                       'LMKLPATH   := %s' % blas.lib)
-            
+
         if spec.satisfies('@0.9.3'):
             mf.filter('DALGEBRA_BLAS_LIBS .*',
                   'DALGEBRA_BLAS_LIBS  := %s %s'  % (lapack_libs, blas_libs) )
@@ -328,7 +328,7 @@ class Maphys(Package):
                 if spec.satisfies('+blasmt'):
                     cmake_args.extend(["-DMAPHYS_BLASMT=ON"])
                     if '^mkl' in spec or '^essl' in spec or '^openblas+mt' in spec:
-                        blas_libs = spec['blas'].cc_link_mt
+                        blas_libs = spec['blas'].fc_link_mt
                     else:
                         raise RuntimeError('Only ^openblas+mt, ^mkl and ^essl provide multithreaded blas.')
                 cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
@@ -341,7 +341,7 @@ class Maphys(Package):
                 lapack_libs = spec['lapack'].cc_link
                 if spec.satisfies('+blasmt'):
                     if '^mkl' in spec:
-                        lapack_libs = spec['lapack'].cc_link_mt
+                        lapack_libs = spec['lapack'].fc_link_mt
                     else:
                         raise RuntimeError('Only ^mkl provide multithreaded lapack.')
                 cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])

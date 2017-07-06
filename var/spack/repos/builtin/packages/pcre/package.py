@@ -31,6 +31,8 @@ class Pcre(Package):
     homepage = "http://www.pcre.org"""
     url      = "ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.36.tar.bz2"
 
+    version('10.21', 'e79460519f916e3fcb204e59714bfd4a',
+            url='ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre2-10.21.tar.bz2')
     version('8.36', 'b767bc9af0c20bc9c1fe403b0d41ad97')
     version('8.38', '00aabbfe56d5a48b270f999b508c5ad2')
 

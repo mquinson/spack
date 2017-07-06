@@ -253,6 +253,9 @@ class Pastix(Package):
 
         if spec.satisfies('@solverstack'):
 
+            if spec.satisfies('+mpi'):
+                raise RuntimeError('@solverstack version is not available with +mpi')
+
             get_submodules()
 
             with working_dir('spack-build', create=True):
@@ -326,6 +329,7 @@ class Pastix(Package):
 
         else:
             with working_dir('src'):
+
 
                 if spec.satisfies('@5.2.2.22'):
 
@@ -439,6 +443,11 @@ class Pastix(Package):
                             else:
                                 raise RuntimeError('Only ^openblas+mt, ^mkl and ^essl provide multithreaded blas.')
                         cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
+
+                        # It seems sometimes cmake needs some help with that
+                        if 'mkl_intel_lp64' in blas_libs:
+                            cmake_args.extend(["-DBLA_VENDOR=Intel10_64lp"])
+
                         try:
                             blas_flags = spec['blas'].cc_flags
                         except AttributeError:
