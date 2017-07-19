@@ -483,9 +483,16 @@ class Pastix(Package):
         """Find python package path and add to PYTHONPATH"""
         spec = self.spec
 
+        if spec.satisfies('@solverstack'):
+            if spec.satisfies('+pypastix') or spec.satisfies('+pypastix3'):
+                path = os.path.join(self.prefix.lib, "python")
+                run_env.prepend_path('PYTHONPATH', path)
+                return
+
         def get_pythonpath(substr):
 
             if not os.path.isfile("spack-build.out"):
+                run_env.prepend_path('PYTHONPATH', path)
                 return None
 
             path_regex = re.compile("^creating\s(\S+" + substr + "\S+site-packages$)")
