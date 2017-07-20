@@ -5,12 +5,16 @@
 language: python
 os:
   - linux
-  - osx
 
 # Only build master and develop on push; do not build every branch.
 branches:
   only:
     - morse-develop
+
+env:
+  - SPEC='fxt'
+  - SPEC='simgrid'
+  - SPEC='starpu'
 
 #=============================================================================
 # Environment
@@ -52,9 +56,7 @@ before_script:
 #=============================================================================
 # Building
 #=============================================================================
-script:
-- SPEC=fxt share/spack/qa/run-build-morse
-- SPEC=starpu share/spack/qa/run-build-morse
+script: share/spack/qa/run-build-morse
 
 after_success:
   - #codecov --env PY_VERSION
