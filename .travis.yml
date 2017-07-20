@@ -1,6 +1,12 @@
 #=============================================================================
 # Project settings
 #=============================================================================
+
+language: python
+os:
+  - linux
+  - osx
+
 # Only build master and develop on push; do not build every branch.
 branches:
   only:
@@ -15,7 +21,6 @@ matrix:
     - python: '2.7'
       os: linux
       language: python
-      env: SPEC='starpu'
 
 #=============================================================================
 # Environment
@@ -57,7 +62,9 @@ before_script:
 #=============================================================================
 # Building
 #=============================================================================
-script: share/spack/qa/run-build-morse
+script:
+- SPEC=fxt share/spack/qa/run-build-morse
+- SPEC=starpu share/spack/qa/run-build-morse
 
 after_success:
   - #codecov --env PY_VERSION
