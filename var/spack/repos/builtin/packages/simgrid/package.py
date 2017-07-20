@@ -25,6 +25,7 @@ class Simgrid(Package):
     variant('mc', default=False, description='Model checker')
 
     depends_on('cmake')
+    depends_on('boost')
 
     def build(self, spec, prefix):
         make()
