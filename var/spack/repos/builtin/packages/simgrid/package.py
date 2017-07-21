@@ -24,8 +24,9 @@ class Simgrid(Package):
     variant('examples', default=False, description='Install examples')
     variant('mc', default=False, description='Model checker')
 
-    depends_on('cmake')
-    depends_on('boost')
+    # does not build correctly with some old compilers -> rely on packages
+    #depends_on('cmake')
+    #depends_on('boost')
 
     def build(self, spec, prefix):
         make()
