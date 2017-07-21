@@ -43,7 +43,8 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then virtualenv venv; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source venv/bin/activate; fi
   - docker pull hpclib/gitlab-ubuntu
-  - docker run -d -p 127.0.0.1:80:4567 hpclib/gitlab-ubuntu --user root /bin/sh -c "apt-get install gfortran mercurial graphviz gnupg2 libboost-dev"
+  - docker run -u root hpclib/gitlab-ubuntu
+  - apt-get install gfortran mercurial graphviz gnupg2 libboost-dev
 
 
 # Install various dependencies
