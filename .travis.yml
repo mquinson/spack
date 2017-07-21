@@ -56,7 +56,10 @@ before_script:
 #=============================================================================
 # Building
 #=============================================================================
-script: share/spack/qa/run-build-morse
+script:
+  - echo -en 'travis_fold:start:run-build-morse\\r'
+  - share/spack/qa/run-build-morse
+  - echo -en 'travis_fold:end:run-build-morse\\r'
 
 after_success:
   - #codecov --env PY_VERSION
