@@ -2,10 +2,6 @@
 # Project settings
 #=============================================================================
 
-language: python
-os: linux
-dist: xenial
-
 # Only build master and develop on push; do not build every branch.
 branches:
   only:
@@ -20,8 +16,10 @@ env:
 # Environment
 #=============================================================================
 # Use new Travis infrastructure (Docker can't sudo yet)
+language: python
+os: linux
+dist: xenial
 sudo: false
-dist: trusty
 
 # Docs need graphviz to build
 addons:
