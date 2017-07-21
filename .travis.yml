@@ -3,8 +3,8 @@
 #=============================================================================
 
 language: python
-os:
-  - linux
+os: linux
+dist: xenial
 
 # Only build master and develop on push; do not build every branch.
 branches:
