@@ -18,7 +18,7 @@ env:
 # Use new Travis infrastructure (Docker can't sudo yet)
 language: python
 os: linux
-dist: xenial
+dist: trusty
 sudo: false
 
 # Docs need graphviz to build
@@ -29,6 +29,7 @@ addons:
       - mercurial
       - graphviz
       - gnupg2
+      - libboost-dev
 
 # Work around Travis's lack of support for Python on OSX
 before_install:
