@@ -7,11 +7,6 @@ branches:
   only:
     - morse-develop
 
-env:
-  - SPEC='fxt'
-  - SPEC='simgrid'
-  - SPEC='starpu'
-
 #=============================================================================
 # Environment
 #=============================================================================
@@ -19,20 +14,23 @@ env:
 language: python
 os: linux
 dist: trusty
-#sudo: false
-sudo: required
-services:
-  - docker
+sudo: false
 
 # Docs need graphviz to build
-#addons:
-#  apt:
-#    packages:
-#      - gfortran
-#      - mercurial
-#      - graphviz
-#      - gnupg2
-#      - libboost-dev
+addons:
+  apt:
+    packages:
+      - gfortran
+      - mercurial
+      - graphviz
+      - gnupg2
+      - libboost-dev
+
+# Build matrix using the environment
+env:
+  - SPEC='fxt'
+  - SPEC='simgrid'
+  - SPEC='starpu'
 
 # Work around Travis's lack of support for Python on OSX
 before_install:
@@ -42,10 +40,6 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew ls --versions gnupg2 > /dev/null || brew install gnupg2; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then virtualenv venv; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source venv/bin/activate; fi
-  - docker pull hpclib/gitlab-ubuntu
-  - docker run -u root -it hpclib/gitlab-ubuntu
-  - apt-get install gfortran mercurial graphviz gnupg2 libboost-dev
-
 
 # Install various dependencies
 install:
@@ -63,7 +57,6 @@ before_script:
 # Building
 #=============================================================================
 script:
-  - whoami && hostname
   - echo -en 'travis_fold:start:run-build-morse\\r'
   - share/spack/qa/run-build-morse
   - echo -en 'travis_fold:end:run-build-morse\\r'
