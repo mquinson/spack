@@ -29,7 +29,7 @@ addons:
 # Build matrix using the environment
 env:
   - SPEC='fxt'
-  - SPEC='simgrid'
+#  - SPEC='simgrid'
   - SPEC='starpu'
 
 # Work around Travis's lack of support for Python on OSX
