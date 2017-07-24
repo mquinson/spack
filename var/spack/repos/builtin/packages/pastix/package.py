@@ -253,8 +253,9 @@ class Pastix(Package):
 
         if spec.satisfies('@solverstack'):
 
-            if spec.satisfies('+mpi'):
-                raise RuntimeError('@solverstack version is not available with +mpi')
+            # Unfortunately we need +mpi to use it with maphys
+            #if spec.satisfies('+mpi'):
+            #    raise RuntimeError('@solverstack version is not available with +mpi')
 
             get_submodules()
 
