@@ -67,8 +67,13 @@ before_script:
 jobs:
   include:
     - stage: misc
-      script: share/spack/qa/run-build-morse
-      env: SPEC=fxt
+      script:
+        - echo -en 'travis_fold:start:run-build-morse\\r'
+        - share/spack/qa/run-build-morse
+        - echo -en 'travis_fold:end:run-build-morse\\r'
+      env:
+        - SPEC=fxt
+        - SPEC=hwloc
     - stage: runtime
       script: share/spack/qa/run-build-morse
       env: SPEC='starpu'
