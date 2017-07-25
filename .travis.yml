@@ -68,9 +68,10 @@ env:
 # build 1. misc libs 2. runtime libs 3. etc
 jobs:
   include:
-    - stage: misc
+    - stage: &misc
       env: SPEC='fxt'
       script: share/spack/qa/run-build-morse
+    - <<: *misc
       env: SPEC='hwloc'
       script: share/spack/qa/run-build-morse
     - stage: runtime
