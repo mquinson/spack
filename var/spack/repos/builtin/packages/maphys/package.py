@@ -62,12 +62,11 @@ class Maphys(Package):
     variant('shared', default=True, description='Build MaPHyS as a shared library')
     variant('blasmt', default=False, description='Enable to use MPI+Threads version of MaPHyS, a multithreaded Blas/Lapack library is required (MKL, ESSL, OpenBLAS)')
     variant('mumps', default=True, description='Enable MUMPS direct solver')
+    variant('pastix', default=True, description='Enable PASTIX direct solver')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
 
-    #variant('pastix', default=True, description='Enable PASTIX direct solver')
     #variant('fabulous', default=False, description='Enable FABuLOuS iterative solver')
     #variant('paddle', default=False, description='Enable Paddle domain decomposer')
-
 
     depends_on("cmake")
     depends_on("mpi")
@@ -77,8 +76,8 @@ class Maphys(Package):
     depends_on("blas")
     depends_on("lapack")
     # TODO: pastix
-    #depends_on("pastix+mpi~metis", when='+pastix')
-    #depends_on("pastix+mpi+blasmt~metis", when='+pastix+blasmt')
+    depends_on("pastix+mpi~metis", when='+pastix')
+    depends_on("pastix+mpi+blasmt~metis", when='+pastix+blasmt')
     depends_on("mumps+mpi", when='+mumps')
     depends_on("mumps+mpi+blasmt", when='+mumps+blasmt')
     # TODO: fabulous
@@ -119,9 +118,8 @@ class Maphys(Package):
                 cmake_args.extend(["-DMAPHYS_SDS_MUMPS=OFF"])
 
             # With or without Pastix
-            #if spec.satisfies('~pastix'):
-            #    cmake_args.extend(["-DMAPHYS_SDS_PASTIX=OFF"])
-            cmake_args.extend(["-DMAPHYS_SDS_PASTIX=OFF"])
+            if spec.satisfies('~pastix'):
+                cmake_args.extend(["-DMAPHYS_SDS_PASTIX=OFF"])
 
             # Blas
             blas_libs = spec['blas'].libs.ld_flags
@@ -152,6 +150,8 @@ class Maphys(Package):
                 scalapack_libs = '%s' % (spec['scalapack'].libs.ld_flags)
                 cmake_args.extend(["-DSCALAPACK_LIBRARIES=%s" % scalapack_libs])
 
+            ### Exeperimental MaPHyS features
+
             # Fabulous
             #if spec.satisfies('+fabulous'):
             #    cmake_args.extend(["-DCMAKE_EXE_LINKER_FLAGS=-lstdc++"])
@@ -170,9 +170,5 @@ class Maphys(Package):
             #    cmake_args.extend(["-DPADDLE_LIBRARIES=%s" % paddle_lib])
 
             cmake(*cmake_args)
-
-            #install_tree('lib', prefix.lib)
-            #install_tree('include', prefix.include)
-
             make()
             make("install")
