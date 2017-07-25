@@ -54,30 +54,28 @@ before_script:
 # Build matrix using the environment
 # SPEC to specify the spack 'spec' to install
 env:
-  - SPEC='fxt'
-  - SPEC='hwloc'
-#  - SPEC='simgrid'
-  - SPEC='starpu'
+  - SPEC=fxt
+  - SPEC=hwloc
+#  - SPEC=simgrid
+  - SPEC=starpu
 
 # First build misc libraries
 jobs:
   include:
     - stage: misc
       script:
-        - echo -en 'travis_fold:start:run-build-morse\\r'
+        #- echo -en 'travis_fold:start:run-build-morse\\r'
         - share/spack/qa/run-build-morse
-        - echo -en 'travis_fold:end:run-build-morse\\r'
-      env:
-        - SPEC='fxt'
-        - SPEC='hwloc'
+        #- echo -en 'travis_fold:end:run-build-morse\\r'
+      env: SPEC=fxt
+      #  - SPEC='hwloc'
       #  - SPEC='simgrid'
     - stage: runtime
       script:
-        - echo -en 'travis_fold:start:run-build-morse\\r'
+        #- echo -en 'travis_fold:start:run-build-morse\\r'
         - share/spack/qa/run-build-morse
-        - echo -en 'travis_fold:end:run-build-morse\\r'
-      env:
-        - SPEC='starpu'
+        #- echo -en 'travis_fold:end:run-build-morse\\r'
+      env: SPEC='starpu'
 
 # Second build runtime libraries
 jobs:
