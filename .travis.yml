@@ -53,11 +53,11 @@ before_script:
 
 # Build matrix using the environment
 # SPEC to specify the spack 'spec' to install
-#env:
-#  - SPEC=fxt
-#  - SPEC=hwloc
+env:
+  - SPEC=fxt
+  - SPEC=hwloc
 #  - SPEC=simgrid
-#  - SPEC=starpu
+  - SPEC=starpu
 #script:
 #  - echo -en 'travis_fold:start:run-build-morse\\r'
 #  - share/spack/qa/run-build-morse
@@ -76,7 +76,8 @@ jobs:
         - SPEC=hwloc
     - stage: runtime
       script: share/spack/qa/run-build-morse
-      env: SPEC='starpu'
+      env:
+        - SPEC=starpu
 
 # use stages to setup a pipeline
 # build 1. misc libs 2. runtime libs 3. etc
