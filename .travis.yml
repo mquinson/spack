@@ -58,28 +58,20 @@ before_script:
 #  - SPEC=hwloc
 #  - SPEC=simgrid
 #  - SPEC=starpu
+#script:
+#  - echo -en 'travis_fold:start:run-build-morse\\r'
+#  - share/spack/qa/run-build-morse
+#  - echo -en 'travis_fold:end:run-build-morse\\r'
 
 # First build misc libraries
 jobs:
   include:
     - stage: misc
       script: share/spack/qa/run-build-morse
-        #- echo -en 'travis_fold:start:run-build-morse\\r'
-        #- share/spack/qa/run-build-morse
-        #- echo -en 'travis_fold:end:run-build-morse\\r'
       env: SPEC=fxt
-      #  - SPEC='hwloc'
-      #  - SPEC='simgrid'
     - stage: runtime
       script: share/spack/qa/run-build-morse
-        #- echo -en 'travis_fold:start:run-build-morse\\r'
-        #- share/spack/qa/run-build-morse
-        #- echo -en 'travis_fold:end:run-build-morse\\r'
       env: SPEC='starpu'
-
-# Second build runtime libraries
-jobs:
-  include:
 
 # use stages to setup a pipeline
 # build 1. misc libs 2. runtime libs 3. etc
