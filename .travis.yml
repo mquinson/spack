@@ -26,12 +26,6 @@ addons:
       - gnupg2
       - libboost-dev
 
-# Build matrix using the environment
-#env:
-#  - SPEC='fxt'
-#  - SPEC='simgrid'
-#  - SPEC='starpu'
-
 # Work around Travis's lack of support for Python on OSX
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
@@ -56,23 +50,46 @@ before_script:
 #=============================================================================
 # Building
 #=============================================================================
-#script:
-#  - echo -en 'travis_fold:start:run-build-morse\\r'
-#  - share/spack/qa/run-build-morse
-#  - echo -en 'travis_fold:end:run-build-morse\\r'
 
-# use stages to setup a pipeline
-# build 1. misc libs 2. runtime libs 3. etc
+# Build matrix using the environment
+# SPEC to specify the spack 'spec' to install
+
+# First build misc libraries
 jobs:
   include:
     - stage: misc
+      env:
+        - SPEC='fxt'
+        - SPEC='hwloc'
+      #  - SPEC='simgrid'
       script:
-        - SPEC='fxt' share/spack/qa/run-build-morse
-      script:
-        - SPEC='hwloc' share/spack/qa/run-build-morse
+        - echo -en 'travis_fold:start:run-build-morse\\r'
+        - share/spack/qa/run-build-morse
+        - echo -en 'travis_fold:end:run-build-morse\\r'
+
+# Second build runtime libraries
+jobs:
+  include:
     - stage: runtime
+      env:
+        - SPEC='starpu'
       script:
-        - SPEC='starpu' share/spack/qa/run-build-morse
+        - echo -en 'travis_fold:start:run-build-morse\\r'
+        - share/spack/qa/run-build-morse
+        - echo -en 'travis_fold:end:run-build-morse\\r'
+
+# use stages to setup a pipeline
+# build 1. misc libs 2. runtime libs 3. etc
+#jobs:
+#  include:
+#    - stage: misc
+#      env: SPEC='fxt'
+#      script: share/spack/qa/run-build-morse
+#      env: SPEC='hwloc'
+#      script: share/spack/qa/run-build-morse
+#    - stage: runtime
+#      env: SPEC='starpu'
+#      script: share/spack/qa/run-build-morse
 
 after_success:
   - #codecov --env PY_VERSION
