@@ -66,10 +66,6 @@ jobs:
         - echo -en 'travis_fold:start:run-build-morse\\r'
         - share/spack/qa/run-build-morse
         - echo -en 'travis_fold:end:run-build-morse\\r'
-
-# Second build runtime libraries
-jobs:
-  include:
     - stage: runtime
       env:
         - SPEC='starpu'
@@ -77,6 +73,10 @@ jobs:
         - echo -en 'travis_fold:start:run-build-morse\\r'
         - share/spack/qa/run-build-morse
         - echo -en 'travis_fold:end:run-build-morse\\r'
+
+# Second build runtime libraries
+jobs:
+  include:
 
 # use stages to setup a pipeline
 # build 1. misc libs 2. runtime libs 3. etc
