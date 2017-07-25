@@ -53,42 +53,29 @@ before_script:
 
 # Build matrix using the environment
 # SPEC to specify the spack 'spec' to install
-#env:
-#  - SPEC=fxt
-#  - SPEC=hwloc
+env:
+  - SPEC=fxt
+  - SPEC=hwloc
 #  - SPEC=simgrid
-#  - SPEC=starpu
+  - SPEC=starpu
+
 #script:
 #  - echo -en 'travis_fold:start:run-build-morse\\r'
 #  - share/spack/qa/run-build-morse
 #  - echo -en 'travis_fold:end:run-build-morse\\r'
 
-# First build misc libraries
+# use stages to setup a pipeline
+# build 1. misc libs 2. runtime libs 3. etc
 jobs:
   include:
     - stage: misc
-      - env: SPEC=fxt
-      - env: SPEC=hwloc
+      env: SPEC='fxt'
+      script: share/spack/qa/run-build-morse
+      env: SPEC='hwloc'
+      script: share/spack/qa/run-build-morse
     - stage: runtime
-      - env: SPEC=starpu
-
-script:
-  - echo -en 'travis_fold:start:run-build-morse\\r'
-  - share/spack/qa/run-build-morse
-  - echo -en 'travis_fold:end:run-build-morse\\r'
-
-# use stages to setup a pipeline
-# build 1. misc libs 2. runtime libs 3. etc
-#jobs:
-#  include:
-#    - stage: misc
-#      env: SPEC='fxt'
-#      script: share/spack/qa/run-build-morse
-#      env: SPEC='hwloc'
-#      script: share/spack/qa/run-build-morse
-#    - stage: runtime
-#      env: SPEC='starpu'
-#      script: share/spack/qa/run-build-morse
+      env: SPEC='starpu'
+      script: share/spack/qa/run-build-morse
 
 after_success:
   - #codecov --env PY_VERSION
