@@ -41,7 +41,7 @@ from spack import *
 from shutil import copyfile
 
 class Pastix(Package):
-    """FIXME: Put a proper description of your package here."""
+    """a high performance parallel solver for very large sparse linear systems based on direct methods"""
 
     homepage = "http://pastix.gforge.inria.fr/files/README-txt.html"
     url      = "https://gforge.inria.fr/frs/download.php/file/36212/pastix_5.2.3.tar.bz2"

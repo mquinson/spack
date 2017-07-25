@@ -65,7 +65,7 @@ class Maphys(Package):
     variant('pastix', default=True, description='Enable PASTIX direct solver')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
 
-    #variant('fabulous', default=False, description='Enable FABuLOuS iterative solver')
+    variant('fabulous', default=False, description='Enable FABuLOuS iterative solver')
     #variant('paddle', default=False, description='Enable Paddle domain decomposer')
 
     depends_on("cmake")
@@ -75,13 +75,11 @@ class Maphys(Package):
     depends_on("scotch+mpi~esmumps", when='~mumps')
     depends_on("blas")
     depends_on("lapack")
-    # TODO: pastix
     depends_on("pastix+mpi~metis", when='+pastix')
     depends_on("pastix+mpi+blasmt~metis", when='+pastix+blasmt')
     depends_on("mumps+mpi", when='+mumps')
     depends_on("mumps+mpi+blasmt", when='+mumps+blasmt')
-    # TODO: fabulous
-    #depends_on('fabulous@ib', when='+fabulous')
+    depends_on('fabulous@ib', when='+fabulous')
     # TODO: paddle
     #depends_on('paddle', when='+paddle')
 
@@ -153,14 +151,14 @@ class Maphys(Package):
             ### Exeperimental MaPHyS features
 
             # Fabulous
-            #if spec.satisfies('+fabulous'):
-            #    cmake_args.extend(["-DCMAKE_EXE_LINKER_FLAGS=-lstdc++"])
-            #    cmake_args.extend(["-DMAPHYS_ITE_IBBGMRESDR=ON"])
-            #    fabulous_libs = spec['fabulous'].cc_link
-            #    cmake_args.extend(["-DIBBGMRESDR_LIBRARIES=%s" % fabulous_libs])
-            #    fabulous_inc = spec['fabulous'].prefix.include
-            #    cmake_args.extend(["-DIBBGMRESDR_INCLUDE_DIRS=%s" % fabulous_inc])
-            #
+            if spec.satisfies('+fabulous'):
+                cmake_args.extend(["-DCMAKE_EXE_LINKER_FLAGS=-lstdc++"])
+                cmake_args.extend(["-DMAPHYS_ITE_IBBGMRESDR=ON"])
+                fabulous_libs = spec['fabulous'].libs.ld_flags
+                cmake_args.extend(["-DIBBGMRESDR_LIBRARIES=%s" % fabulous_libs])
+                fabulous_inc = spec['fabulous'].prefix.include
+                cmake_args.extend(["-DIBBGMRESDR_INCLUDE_DIRS=%s" % fabulous_inc])
+
             # Paddle
             #if spec.satisfies('+paddle'):
             #    cmake_args.extend(["-DMAPHYS_ORDERING_PADDLE=ON"])
