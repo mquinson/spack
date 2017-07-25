@@ -27,10 +27,10 @@ addons:
       - libboost-dev
 
 # Build matrix using the environment
-env:
-  - SPEC='fxt'
+#env:
+#  - SPEC='fxt'
 #  - SPEC='simgrid'
-  - SPEC='starpu'
+#  - SPEC='starpu'
 
 # Work around Travis's lack of support for Python on OSX
 before_install:
@@ -56,10 +56,23 @@ before_script:
 #=============================================================================
 # Building
 #=============================================================================
-script:
-  - echo -en 'travis_fold:start:run-build-morse\\r'
-  - share/spack/qa/run-build-morse
-  - echo -en 'travis_fold:end:run-build-morse\\r'
+#script:
+#  - echo -en 'travis_fold:start:run-build-morse\\r'
+#  - share/spack/qa/run-build-morse
+#  - echo -en 'travis_fold:end:run-build-morse\\r'
+
+# use stages to setup a pipeline
+# build 1. misc libs 2. runtime libs 3. etc
+jobs:
+  include:
+    - stage: misc
+      script:
+        - SPEC='fxt' share/spack/qa/run-build-morse
+      script:
+        - SPEC='hwloc' share/spack/qa/run-build-morse
+    - stage: runtime
+      script:
+        - SPEC='starpu' share/spack/qa/run-build-morse
 
 after_success:
   - #codecov --env PY_VERSION
