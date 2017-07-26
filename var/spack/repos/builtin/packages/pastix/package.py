@@ -100,6 +100,22 @@ class Pastix(Package):
     #depends_on("py-cython", when='+pypastix3')
 
     def install(self, spec, prefix):
+
+        cmake_args = [".."]
+        cmake_args.extend(std_cmake_args)
+        cmake_args.extend([
+            "-Wno-dev",
+            "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
+            "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
+            "-DCMAKE_BUILD_TYPE=%s"      % ('Debug' if '+debug'    in spec else 'Release'),
+            "-DBUILD_SHARED_LIBS=%s"     % ('ON'    if '+shared'   in spec else 'OFF'),
+            "-DPASTIX_WITH_MPI=%s"       % ('ON'    if '+mpi'      in spec else 'OFF'),
+            "-DPASTIX_WITH_STARPU=%s"    % ('ON'    if '+starpu'   in spec else 'OFF'),
+            "-DPASTIX_WITH_CUDA=%s"      % ('ON'    if '+cuda'     in spec else 'OFF'),
+            "-DPASTIX_ORDERING_METIS=%s" % ('ON'    if '+metis'    in spec else 'OFF'),
+            "-DPASTIX_INT64=%s"          % ('ON'    if '+idx64'    in spec else 'OFF'),
+        ])
+
         if spec.satisfies('@solverstack'):
 
             # Unfortunately we need +mpi to use it with maphys
@@ -107,48 +123,6 @@ class Pastix(Package):
             #    raise RuntimeError('@solverstack version is not available with +mpi')
 
             with working_dir('spack-build', create=True):
-
-                cmake_args = [".."]
-                cmake_args.extend(std_cmake_args)
-                cmake_args.extend([
-                    "-Wno-dev",
-                    "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
-                    "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
-                if spec.satisfies('+debug'):
-                    # Enable Debug here.
-                    cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
-                else:
-                    cmake_args.extend(["-DCMAKE_BUILD_TYPE=Release"])
-                if spec.satisfies('+shared'):
-                    # Enable build shared libs.
-                    cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
-                else:
-                    cmake_args.extend(["-DBUILD_SHARED_LIBS=OFF"])
-                if spec.satisfies('+mpi'):
-                    # Enable MPI here.
-                    cmake_args.extend(["-DPASTIX_WITH_MPI=ON"])
-                else:
-                    cmake_args.extend(["-DPASTIX_WITH_MPI=OFF"])
-                if spec.satisfies('+starpu'):
-                    # Enable StarPU here.
-                    cmake_args.extend(["-DPASTIX_WITH_STARPU=ON"])
-                else:
-                    cmake_args.extend(["-DPASTIX_WITH_STARPU=OFF"])
-                if spec.satisfies('+cuda'):
-                    # Enable CUDA here.
-                    cmake_args.extend(["-DPASTIX_WITH_CUDA=ON"])
-                else:
-                    cmake_args.extend(["-DPASTIX_WITH_CUDA=OFF"])
-                if spec.satisfies('+metis'):
-                    # Enable METIS here.
-                    cmake_args.extend(["-DPASTIX_ORDERING_METIS=ON"])
-                else:
-                    cmake_args.extend(["-DPASTIX_ORDERING_METIS=OFF"])
-                if spec.satisfies('+idx64'):
-                    # Int of size 64bits.
-                    cmake_args.extend(["-DPASTIX_INT64=ON"])
-                else:
-                    cmake_args.extend(["-DPASTIX_INT64=OFF"])
 
                 blas = spec['blas'].prefix
                 blas_libs = spec['blas'].libs.ld_flags
@@ -163,8 +137,6 @@ class Pastix(Package):
                 except AttributeError:
                     blas_flags = ''
                 cmake_args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
-
-                cmake_args.extend(["-DCMAKE_VERBOSE_MAKEFILE=ON"])
 
                 if spec.satisfies("%xl"):
                     cmake_args.extend(["-DCMAKE_C_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
@@ -189,71 +161,12 @@ class Pastix(Package):
 
                with working_dir('spack-build', create=True):
 
-                   cmake_args = [".."]
-                   cmake_args.extend(std_cmake_args)
                    cmake_args.extend([
-                       "-Wno-dev",
-                       "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
-                       "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
-                   if spec.satisfies('+debug'):
-                       # Enable Debug here.
-                       cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
-                   else:
-                       cmake_args.extend(["-DCMAKE_BUILD_TYPE=Release"])
-                   if spec.satisfies('+shared'):
-                       # Enable build shared libs.
-                       cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
-                   else:
-                       cmake_args.extend(["-DBUILD_SHARED_LIBS=OFF"])
-                   if spec.satisfies('+examples'):
-                       # Enable Examples here.
-                       cmake_args.extend(["-DPASTIX_BUILD_EXAMPLES=ON"])
-                   else:
-                       cmake_args.extend(["-DPASTIX_BUILD_EXAMPLES=OFF"])
-                   if spec.satisfies('+smp'):
-                       cmake_args.extend(["-DPASTIX_WITH_MULTITHREAD=ON"])
-                   else:
-                       cmake_args.extend(["-DPASTIX_WITH_MULTITHREAD=OFF"])
-                   if spec.satisfies('+mpi'):
-                       # Enable MPI here.
-                       cmake_args.extend(["-DPASTIX_WITH_MPI=ON"])
-                   else:
-                       cmake_args.extend(["-DPASTIX_WITH_MPI=OFF"])
-                   if spec.satisfies('+starpu'):
-                       # Enable StarPU here.
-                       cmake_args.extend(["-DPASTIX_WITH_STARPU=ON"])
-                   else:
-                       cmake_args.extend(["-DPASTIX_WITH_STARPU=OFF"])
-                   if spec.satisfies('+starpu') and spec.satisfies('+cuda'):
-                       # Enable CUDA here.
-                       cmake_args.extend(["-DPASTIX_WITH_STARPU_CUDA=ON"])
-                   else:
-                       cmake_args.extend(["-DPASTIX_WITH_STARPU_CUDA=OFF"])
-                   if spec.satisfies('+metis'):
-                       # Enable METIS here.
-                       cmake_args.extend(["-DPASTIX_ORDERING_METIS=ON"])
-                   else:
-                       cmake_args.extend(["-DPASTIX_ORDERING_METIS=OFF"])
-                   if spec.satisfies('+idx64'):
-                       # Int of size 64bits.
-                       cmake_args.extend(["-DPASTIX_INT64=ON"])
-                   else:
-                       cmake_args.extend(["-DPASTIX_INT64=OFF"])
-                   if spec.satisfies('+dynsched'):
-                       # Enable dynamic thread scheduling support.
-                       cmake_args.extend(["-DPASTIX_DYNSCHED=ON"])
-                   else:
-                       cmake_args.extend(["-DPASTIX_DYNSCHED=OFF"])
-                   if spec.satisfies('+memory'):
-                       # Enable Memory statistics here.
-                       cmake_args.extend(["-DPASTIX_WITH_MEMORY_USAGE=ON"])
-                   else:
-                       cmake_args.extend(["-DPASTIX_WITH_MEMORY_USAGE=OFF"])
-                   if spec.satisfies('^scotch+mpi'):
-                       # Enable distributed, required with ptscotch
-                       cmake_args.extend(["-DPASTIX_DISTRIBUTED=ON"])
-                   else:
-                       cmake_args.extend(["-DPASTIX_DISTRIBUTED=OFF"])
+                       "-DPASTIX_WITH_MULTITHREAD=%s"  % ('ON' if '+smp'        in spec else 'OFF'),
+                       "-DPASTIX_DYNSCHED=%s"          % ('ON' if '+dynsched'   in spec else 'OFF'),
+                       "-DPASTIX_WITH_MEMORY_USAGE=%s" % ('ON' if '+memory'     in spec else 'OFF'),
+                       "-DPASTIX_DISTRIBUTED=%s"       % ('ON' if '^scotch+mpi' in spec else 'OFF'),
+                   ])
 
                    if '^mkl-blas~shared' in spec:
                        cmake_args.extend(["-DBLA_STATIC=ON"])
@@ -277,9 +190,8 @@ class Pastix(Package):
                        blas_flags = spec['blas'].cc_flags
                    except AttributeError:
                        blas_flags = ''
-                   cmake_args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
 
-                   cmake_args.extend(["-DCMAKE_VERBOSE_MAKEFILE=ON"])
+                   cmake_args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
 
                    if spec.satisfies("%xl"):
                        cmake_args.extend(["-DCMAKE_C_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])

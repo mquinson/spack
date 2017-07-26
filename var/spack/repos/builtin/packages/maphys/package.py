@@ -59,7 +59,7 @@ class Maphys(Package):
 
     variant('debug', default=False, description='Enable debug symbols')
     variant('shared', default=True, description='Build MaPHyS as a shared library')
-    variant('blasmt', default=False, description='Enable to use MPI+Threads version of MaPHyS, a multithreaded Blas/Lapack library is required (MKL, ESSL, OpenBLAS)')
+    #variant('blasmt', default=False, description='Enable to use MPI+Threads version of MaPHyS, a multithreaded Blas/Lapack library is required (MKL, ESSL, OpenBLAS)')
     variant('mumps', default=True, description='Enable MUMPS direct solver')
     variant('pastix', default=True, description='Enable PASTIX direct solver')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
@@ -75,52 +75,37 @@ class Maphys(Package):
     depends_on("blas")
     depends_on("lapack")
     depends_on("pastix+mpi~metis", when='+pastix')
-    depends_on("pastix+mpi+blasmt~metis", when='+pastix+blasmt')
+    #depends_on("pastix+mpi+blasmt~metis", when='+pastix+blasmt')
     depends_on("mumps+mpi", when='+mumps')
-    depends_on("mumps+mpi+blasmt", when='+mumps+blasmt')
+    #depends_on("mumps+mpi+blasmt", when='+mumps+blasmt')
     depends_on('fabulous@ib', when='+fabulous')
     depends_on('paddle', when='+paddle')
 
     def install(self, spec, prefix):
 
         with working_dir('spack-build', create=True):
+
             cmake_args = [".."]
             cmake_args.extend(std_cmake_args)
+            cmake_args.remove('-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo')
+
             cmake_args.extend([
                 "-Wno-dev",
                 "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
-                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
+                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
 
-            # Static / Shared library
-            if spec.satisfies('+shared'):
-                cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
-
-            # Debug / Release
-            if spec.satisfies('+debug'):
-                cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
-            else:
-                cmake_args.extend(["-DCMAKE_BUILD_TYPE=Release"])
-
-            # Compile exemples and tests
-            if spec.satisfies('+examples'):
-                cmake_args.extend(["-DMAPHYS_BUILD_EXAMPLES=ON"])
-                cmake_args.extend(["-DMAPHYS_BUILD_TESTS=ON"])
-            else:
-                cmake_args.extend(["-DMAPHYS_BUILD_EXAMPLES=OFF"])
-                cmake_args.extend(["-DMAPHYS_BUILD_TESTS=OFF"])
-
-            # With or without Mumps
-            if spec.satisfies('~mumps'):
-                cmake_args.extend(["-DMAPHYS_SDS_MUMPS=OFF"])
-
-            # With or without Pastix
-            if spec.satisfies('~pastix'):
-                cmake_args.extend(["-DMAPHYS_SDS_PASTIX=OFF"])
+                "-DCMAKE_BUILD_TYPE=%s"      % ('Debug' if '+debug'    in spec else 'Release'),
+                "-DBUILD_SHARED_LIBS=%s"     % ('ON'    if '+shared'   in spec else 'OFF'),
+                "-DMAPHYS_BUILD_EXAMPLES=%s" % ('ON'    if '+examples' in spec else 'OFF'),
+                "-DMAPHYS_BUILD_TESTS=%s"    % ('ON'    if '+examples' in spec else 'OFF'),
+                "-DMAPHYS_SDS_MUMPS=%s"      % ('ON'    if '+mumps'    in spec else 'OFF'),
+                "-DMAPHYS_SDS_PASTIX=%s"     % ('ON'    if '+pastix'   in spec else 'OFF'),
+                "-DMAPHYS_BLASMT=%s"         % ('ON'    if '+blasmt'   in spec else 'OFF'),
+                ])
 
             # Blas
             blas_libs = spec['blas'].libs.ld_flags
             if spec.satisfies('+blasmt'):
-                cmake_args.extend(["-DMAPHYS_BLASMT=ON"])
                 if '^mkl' in spec or '^essl' in spec or '^openblas+mt' in spec:
                     blas_libs = spec['blas'].mkl_libs
                 else:
@@ -167,4 +152,4 @@ class Maphys(Package):
 
             cmake(*cmake_args)
             make()
-            make("install")
+            make('install')
