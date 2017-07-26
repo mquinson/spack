@@ -59,6 +59,7 @@ env:
 #  - SPEC=simgrid # simgrid is failing with gcc-4.8 (installed on Ubuntu Trusty)
   - SPEC=quark
   - SPEC=starpu
+  - SPEC='chameleon'
 
 script:
   - echo -en 'travis_fold:start:run-build-morse\\r'
