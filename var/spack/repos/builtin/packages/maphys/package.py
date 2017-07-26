@@ -48,8 +48,7 @@ class Maphys(Package):
 
     version('master' , git=gitroot, branch='master', submodules=True)
     version('develop', git=gitroot, branch='develop', submodules=True)
-
-    #version('paddle', git=gitroot, branch='feature/paddle', submodules=True)
+    version('paddle', git=gitroot, branch='feature/paddle', submodules=True)
 
     version('0.9.5', '53289def2993d9882e724e3a659cd200',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.5.1.tar.gz')
@@ -66,7 +65,7 @@ class Maphys(Package):
     variant('examples', default=True, description='Enable compilation and installation of example executables')
 
     variant('fabulous', default=False, description='Enable FABuLOuS iterative solver')
-    #variant('paddle', default=False, description='Enable Paddle domain decomposer')
+    variant('paddle', default=False, description='Enable Paddle domain decomposer')
 
     depends_on("cmake")
     depends_on("mpi")
@@ -80,8 +79,7 @@ class Maphys(Package):
     depends_on("mumps+mpi", when='+mumps')
     depends_on("mumps+mpi+blasmt", when='+mumps+blasmt')
     depends_on('fabulous@ib', when='+fabulous')
-    # TODO: paddle
-    #depends_on('paddle', when='+paddle')
+    depends_on('paddle', when='+paddle')
 
     def install(self, spec, prefix):
 
@@ -160,12 +158,12 @@ class Maphys(Package):
                 cmake_args.extend(["-DIBBGMRESDR_INCLUDE_DIRS=%s" % fabulous_inc])
 
             # Paddle
-            #if spec.satisfies('+paddle'):
-            #    cmake_args.extend(["-DMAPHYS_ORDERING_PADDLE=ON"])
-            #    paddle_lib = spec['paddle'].cc_link
-            #    paddle_inc = spec['paddle'].cc_flags
-            #    cmake_args.extend(["-DPADDLE_INCLUDE_DIRS=%s" % paddle_inc])
-            #    cmake_args.extend(["-DPADDLE_LIBRARIES=%s" % paddle_lib])
+            if spec.satisfies('+paddle'):
+                cmake_args.extend(["-DMAPHYS_ORDERING_PADDLE=ON"])
+                paddle_lib = spec['paddle'].libs.ld_flags
+                paddle_inc = spec['paddle'].prefix.include + ";" + spec['paddle'].prefix.modules
+                cmake_args.extend(["-DPADDLE_INCLUDE_DIRS=%s" % paddle_inc])
+                cmake_args.extend(["-DPADDLE_LIBRARIES=%s" % paddle_lib])
 
             cmake(*cmake_args)
             make()
