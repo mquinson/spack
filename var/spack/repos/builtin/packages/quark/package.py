@@ -14,5 +14,7 @@ class Quark(Package):
     def install(self, spec, prefix):
         mf = FileFilter('make.inc')
         mf.filter('prefix=./install', 'prefix=%s' % prefix)
+        mf.filter('^CFLAGS=.*', 'CFLAGS=-fPIC')
+
         make()
         make("install")
