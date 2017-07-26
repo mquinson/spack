@@ -56,27 +56,13 @@ before_script:
 env:
   - SPEC=fxt
   - SPEC=hwloc
-#  - SPEC=simgrid
+#  - SPEC=simgrid # simgrid is failing with gcc-4.8 (installed on Ubuntu Trusty)
   - SPEC=starpu
 
-#script:
-#  - echo -en 'travis_fold:start:run-build-morse\\r'
-#  - share/spack/qa/run-build-morse
-#  - echo -en 'travis_fold:end:run-build-morse\\r'
-
-# use stages to setup a pipeline
-# build 1. misc libs 2. runtime libs 3. etc
-jobs:
-  include:
-    - stage: &misc
-      env: SPEC='fxt'
-      script: share/spack/qa/run-build-morse
-    - <<: *misc
-      env: SPEC='hwloc'
-      script: share/spack/qa/run-build-morse
-    - stage: runtime
-      env: SPEC='starpu'
-      script: share/spack/qa/run-build-morse
+script:
+  - echo -en 'travis_fold:start:run-build-morse\\r'
+  - share/spack/qa/run-build-morse
+  - echo -en 'travis_fold:end:run-build-morse\\r'
 
 after_success:
   - #codecov --env PY_VERSION
