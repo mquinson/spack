@@ -24,6 +24,11 @@ fi
 # Print compiler information
 spack config get compilers
 
+# load travis folding before starting installation (can generate long log)
+. travis_folding.sh
+
+travis_fold_start INSTALL
 # Run some build smoke tests, potentially with code coverage
 ${coverage_run} bin/spack install -v ${SPEC}
 ${coverage_combine}
+travis_fold_end

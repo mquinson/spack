@@ -66,10 +66,7 @@ env:
   - SPEC=chameleon
 
 script:
-  - echo -en 'travis_fold:start:run-build-morse\\r'
-  - ./bin/spack compiler info gcc
   - share/spack/qa/run-build-morse
-  - echo -en 'travis_fold:end:run-build-morse\\r'
 
 after_success:
   - #codecov --env PY_VERSION
