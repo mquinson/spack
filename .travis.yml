@@ -24,7 +24,9 @@ addons:
       - mercurial
       - graphviz
       - gnupg2
+      - cmake
       - libboost-dev
+      - libopenmpi-dev
 
 # Work around Travis's lack of support for Python on OSX
 before_install:
@@ -46,6 +48,8 @@ install:
 before_script:
   # Need this to be able to compute the list of changed files
   - git fetch origin morse-develop:morse-develop
+  # Need this to avoid building cmake and openmpi (quiet long)
+  - share/spack/qa/create_packages_config.sh
 
 #=============================================================================
 # Building
@@ -59,7 +63,7 @@ env:
 #  - SPEC=simgrid # simgrid is failing with gcc-4.8 (installed on Ubuntu Trusty)
   - SPEC=quark
   - SPEC=starpu
-  - SPEC='chameleon'
+  - SPEC=chameleon
 
 script:
   - echo -en 'travis_fold:start:run-build-morse\\r'
