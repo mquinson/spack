@@ -25,7 +25,7 @@ fi
 spack config get compilers
 
 # load travis folding before starting installation (can generate long log)
-. travis_folding.sh
+. share/spack/qa/travis_folding.sh
 
 travis_fold_start INSTALL
 # Run some build smoke tests, potentially with code coverage
