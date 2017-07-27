@@ -60,6 +60,7 @@ before_script:
 env:
   - SPEC=fxt
   - SPEC=hwloc
+  - SPEC=vite
 #  - SPEC=simgrid # simgrid is failing with gcc-4.8 (installed on Ubuntu Trusty)
   - SPEC=quark
   - SPEC=starpu
