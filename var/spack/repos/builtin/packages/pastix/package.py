@@ -39,8 +39,9 @@
 #
 from spack import *
 from shutil import copyfile
+import os
 
-class Pastix(Package):
+class Pastix(CMakePackage):
     """a high performance parallel solver for very large sparse linear systems based on direct methods"""
 
     homepage = "http://pastix.gforge.inria.fr/files/README-txt.html"
@@ -74,7 +75,6 @@ class Pastix(Package):
 
     # Dependencies
 
-    depends_on("cmake")
     depends_on("hwloc")
     depends_on("hwloc+cuda", when='+cuda')
     depends_on("mpi", when='+mpi')
@@ -88,22 +88,31 @@ class Pastix(Package):
     depends_on("starpu~mpi", when='+starpu~mpi')
     depends_on("starpu+cuda", when='+starpu+cuda')
 
-    # Python dependencies for pypastix
-    #depends_on("python@2:2.8+ucs4", when='+pypastix')
-    #depends_on("py-mpi4py", when='+pypastix')
-    #depends_on("py-numpy", when='+pypastix')
-    #depends_on("py-cython", when='+pypastix')
-    #
-    #depends_on("python@3:", when='+pypastix3')
-    #depends_on("py-mpi4py", when='+pypastix3')
-    #depends_on("py-numpy", when='+pypastix3')
-    #depends_on("py-cython", when='+pypastix3')
+    @property
+    def root_cmakelists_dir(self):
+        if '@solverstack' not in self.spec:
+            return os.path.join(self.stage.source_path, 'src')
+        return self.stage.source_path
 
-    def install(self, spec, prefix):
+    def cmake_args(self):
+        spec = self.spec
 
-        cmake_args = [".."]
-        cmake_args.extend(std_cmake_args)
-        cmake_args.extend([
+        if '@solverstack' not in spec:
+
+            os.chdir('src')
+            # pre-processing due to the dependency to murge (git)
+            copyfile('config/LINUX-GNU.in', 'config.in')
+            if spec.satisfies('+murgeup'):
+                # required to get murge sources "make murge_up"
+                make('murge_up')
+            # this file must be generated
+            make('sopalin/src/murge_fortran.c')
+
+
+        args = std_cmake_args
+        args.remove('-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo')
+
+        args.extend([
             "-Wno-dev",
             "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
             "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
@@ -122,83 +131,64 @@ class Pastix(Package):
             #if spec.satisfies('+mpi'):
             #    raise RuntimeError('@solverstack version is not available with +mpi')
 
-            with working_dir('spack-build', create=True):
+            blas = spec['blas'].prefix
+            blas_libs = spec['blas'].libs.ld_flags
+            if spec.satisfies('+blasmt'):
+                if '^mkl' in spec or '^essl' in spec or '^openblas+mt' in spec:
+                    blas_libs = spec['blas'].libs.ld_flags #MT?
+                else:
+                    raise RuntimeError('Only ^openblas+mt, ^mkl and ^essl provide multithreaded blas.')
+            args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
+            try:
+                blas_flags = spec['blas'].cc_flags
+            except AttributeError:
+                blas_flags = ''
+            args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
 
-                blas = spec['blas'].prefix
-                blas_libs = spec['blas'].libs.ld_flags
-                if spec.satisfies('+blasmt'):
-                    if '^mkl' in spec or '^essl' in spec or '^openblas+mt' in spec:
-                        blas_libs = spec['blas'].libs.ld_flags #MT?
-                    else:
-                        raise RuntimeError('Only ^openblas+mt, ^mkl and ^essl provide multithreaded blas.')
-                cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
-                try:
-                    blas_flags = spec['blas'].cc_flags
-                except AttributeError:
-                    blas_flags = ''
-                cmake_args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
-
-                if spec.satisfies("%xl"):
-                    cmake_args.extend(["-DCMAKE_C_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
-                    cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-qstrict -qsmp -qarch=auto -qhot -qtune=auto"])
-                    cmake_args.extend(["-DCMAKE_CXX_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
-
-                cmake(*cmake_args)
-                make()
-                make("install")
+            if spec.satisfies("%xl"):
+                args.extend(["-DCMAKE_C_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
+                args.extend(["-DCMAKE_Fortran_FLAGS=-qstrict -qsmp -qarch=auto -qhot -qtune=auto"])
+                args.extend(["-DCMAKE_CXX_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
 
         else:
 
-            with working_dir('src'):
 
-               # pre-processing due to the dependency to murge (git)
-               copyfile('config/LINUX-GNU.in', 'config.in')
-               if spec.satisfies('+murgeup'):
-                   # required to get murge sources "make murge_up"
-                   make('murge_up')
-               # this file must be generated
-               make('sopalin/src/murge_fortran.c')
+            args.extend([
+                "-DPASTIX_WITH_MULTITHREAD=%s"  % ('ON' if '+smp'        in spec else 'OFF'),
+                "-DPASTIX_DYNSCHED=%s"          % ('ON' if '+dynsched'   in spec else 'OFF'),
+                "-DPASTIX_WITH_MEMORY_USAGE=%s" % ('ON' if '+memory'     in spec else 'OFF'),
+                "-DPASTIX_DISTRIBUTED=%s"       % ('ON' if '^scotch+mpi' in spec else 'OFF'),
+            ])
 
-               with working_dir('spack-build', create=True):
+            if '^mkl-blas~shared' in spec:
+                args.extend(["-DBLA_STATIC=ON"])
+            if spec.satisfies('+blasmt'):
+                args.extend(["-DPASTIX_BLAS_MT=ON"])
 
-                   cmake_args.extend([
-                       "-DPASTIX_WITH_MULTITHREAD=%s"  % ('ON' if '+smp'        in spec else 'OFF'),
-                       "-DPASTIX_DYNSCHED=%s"          % ('ON' if '+dynsched'   in spec else 'OFF'),
-                       "-DPASTIX_WITH_MEMORY_USAGE=%s" % ('ON' if '+memory'     in spec else 'OFF'),
-                       "-DPASTIX_DISTRIBUTED=%s"       % ('ON' if '^scotch+mpi' in spec else 'OFF'),
-                   ])
+            blas = spec['blas'].prefix
+            blas_libs = spec['blas'].libs.ld_flags
+            if spec.satisfies('+blasmt'):
+                if '^mkl' in spec or '^essl' in spec or '^openblas+mt' in spec:
+                    blas_libs = spec['blas'].libs.ld_flags # MT?
+                else:
+                    raise RuntimeError('Only ^openblas+mt, ^mkl and ^essl provide multithreaded blas.')
+            args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
 
-                   if '^mkl-blas~shared' in spec:
-                       cmake_args.extend(["-DBLA_STATIC=ON"])
-                   if spec.satisfies('+blasmt'):
-                       cmake_args.extend(["-DPASTIX_BLAS_MT=ON"])
+            # It seems sometimes cmake needs some help with that
+            if 'mkl_intel_lp64' in blas_libs:
+                args.extend(["-DBLA_VENDOR=Intel10_64lp"])
 
-                   blas = spec['blas'].prefix
-                   blas_libs = spec['blas'].libs.ld_flags
-                   if spec.satisfies('+blasmt'):
-                       if '^mkl' in spec or '^essl' in spec or '^openblas+mt' in spec:
-                           blas_libs = spec['blas'].libs.ld_flags # MT?
-                       else:
-                           raise RuntimeError('Only ^openblas+mt, ^mkl and ^essl provide multithreaded blas.')
-                   cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
+            try:
+                blas_flags = spec['blas'].cc_flags
+            except AttributeError:
+                blas_flags = ''
 
-                   # It seems sometimes cmake needs some help with that
-                   if 'mkl_intel_lp64' in blas_libs:
-                       cmake_args.extend(["-DBLA_VENDOR=Intel10_64lp"])
+            args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
 
-                   try:
-                       blas_flags = spec['blas'].cc_flags
-                   except AttributeError:
-                       blas_flags = ''
+            if spec.satisfies("%xl"):
+                args.extend(["-DCMAKE_C_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
+                args.extend(["-DCMAKE_Fortran_FLAGS=-qstrict -qsmp -qarch=auto -qhot -qtune=auto"])
+                args.extend(["-DCMAKE_CXX_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
+                args.extend(["-DPASTIX_FM_NOCHANGE=ON"])
 
-                   cmake_args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
-
-                   if spec.satisfies("%xl"):
-                       cmake_args.extend(["-DCMAKE_C_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
-                       cmake_args.extend(["-DCMAKE_Fortran_FLAGS=-qstrict -qsmp -qarch=auto -qhot -qtune=auto"])
-                       cmake_args.extend(["-DCMAKE_CXX_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
-                       cmake_args.extend(["-DPASTIX_FM_NOCHANGE=ON"])
-
-                   cmake(*cmake_args)
-                   make()
-                   make("install")
+        return args

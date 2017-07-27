@@ -39,7 +39,7 @@
 #
 from spack import *
 
-class Maphys(Package):
+class Maphys(CMakePackage):
     """a Massively Parallel Hybrid Solver."""
 
     homepage = "https://gitlab.inria.fr/solverstack/maphys"
@@ -67,7 +67,6 @@ class Maphys(Package):
     variant('fabulous', default=False, description='Enable FABuLOuS iterative solver')
     variant('paddle', default=False, description='Enable Paddle domain decomposer')
 
-    depends_on("cmake")
     depends_on("mpi")
     depends_on("hwloc")
     depends_on("scotch+mpi+esmumps", when='+mumps')
@@ -81,75 +80,71 @@ class Maphys(Package):
     depends_on('fabulous@ib', when='+fabulous')
     depends_on('paddle', when='+paddle')
 
-    def install(self, spec, prefix):
+    def cmake_args(self):
+        spec = self.spec
 
-        with working_dir('spack-build', create=True):
+        args = std_cmake_args
+        args.remove('-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo')
 
-            cmake_args = [".."]
-            cmake_args.extend(std_cmake_args)
-            cmake_args.remove('-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo')
+        args.extend([
+            "-Wno-dev",
+            "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
+            "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
 
-            cmake_args.extend([
-                "-Wno-dev",
-                "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
-                "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
+            "-DCMAKE_BUILD_TYPE=%s"      % ('Debug' if '+debug'    in spec else 'Release'),
+            "-DBUILD_SHARED_LIBS=%s"     % ('ON'    if '+shared'   in spec else 'OFF'),
+            "-DMAPHYS_BUILD_EXAMPLES=%s" % ('ON'    if '+examples' in spec else 'OFF'),
+            "-DMAPHYS_BUILD_TESTS=%s"    % ('ON'    if '+examples' in spec else 'OFF'),
+            "-DMAPHYS_SDS_MUMPS=%s"      % ('ON'    if '+mumps'    in spec else 'OFF'),
+            "-DMAPHYS_SDS_PASTIX=%s"     % ('ON'    if '+pastix'   in spec else 'OFF'),
+            "-DMAPHYS_BLASMT=%s"         % ('ON'    if '+blasmt'   in spec else 'OFF'),
+            ])
 
-                "-DCMAKE_BUILD_TYPE=%s"      % ('Debug' if '+debug'    in spec else 'Release'),
-                "-DBUILD_SHARED_LIBS=%s"     % ('ON'    if '+shared'   in spec else 'OFF'),
-                "-DMAPHYS_BUILD_EXAMPLES=%s" % ('ON'    if '+examples' in spec else 'OFF'),
-                "-DMAPHYS_BUILD_TESTS=%s"    % ('ON'    if '+examples' in spec else 'OFF'),
-                "-DMAPHYS_SDS_MUMPS=%s"      % ('ON'    if '+mumps'    in spec else 'OFF'),
-                "-DMAPHYS_SDS_PASTIX=%s"     % ('ON'    if '+pastix'   in spec else 'OFF'),
-                "-DMAPHYS_BLASMT=%s"         % ('ON'    if '+blasmt'   in spec else 'OFF'),
-                ])
+        # Blas
+        blas_libs = spec['blas'].libs.ld_flags
+        if spec.satisfies('+blasmt'):
+            if '^mkl' in spec or '^essl' in spec or '^openblas+mt' in spec:
+                blas_libs = spec['blas'].mkl_libs
+            else:
+                raise RuntimeError('Only ^openblas+mt, ^mkl and ^essl provide multithreaded blas.')
+        args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
+        try:
+            blas_flags = spec['blas'].libs.ld_flags
+        except AttributeError:
+            blas_flags = ''
+        args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
 
-            # Blas
-            blas_libs = spec['blas'].libs.ld_flags
-            if spec.satisfies('+blasmt'):
-                if '^mkl' in spec or '^essl' in spec or '^openblas+mt' in spec:
-                    blas_libs = spec['blas'].mkl_libs
-                else:
-                    raise RuntimeError('Only ^openblas+mt, ^mkl and ^essl provide multithreaded blas.')
-            cmake_args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
-            try:
-                blas_flags = spec['blas'].libs.ld_flags
-            except AttributeError:
-                blas_flags = ''
-            cmake_args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
+        # Lapack
+        lapack_libs = spec['lapack'].libs.ld_flags
+        if spec.satisfies('+blasmt'):
+            if '^mkl' in spec:
+                lapack_libs = spec['lapack'].libs.ld_flags # MT?
+            else:
+                raise RuntimeError('Only ^mkl provide multithreaded lapack.')
+        args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
 
-            # Lapack
-            lapack_libs = spec['lapack'].libs.ld_flags
-            if spec.satisfies('+blasmt'):
-                if '^mkl' in spec:
-                    lapack_libs = spec['lapack'].libs.ld_flags # MT?
-                else:
-                    raise RuntimeError('Only ^mkl provide multithreaded lapack.')
-            cmake_args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
+        # Scalapack
+        if spec.satisfies('+mumps^mpi'):
+            scalapack_libs = '%s' % (spec['scalapack'].libs.ld_flags)
+            args.extend(["-DSCALAPACK_LIBRARIES=%s" % scalapack_libs])
 
-            # Scalapack
-            if spec.satisfies('+mumps^mpi'):
-                scalapack_libs = '%s' % (spec['scalapack'].libs.ld_flags)
-                cmake_args.extend(["-DSCALAPACK_LIBRARIES=%s" % scalapack_libs])
+        ### Exeperimental MaPHyS features
 
-            ### Exeperimental MaPHyS features
+        # Fabulous
+        if spec.satisfies('+fabulous'):
+            args.extend(["-DCMAKE_EXE_LINKER_FLAGS=-lstdc++"])
+            args.extend(["-DMAPHYS_ITE_IBBGMRESDR=ON"])
+            fabulous_libs = spec['fabulous'].libs.ld_flags
+            args.extend(["-DIBBGMRESDR_LIBRARIES=%s" % fabulous_libs])
+            fabulous_inc = spec['fabulous'].prefix.include
+            args.extend(["-DIBBGMRESDR_INCLUDE_DIRS=%s" % fabulous_inc])
 
-            # Fabulous
-            if spec.satisfies('+fabulous'):
-                cmake_args.extend(["-DCMAKE_EXE_LINKER_FLAGS=-lstdc++"])
-                cmake_args.extend(["-DMAPHYS_ITE_IBBGMRESDR=ON"])
-                fabulous_libs = spec['fabulous'].libs.ld_flags
-                cmake_args.extend(["-DIBBGMRESDR_LIBRARIES=%s" % fabulous_libs])
-                fabulous_inc = spec['fabulous'].prefix.include
-                cmake_args.extend(["-DIBBGMRESDR_INCLUDE_DIRS=%s" % fabulous_inc])
+        # Paddle
+        if spec.satisfies('+paddle'):
+            args.extend(["-DMAPHYS_ORDERING_PADDLE=ON"])
+            paddle_lib = spec['paddle'].libs.ld_flags
+            paddle_inc = spec['paddle'].prefix.include + ";" + spec['paddle'].prefix.modules
+            args.extend(["-DPADDLE_INCLUDE_DIRS=%s" % paddle_inc])
+            args.extend(["-DPADDLE_LIBRARIES=%s" % paddle_lib])
 
-            # Paddle
-            if spec.satisfies('+paddle'):
-                cmake_args.extend(["-DMAPHYS_ORDERING_PADDLE=ON"])
-                paddle_lib = spec['paddle'].libs.ld_flags
-                paddle_inc = spec['paddle'].prefix.include + ";" + spec['paddle'].prefix.modules
-                cmake_args.extend(["-DPADDLE_INCLUDE_DIRS=%s" % paddle_inc])
-                cmake_args.extend(["-DPADDLE_LIBRARIES=%s" % paddle_lib])
-
-            cmake(*cmake_args)
-            make()
-            make('install')
+        return args

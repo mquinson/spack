@@ -40,7 +40,7 @@
 from spack import *
 
 
-class Paddle(Package):
+class Paddle(CMakePackage):
     """Parallel algebraic domain decomposition for linear algebra software package."""
 
     homepage = "https://gitlab.inria.fr/solverstack/paddle"
@@ -55,46 +55,26 @@ class Paddle(Package):
     variant("parmetis", default=False, description="Enable ParMETIS ordering")
     variant("tests", default=False, description='Enable compilation and installation of testing executables')
 
-    depends_on("cmake")
     depends_on("mpi")
     depends_on("scotch+mpi")
     depends_on("parmetis",when="+parmetis")
 
-    def install(self, spec, prefix):
+    root_cmakelists_dir = 'src'
 
-        with working_dir('src'):
+    def cmake_args(self):
+        spec = self.spec
 
-            with working_dir('spack-build', create=True):
+        args = std_cmake_args
+        args.remove('-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo')
 
-                cmake_args = [".."]
-                cmake_args.extend(std_cmake_args)
-                cmake_args.extend([
-                   "-Wno-dev",
-                   "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
-                   "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"])
+        args.extend([
+            "-Wno-dev",
+            "-DCMAKE_COLOR_MAKEFILE:BOOL=ON",
+            "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
+            "-DCMAKE_BUILD_TYPE=%s"         % ('Debug' if '+debug'   in spec else 'Release'),
+            "-DBUILD_SHARED_LIBS=%s"        % ('ON'    if '+shared'  in spec else 'OFF'),
+            "-DPADDLE_BUILD_TESTS=%s"       % ('ON'    if '+tests'   in spec else 'OFF'),
+            "-DPADDLE_ORDERING_PARMETIS=%s" % ('ON'    if '+parmets' in spec else 'OFF')
+        ])
 
-                if spec.satisfies('+shared'):
-                    # Enable build shared libs.
-                    cmake_args.extend(["-DBUILD_SHARED_LIBS=ON"])
-                else:
-                    cmake_args.extend(["-DBUILD_SHARED_LIBS=OFF"])
-
-                if spec.satisfies('+debug'):
-                    # Enable Debug here.
-                    cmake_args.extend(["-DCMAKE_BUILD_TYPE=Debug"])
-                else:
-                    cmake_args.extend(["-DCMAKE_BUILD_TYPE=Release"])
-
-                if spec.satisfies('+tests'):
-                    cmake_args.extend(["-DPADDLE_BUILD_TESTS=ON"])
-                else:
-                    cmake_args.extend(["-DPADDLE_BUILD_TESTS=OFF"])
-
-                if spec.satisfies('+parmetis'):
-                    cmake_args.extend(["-DPADDLE_ORDERING_PARMETIS=ON"])
-                else:
-                    cmake_args.extend(["-DPADDLE_ORDERING_PARMETIS=OFF"])
-
-                cmake(*cmake_args)
-                make()
-                make("install")
+        return args
