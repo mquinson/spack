@@ -27,8 +27,9 @@ import os
 import sys
 
 def get_submodules():
-    git = which('git')
-    git('submodule', 'update', '--init', '--recursive')
+    if os.path.exists(".git"):
+        git = which('git')
+        git('submodule', 'update', '--init', '--recursive')
 
 class Chameleon(Package):
     """Dense Linear Algebra for Scalable Multi-core Architectures and GPGPUs"""
@@ -63,7 +64,8 @@ class Chameleon(Package):
     def install(self, spec, prefix):
 
         if spec.satisfies('@master'):
-            get_submodules()
+            if not os.path.exists("cmake_modules/morse_cmake/modules"):
+                get_submodules()
 
         with working_dir('spack-build', create=True):
 
