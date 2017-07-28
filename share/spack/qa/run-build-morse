@@ -24,15 +24,7 @@ fi
 # Print compiler information
 spack config get compilers
 
-# load travis folding before starting installation (can generate long log)
-#. share/spack/qa/travis_folding.sh
-
-#travis_fold_start INSTALL
-# Run some build smoke tests, potentially with code coverage
-#${coverage_run} bin/spack install -v ${SPEC}
-#${coverage_combine}
-#travis_fold_end
-
+# Use a trick to avoid printing long logs and meet the 4 MB log size limit
 export PING_SLEEP=30s
 export WORKDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export BUILD_OUTPUT=$WORKDIR/build.out
