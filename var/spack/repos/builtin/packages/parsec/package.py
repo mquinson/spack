@@ -8,6 +8,7 @@ class Parsec(Package):
     version('last-rel', '14de60b5ae9cad93f9ba5a0c3c3918b0',
             url='http://icl.cs.utk.edu/projectsfiles/parsec/pubs/parsec-2b39da2e4087.tgz', preferred=True)
     version ('master', git='https://bitbucket.org/icldistcomp/parsec.git', branch='master')
+    version ('mfaverge', git='https://bitbucket.org/mfaverge/parsec.git', branch='mymaster')
     pkg_dir = spack.repo.dirname_for_package_name("fake")
     # fake tarball because we consider it is already installed
     version('exist', '7b878b76545ef9ddb6f2b61d4c4be833',
