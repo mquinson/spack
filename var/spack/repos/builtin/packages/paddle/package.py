@@ -74,7 +74,7 @@ class Paddle(CMakePackage):
             "-DCMAKE_BUILD_TYPE=%s"         % ('Debug' if '+debug'   in spec else 'Release'),
             "-DBUILD_SHARED_LIBS=%s"        % ('ON'    if '+shared'  in spec else 'OFF'),
             "-DPADDLE_BUILD_TESTS=%s"       % ('ON'    if '+tests'   in spec else 'OFF'),
-            "-DPADDLE_ORDERING_PARMETIS=%s" % ('ON'    if '+parmets' in spec else 'OFF')
+            "-DPADDLE_ORDERING_PARMETIS=%s" % ('ON'    if '+parmetis' in spec else 'OFF')
         ])
 
         return args
