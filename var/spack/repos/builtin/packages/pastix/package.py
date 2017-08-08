@@ -131,19 +131,8 @@ class Pastix(CMakePackage):
             #if spec.satisfies('+mpi'):
             #    raise RuntimeError('@solverstack version is not available with +mpi')
 
-            blas = spec['blas'].prefix
             blas_libs = spec['blas'].libs.ld_flags
-            if spec.satisfies('+blasmt'):
-                if '^mkl' in spec or '^essl' in spec or '^openblas+mt' in spec:
-                    blas_libs = spec['blas'].libs.ld_flags #MT?
-                else:
-                    raise RuntimeError('Only ^openblas+mt, ^mkl and ^essl provide multithreaded blas.')
             args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
-            try:
-                blas_flags = spec['blas'].cc_flags
-            except AttributeError:
-                blas_flags = ''
-            args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
 
             if spec.satisfies("%xl"):
                 args.extend(["-DCMAKE_C_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])
@@ -152,38 +141,21 @@ class Pastix(CMakePackage):
 
         else:
 
-
             args.extend([
-                "-DPASTIX_WITH_MULTITHREAD=%s"  % ('ON' if '+smp'        in spec else 'OFF'),
-                "-DPASTIX_DYNSCHED=%s"          % ('ON' if '+dynsched'   in spec else 'OFF'),
-                "-DPASTIX_WITH_MEMORY_USAGE=%s" % ('ON' if '+memory'     in spec else 'OFF'),
-                "-DPASTIX_DISTRIBUTED=%s"       % ('ON' if '^scotch+mpi' in spec else 'OFF'),
+                "-DPASTIX_WITH_MULTITHREAD=%s"  % ('ON' if '+smp'             in spec else 'OFF'),
+                "-DPASTIX_DYNSCHED=%s"          % ('ON' if '+dynsched'        in spec else 'OFF'),
+                "-DPASTIX_WITH_MEMORY_USAGE=%s" % ('ON' if '+memory'          in spec else 'OFF'),
+                "-DPASTIX_DISTRIBUTED=%s"       % ('ON' if '^scotch+mpi'      in spec else 'OFF'),
+                "-DBLA_STATIC=%s"               % ('ON' if '^mkl-blas~shared' in spec else 'OFF'),
+                "-DPASTIX_BLAS_MT=%s"           % ('ON' if '+blasmt'          in spec else 'OFF'),
             ])
 
-            if '^mkl-blas~shared' in spec:
-                args.extend(["-DBLA_STATIC=ON"])
-            if spec.satisfies('+blasmt'):
-                args.extend(["-DPASTIX_BLAS_MT=ON"])
-
-            blas = spec['blas'].prefix
             blas_libs = spec['blas'].libs.ld_flags
-            if spec.satisfies('+blasmt'):
-                if '^mkl' in spec or '^essl' in spec or '^openblas+mt' in spec:
-                    blas_libs = spec['blas'].libs.ld_flags # MT?
-                else:
-                    raise RuntimeError('Only ^openblas+mt, ^mkl and ^essl provide multithreaded blas.')
             args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
 
             # It seems sometimes cmake needs some help with that
             if 'mkl_intel_lp64' in blas_libs:
                 args.extend(["-DBLA_VENDOR=Intel10_64lp"])
-
-            try:
-                blas_flags = spec['blas'].cc_flags
-            except AttributeError:
-                blas_flags = ''
-
-            args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
 
             if spec.satisfies("%xl"):
                 args.extend(["-DCMAKE_C_FLAGS=-qstrict -qsmp -qlanglvl=extended -qarch=auto -qhot -qtune=auto"])

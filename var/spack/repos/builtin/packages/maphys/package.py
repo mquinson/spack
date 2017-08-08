@@ -59,7 +59,7 @@ class Maphys(CMakePackage):
 
     variant('debug', default=False, description='Enable debug symbols')
     variant('shared', default=True, description='Build MaPHyS as a shared library')
-    #variant('blasmt', default=False, description='Enable to use MPI+Threads version of MaPHyS, a multithreaded Blas/Lapack library is required (MKL, ESSL, OpenBLAS)')
+    variant('blasmt', default=False, description='Enable to use MPI+Threads version of MaPHyS, a multithreaded Blas/Lapack library is required (MKL, ESSL, OpenBLAS)')
     variant('mumps', default=True, description='Enable MUMPS direct solver')
     variant('pastix', default=True, description='Enable PASTIX direct solver')
     variant('examples', default=True, description='Enable compilation and installation of example executables')
@@ -74,9 +74,8 @@ class Maphys(CMakePackage):
     depends_on("blas")
     depends_on("lapack")
     depends_on("pastix+mpi~metis", when='+pastix')
-    #depends_on("pastix+mpi+blasmt~metis", when='+pastix+blasmt')
+    depends_on("pastix+mpi+blasmt~metis", when='+pastix+blasmt')
     depends_on("mumps+mpi", when='+mumps')
-    #depends_on("mumps+mpi+blasmt", when='+mumps+blasmt')
     depends_on('fabulous@ib', when='+fabulous')
     depends_on('paddle', when='+paddle')
 
@@ -102,25 +101,10 @@ class Maphys(CMakePackage):
 
         # Blas
         blas_libs = spec['blas'].libs.ld_flags
-        if spec.satisfies('+blasmt'):
-            if '^mkl' in spec or '^essl' in spec or '^openblas+mt' in spec:
-                blas_libs = spec['blas'].mkl_libs
-            else:
-                raise RuntimeError('Only ^openblas+mt, ^mkl and ^essl provide multithreaded blas.')
         args.extend(["-DBLAS_LIBRARIES=%s" % blas_libs])
-        try:
-            blas_flags = spec['blas'].libs.ld_flags
-        except AttributeError:
-            blas_flags = ''
-        args.extend(['-DBLAS_COMPILER_FLAGS=%s' % blas_flags])
 
         # Lapack
         lapack_libs = spec['lapack'].libs.ld_flags
-        if spec.satisfies('+blasmt'):
-            if '^mkl' in spec:
-                lapack_libs = spec['lapack'].libs.ld_flags # MT?
-            else:
-                raise RuntimeError('Only ^mkl provide multithreaded lapack.')
         args.extend(["-DLAPACK_LIBRARIES=%s" % lapack_libs])
 
         # Scalapack
