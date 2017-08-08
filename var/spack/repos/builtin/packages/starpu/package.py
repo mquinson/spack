@@ -1,13 +1,38 @@
+##############################################################################
+# Copyright (c) 2013-2016, Lawrence Livermore National Security, LLC.
+# Produced at the Lawrence Livermore National Laboratory.
+#
+# This file is part of Spack.
+# Created by Todd Gamblin, tgamblin@llnl.gov, All rights reserved.
+# LLNL-CODE-647188
+#
+# For details, see https://github.com/llnl/spack
+# Please also see the NOTICE and LICENSE files for our notice and the LGPL.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License (as
+# published by the Free Software Foundation) version 2.1, February 1999.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the IMPLIED WARRANTY OF
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the terms and
+# conditions of the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+##############################################################################
 from spack import *
 import subprocess
 import os
 import platform
-import spack
 
 class Starpu(Package):
     """offers support for heterogeneous multicore architecture"""
     homepage = "http://starpu.gforge.inria.fr/"
 
+    version('1.2.2', '08c11c656c0df646aed243ed26724683',
+            url="http://starpu.gforge.inria.fr/files/starpu-1.2.2/starpu-1.2.2.tar.gz")
     version('1.2.1', '9f04db940cfebb737241c4d4b2adcc92',
             url="http://starpu.gforge.inria.fr/files/starpu-1.2.1/starpu-1.2.1.tar.gz")
     version('1.2.0', '0cc98ac39b9cb4083c6c51399029d33b',

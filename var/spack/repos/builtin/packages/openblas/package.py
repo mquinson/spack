@@ -47,6 +47,7 @@ class Openblas(MakefilePackage):
         description='Build shared libraries as well as static libs.'
     )
     variant('openmp', default=False, description="Enable OpenMP support.")
+    variant('thread', default=False, description="Enable Threading support.")
     variant('pic', default=True, description='Build position independent code')
 
     # virtual dependency
@@ -119,6 +120,11 @@ class Openblas(MakefilePackage):
         # Add support for OpenMP
         if '+openmp' in self.spec:
             make_defs += ['USE_OPENMP=1']
+        # Add support for Thread
+        if '+thread' in self.spec:
+            make_defs += ['USE_THREAD=1']
+        else:
+            make_defs += ['USE_THREAD=0']
 
         return make_defs
 

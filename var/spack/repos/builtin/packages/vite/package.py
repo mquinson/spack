@@ -24,20 +24,36 @@
 ##############################################################################
 from spack import *
 
-class Quark(Package):
-    """Enables the dynamic execution of tasks with data dependencies in a multi-core, multi-socket, shared-memory environment."""
-    homepage = "http://icl.cs.utk.edu/quark/index.html"
-    url      = "http://icl.cs.utk.edu/projectsfiles/quark/pubs/quark-0.9.0.tgz"
+class Vite(CMakePackage):
+    """a tool to visualize execution traces in Paje or OTF format for debugging and profiling parallel or distributed applications."""
+    homepage = "http://vite.gforge.inria.fr/"
+    url      = "https://gforge.inria.fr/frs/download.php/27457/vite_1157.tar.gz"
 
-    version('0.9.0', '52066a24b21c390d2f4fb3b57e976d08',
-            url="http://icl.cs.utk.edu/projectsfiles/quark/pubs/quark-0.9.0.tgz")
+    version('trunk', svn='https://scm.gforge.inria.fr/anonscm/svn/vite/trunk')
 
-    depends_on("hwloc")
+    variant('otf', default=False, description='Enable OTF')
+    variant('qt5', default=False, description='Enable QT5 instead of QT4')
 
-    def install(self, spec, prefix):
-        mf = FileFilter('make.inc')
-        mf.filter('prefix=./install', 'prefix=%s' % prefix)
-        mf.filter('^CFLAGS=.*', 'CFLAGS=-fPIC')
+    depends_on("otf", when='+otf')
+    #depends_on("qt")
+    #depends_on("tau")
 
-        make()
-        make("install")
+    def cmake_args(self):
+        spec = self.spec
+        options = []
+
+        options.extend([
+            '-DBUILD_SHARED_LIBS=ON'
+        ])
+
+        if '+otf' in spec:
+            options.extend([
+                '-DVITE_ENABLE_OTF=ON'
+            ])
+
+        if '+qt5' in spec:
+            options.extend([
+                '-DUSE_QT5=ON'
+            ])
+
+        return options
