@@ -22,6 +22,10 @@ class Maphys(Package):
     version('cg_modif', git=gitroot, branch='feature/cg_modif')
     version('paddle', git=gitroot, branch='feature/paddle')
 
+    version('0.9.6', '75b1587a17c70740e693c4ffe5d115cc',
+            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.6.0.tar.gz', preferred=True)
+    version('0.9.6.0', '75b1587a17c70740e693c4ffe5d115cc',
+            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.6.0.tar.gz')
     version('0.9.5', '53289def2993d9882e724e3a659cd200',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.5.1.tar.gz')
     version('0.9.5.1', '53289def2993d9882e724e3a659cd200',
@@ -29,7 +33,7 @@ class Maphys(Package):
     version('0.9.5.0', '8bc00e6597ef5b780243a794c6f71700',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.5.0.tar.gz')
     version('0.9.4.2', 'db6a508e53be2f8f54dc5a46d1043c05',
-            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.2.tar.gz' , preferred=True)
+            url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.2.tar.gz')
     version('0.9.4.1', 'b735c3fc590239c8f725b46b5e7dd351',
             url='http://morse.gforge.inria.fr/maphys/maphys-0.9.4.1.tar.gz')
     version('0.9.4.0', 'a7d88a78675c97cf98a0c00216b17e43',
