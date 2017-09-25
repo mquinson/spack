@@ -129,7 +129,7 @@ class Chameleon(Package):
                 # Enable StarPU here.
                 starpu = self.spec['starpu']
                 cmake_args.extend(["-DCHAMELEON_SCHED_STARPU=ON"])
-                cmake_args.extend(['-DSTARPU_DIR=%s' % starpu.prefix])
+                #cmake_args.extend(['-DSTARPU_DIR=%s' % starpu.prefix])
             else:
                 cmake_args.extend(["-DCHAMELEON_SCHED_STARPU=OFF"])
 
