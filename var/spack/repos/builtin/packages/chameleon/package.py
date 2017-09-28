@@ -30,7 +30,6 @@ class Chameleon(Package):
     variant('shared', default=True, description='Build chameleon as a shared library')
     variant('mpi', default=True, description='Enable MPI')
     variant('cuda', default=False, description='Enable CUDA')
-    variant('magma', default=False, description='Enable MAGMA kernels')
     variant('fxt', default=True, description='Enable FxT tracing support through StarPU')
     variant('simu', default=False, description='Enable simulation mode through StarPU+SimGrid')
     variant('starpu', default=True, description='Use StarPU runtime')
@@ -52,7 +51,6 @@ class Chameleon(Package):
     depends_on("quark", when='+quark')
     depends_on("mpi", when='+mpi~simu')
     depends_on("cuda", when='+cuda~simu')
-    depends_on("magma@1.6.2", when='+magma+cuda~simu')
     depends_on("fxt", when='+fxt+starpu')
     depends_on("eztrace", when='+eztrace')
 
@@ -100,13 +98,6 @@ class Chameleon(Package):
                 cmake_args.extend(["-DCHAMELEON_USE_CUDA=ON"])
             else:
                 cmake_args.extend(["-DCHAMELEON_USE_CUDA=OFF"])
-            if spec.satisfies('+magma'):
-                # Enable MAGMA here.
-                cmake_args.extend(["-DCHAMELEON_USE_MAGMA=ON"])
-            else:
-                cmake_args.extend(["-DCHAMELEON_USE_MAGMA=OFF"])
-            if spec.satisfies('+magma') and spec.satisfies('~cuda'):
-                raise RuntimeError('variant +magma requires +cuda, please choose variant +cuda to use magma.')
             if spec.satisfies('+fxt'):
                 # Enable FxT here.
                 if spec.satisfies('chameleon@0.9.0:0.9.1'):
