@@ -264,6 +264,14 @@ class Mumps(Package):
             shutil.move('pymumps.py', pypath)
             shutil.copy('Makefile.inc', pypath)
 
+    # to use the existing version available in the environment: MUMPS_DIR environment variable must be set
+    @when('@exist')
+    def install(self, spec, prefix):
+        os.chdir(self.get_env_dir(self.name.upper()+'_DIR'))
+        #os.symlink("bin", prefix.bin)
+        os.symlink("include", prefix.include)
+        os.symlink("lib", prefix.lib)
+
     def setup_dependent_package(self, module, dep_spec):
         """Dependencies of this package will get the link for Mumps."""
         spec = self.spec
