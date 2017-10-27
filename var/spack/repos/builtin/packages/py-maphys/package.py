@@ -13,7 +13,6 @@ class PyMaphys(Package):
     version('master', git=gitlink, branch='master')
 
     depends_on("maphys+shared")
-    depends_on("python")
     depends_on("py-mpi4py")
     depends_on("py-numpy")
     depends_on("py-scipy")
