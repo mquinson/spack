@@ -8,7 +8,7 @@ class QrMumps(Package):
     """a software package for the solution of sparse, linear systems on multicore computers based on the QR factorization of the input matrix."""
     homepage = "http://buttari.perso.enseeiht.fr/qr_mumps/"
 
-    version('trunk', svn='https://wwwsecu.irit.fr/svn/qr_mumps/trunk')
+    version('trunk', svn='https://www.irit.fr/svn/qr_mumps/trunk')
     version('2.0', 'e880670f4dddba16032f43faa03aa903',
             url="http://buttari.perso.enseeiht.fr/qr_mumps/releases/qr_mumps-2.0.tgz")
 

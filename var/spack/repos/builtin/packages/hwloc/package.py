@@ -43,11 +43,14 @@ class Hwloc(Package):
     url      = "http://www.open-mpi.org/software/hwloc/v1.9/downloads/hwloc-1.9.tar.gz"
     list_url = "http://www.open-mpi.org/software/hwloc/"
     list_depth = 3
+    version('1.11.8', '32587cd1c2143a688449eed4727a610d',
+            url='https://www.open-mpi.org/software/hwloc/v1.11/downloads/hwloc-1.11.8.tar.bz2')
+    version('1.11.7', '13d2e4dbce392cda41f1451d386d9a45',
+            url='https://www.open-mpi.org/software/hwloc/v1.11/downloads/hwloc-1.11.7.tar.bz2')
     version('1.11.6', '8dee167e547051c5638142a8671fc7cf',
             url='https://www.open-mpi.org/software/hwloc/v1.11/downloads/hwloc-1.11.6.tar.bz2')
-    # no longer available, I don't know why
-    #version('1.11.5', '96c34136ff416d2b13a7821c27477bed',
-    #        url='https://www.open-mpi.org/software/hwloc/v1.11/downloads/hwloc-1.11.5.tar.bz2')
+    version('1.11.5', '96c34136ff416d2b13a7821c27477bed',
+            url='https://www.open-mpi.org/software/hwloc/v1.11/downloads/hwloc-1.11.5.tar.bz2')
     version('1.11.4', '840520dd09e391ef4b2268ccb9ac73fa',
             url='https://www.open-mpi.org/software/hwloc/v1.11/downloads/hwloc-1.11.4.tar.bz2')
     version('1.11.3', '42d1d6c5c237069813cd28292629fc39',
