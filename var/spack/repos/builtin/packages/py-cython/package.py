@@ -27,15 +27,14 @@ from spack import *
 class PyCython(Package):
     """The Cython compiler for writing C extensions for the Python language."""
     homepage = "https://pypi.python.org/pypi/cython"
-    url      = "https://pypi.python.org/packages/source/C/Cython/Cython-0.22.tar.gz"
 
-    version('0.23.5', '66b62989a67c55af016c916da36e7514')
-    version('0.23.4', '157df1f69bcec6b56fd97e0f2e057f6e')
-    version('0.27.2', '64abe5847736eb413a525b70b48afd7f')
 
-    # These versions contain illegal Python3 code...
-    version('0.22', '1ae25add4ef7b63ee9b4af697300d6b6')
-    version('0.21.2', 'd21adb870c75680dc857cd05d41046a4')
+    version('0.27.2', '64abe5847736eb413a525b70b48afd7f',
+    url='https://pypi.python.org/packages/98/bb/cd2be435e28ee1206151793a528028e3dc9a787fe525049efb73637f52bb/Cython-0.27.2.tar.gz')
+    version('0.23.5', '66b62989a67c55af016c916da36e7514',
+            url='https://pypi.python.org/packages/source/C/Cython/Cython-0.23.5.tar.gz')
+    version('0.23.4', '157df1f69bcec6b56fd97e0f2e057f6e',
+            url='https://pypi.python.org/packages/source/C/Cython/Cython-0.23.4.tar.gz')
 
     extends('python')
 
