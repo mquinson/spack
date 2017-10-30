@@ -54,7 +54,7 @@ class Paddle(Package):
     gitroot = "https://gitlab.inria.fr/solverstack/paddle.git"
     version('master', git=gitroot, branch='master')
     version('develop', git=gitroot, branch='develop')
-    version('0.3', git=gitroot, branch='0.3.1', preferred=True)
+    version('0.3', git=gitroot, branch='0.3.3', preferred=True)
 
 
     pkg_dir = spack.repo.dirname_for_package_name("fake")
